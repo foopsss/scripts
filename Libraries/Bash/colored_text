@@ -1,0 +1,35 @@
+### Archivo de Funciones. ###
+### Acá se almacenan funciones para imprimir texto coloreado y en negritas. ###
+
+YT() {
+	# YT es el acrónimo para Yellow Text.
+	echo -e "\e[1;33m$1\e[0m"
+}
+export -f YT
+
+BT() {
+	# BT es el acrónimo para Bold Text.
+	echo -e "\e[1m$1\e[0m"
+}
+export -f BT
+
+RBT() {
+	# RBT es el acrónimo para Red Bold Text.
+	# Esta función imprime texto blanco, sobre un fondo rojo y en negritas.
+	echo -e "\e[1;41m$1\e[0m"
+}
+export -f RBT
+
+GBT() {
+	# GBT es el acrónimo para Green Bold Text.
+	# Esta función imprime texto blanco, sobre un fondo verde y en negritas.
+	echo -e "\e[1;42m$1\e[0m"
+}
+export -f GBT
+
+BBT() {
+	# BBT es el acrónimo para Blue Bold Text.
+	# Esta función imprime texto blanco, sobre un fondo azul y en negritas.
+	echo -e "\e[1;44m$1\e[0m"
+}
+export -f BBT
