@@ -19,7 +19,7 @@ news_read() {
 	ask_news
 	Línea
 
-	doas eselect news read $news
+	doas eselect news read $news | less
 }
 
 # Menú de selección de opciones.
