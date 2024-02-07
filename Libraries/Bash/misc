@@ -24,11 +24,13 @@ shutdown_system() {
 	echo -n "¿Desea apagar el equipo luego de esta operación? [S/N]: "
 	read answer
 
-	if [ "$answer" = "S" ]
+	if [ "$answer" = "S" ] || [ "$answer" = "s" ]
 	then
+		GBT "El sistema será apagado tras realizar las operaciones pendientes."
 		$1
 		systemctl poweroff -i
 	else
+		RBT "El sistema NO será apagado tras realizar las operaciones pendientes."
 		$1
 		press_enter
 	fi
