@@ -1,5 +1,4 @@
 Import-Module $pwd/CommonResources.psm1
-$zips = "$parent\Zips"
 
 function Show-Menu {
     Write-Host "-----------------------------------------------------------------------------------"
@@ -50,7 +49,7 @@ do
             $minecraft = @{
 				origin = "I:\Minecraft\Instalaciones\Fabric\saves\Lucas3"
 				first_file = "$onedrive_win\Lucas3.zip"
-				second_file = "$zips\Lucas3.zip"
+				second_file = "$zips_win\Lucas3.zip"
 			}
             New-Copy @minecraft
         }
@@ -59,7 +58,7 @@ do
             $codwaw = @{
 				origin = "C:\Users\liben\AppData\Local\Activision\CoDWaW"
 				first_file = "$onedrive_win\Call of Duty World at War.zip"
-				second_file = "$zips\Call of Duty World at War.zip"
+				second_file = "$zips_win\Call of Duty World at War.zip"
 			}
 			New-Copy @codwaw
         }
@@ -68,7 +67,7 @@ do
             $gtasa = @{
 				origin = "C:\Users\$username_win\Documents\GTA San Andreas User Files"
 				first_file = "$onedrive_win\Grand Theft Auto San Andreas.zip"
-				second_file = "$zips\Grand Theft Auto San Andreas.zip"
+				second_file = "$zips_win\Grand Theft Auto San Andreas.zip"
 			}
 			New-Copy @gtasa
         }
@@ -77,7 +76,7 @@ do
 			$twd = @{
 				origin = "C:\Users\$username_win\Documents\Telltale Games"
 				first_file = "$onedrive_win\The Walking Dead Definitive Edition.zip"
-				second_file = "$zips\The Walking Dead Definitive Edition.zip"
+				second_file = "$zips_win\The Walking Dead Definitive Edition.zip"
 			}
 			New-Copy @twd
 		}

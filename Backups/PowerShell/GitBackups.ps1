@@ -46,14 +46,14 @@ $all_repos = $main_only + $other_repos
 
 if (is_windows) {
 	Compress-Archive -LiteralPath $all_repos -DestinationPath "$onedrive_win\GitHub.zip" -Force
-	Copy-Item "$onedrive_win\GitHub.zip" -Destination "$parent\Zips\GitHub.zip" -Force
-	Test-Existence -arch1 "$onedrive_win\GitHub.zip" -arch2 "$parent\Zips\GitHub.zip"
+	Copy-Item "$onedrive_win\GitHub.zip" -Destination "$zips_win\GitHub.zip" -Force
+	Test-Existence -arch1 "$onedrive_win\GitHub.zip" -arch2 "$zips_win\GitHub.zip"
 } else {
 	# La funcion "is_windows" solo devuelve "Unix" si no uso Windows.
 	# Sin embargo, me es suficiente para el uso que le voy a dar en Linux.
 	Compress-Archive -LiteralPath $all_repos -DestinationPath "$onedrive_linux/GitHub.zip" -Force
-	Copy-Item "$onedrive_linux/GitHub.zip" -Destination "$parent/Zips/GitHub.zip" -Force
-	Test-Existence -arch1 "$onedrive_linux/GitHub.zip" -arch2 "$parent/Zips/GitHub.zip"
+	Copy-Item "$onedrive_linux/GitHub.zip" -Destination "$zips_linux/GitHub.zip" -Force
+	Test-Existence -arch1 "$onedrive_linux/GitHub.zip" -arch2 "$zips_linux/GitHub.zip"
 }
 
 Remove-Item -LiteralPath $all_repos
