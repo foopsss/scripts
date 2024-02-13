@@ -1,5 +1,6 @@
+$username_win = "liben"
 $parent = Split-Path -Path $pwd -Parent
-$onedrive_win = "C:\Users\liben\OneDrive\Backups\Zips"
+$onedrive_win = "C:\Users\$username_win\OneDrive\Backups\Zips"
 $onedrive_linux = "/home/lucas/Documentos/OneDrive/Backups/Zips"
 
 function is_windows {
@@ -31,6 +32,7 @@ function Read-Key {
 }
 
 Export-ModuleMember -Variable parent
+Export-ModuleMember -Variable username_win
 Export-ModuleMember -Variable onedrive_win
 Export-ModuleMember -Variable onedrive_linux
 Export-ModuleMember -Function is_windows

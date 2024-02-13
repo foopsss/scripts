@@ -1,19 +1,21 @@
 Import-Module $pwd/CommonResources.psm1
+$zips = "$parent\Zips"
 
 function Show-Menu {
-    Write-Host "----------------------------------------------------------------------------"
+    Write-Host "-----------------------------------------------------------------------------------"
     Write-Host "Bienvenido!" -ForegroundColor Green
-    Write-Host "Por favor, seleccione de que desearia realizar una copia"
-    Write-Host "----------------------------------------------------------------------------"
+    Write-Host "Por favor, seleccione una opcion."
+    Write-Host "-----------------------------------------------------------------------------------"
     Write-Host "Fecha:"
     Get-Date -Format "dd/MM/yyyy"
     Write-Host "Hora:"
     Get-Date -Format "hh:mm"
-    Write-Host "----------------------------------------------------------------------------"
+    Write-Host "-----------------------------------------------------------------------------------"
     Write-Host "1. Hacer copia del mundo de Minecraft."
     Write-Host "2. Hacer copia de los datos de partida de Call of Duty: World at War."
     Write-Host "3. Hacer copia de los datos de partida de Grand Theft Auto: San Andreas."
-    Write-Host "4. SALIR."
+    Write-Host "4. Hacer copia de los datos de partida de The Walking Dead: The Definitive Edition."
+    Write-Host "5. SALIR."
     Write-Host " "
 }
 
@@ -29,14 +31,14 @@ function New-Copy {
 	)
 	
 	Clear-Host
-	Write-Host "Creando archivo zip!" -ForegroundColor Gray
+	Write-Host "Creando archivo!" -ForegroundColor Gray
 	Compress-Archive -Path "$origin" -DestinationPath "$first_file" -Update -CompressionLevel Optimal
 	Copy-Item "$first_file" -Destination "$second_file" -Force
 	Test-Existence -arch1 "$first_file" -arch2 "$second_file"
 }
 
 do
- {
+{
     Show-Menu
     $selection =
     Read-Host "Escriba el numero que corresponda a la opcion que desee y presione ENTER"
@@ -45,22 +47,43 @@ do
     switch ($selection)
     {
         '1' {
-            $minecraft = "I:\Minecraft\Instalaciones\Fabric\saves\Lucas3\"
-            New-Copy -origin "$minecraft" -first_file "$onedrive_win\Lucas3.zip" -second_file "$parent\Zips\Lucas3.zip"
+            $minecraft = @{
+				origin = "I:\Minecraft\Instalaciones\Fabric\saves\Lucas3"
+				first_file = "$onedrive_win\Lucas3.zip"
+				second_file = "$zips\Lucas3.zip"
+			}
+            New-Copy @minecraft
         }
         
         '2' {
-            $codwaw = "C:\Users\Lucas\AppData\Local\Activision\CoDWaW\"
-			New-Copy -origin "$codwaw" -first_file "$onedrive_win\Call of Duty World at War.zip" -second_file "$parent\Zips\Call of Duty World at War.zip"
+            $codwaw = @{
+				origin = "C:\Users\liben\AppData\Local\Activision\CoDWaW"
+				first_file = "$onedrive_win\Call of Duty World at War.zip"
+				second_file = "$zips\Call of Duty World at War.zip"
+			}
+			New-Copy @codwaw
         }
 
         '3' {
-            $gtasa = "C:\Users\Lucas\Documents\GTA San Andreas User Files"
-			New-Copy -origin "$gtasa" -first_file "$onedrive_win\Grand Theft Auto San Andreas.zip" -second_file "$parent\Zips\Grand Theft Auto San Andreas.zip"
+            $gtasa = @{
+				origin = "C:\Users\$username_win\Documents\GTA San Andreas User Files"
+				first_file = "$onedrive_win\Grand Theft Auto San Andreas.zip"
+				second_file = "$zips\Grand Theft Auto San Andreas.zip"
+			}
+			New-Copy @gtasa
         }
+
+		'4' {
+			$twd = @{
+				origin = "C:\Users\$username_win\Documents\Telltale Games"
+				first_file = "$onedrive_win\The Walking Dead Definitive Edition.zip"
+				second_file = "$zips\The Walking Dead Definitive Edition.zip"
+			}
+			New-Copy @twd
+		}
     }
     
     Read-Key
- }
+}
 
-until ($selection -eq '4')
+until ($selection -eq '5')
