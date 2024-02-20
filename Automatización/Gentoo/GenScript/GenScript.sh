@@ -57,6 +57,7 @@ genscript_clean_kernel() {
 	doas rm -r /lib/modules/$version-gentoo-dist
 
 	doas grub-mkconfig -o /boot/grub/grub.cfg
+	doas dracut --force
 }
 
 clean-kernel() {
