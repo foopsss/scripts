@@ -1,6 +1,6 @@
 Import-Module -Name $pwd/CommonResources.psm1
 
-$main_only = @("foopsss", "gentoo-configs", "gentoo-overlay", "natural-gentoo-remastered", "specfiles")
+$main_only = @("algoritmos", "algoritmos-rs", "foopsss", "gentoo-configs", "gentoo-overlay", "natural-gentoo-remastered", "specfiles")
 $other_repos = @("dotfiles", "scripts")
 $branches = @()
 $all_repos = @()

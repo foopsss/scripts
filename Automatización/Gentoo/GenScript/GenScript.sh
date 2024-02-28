@@ -53,7 +53,7 @@ genscript_clean_kernel() {
 	Línea
 
 	cd /boot
-	doas rm config-$version-gentoo-dist initramfs-$version-gentoo-dist.img System.map-$version-gentoo-dist vmlinuz-$version-gentoo-dist
+	doas rm initramfs-$version-gentoo-dist.img kernel-$version-gentoo-dist
 	doas rm -r /lib/modules/$version-gentoo-dist
 
 	doas grub-mkconfig -o /boot/grub/grub.cfg
@@ -97,6 +97,14 @@ clean-thumbnail() {
 		BBT "La carpeta no existe. No se borró ningún elemento."
 	fi
 
+	Línea
+}
+
+install-grub() {
+	Línea
+	doas grub-install --target=x86_64-efi --efi-directory=/boot --removable
+	Línea
+	doas grub-mkconfig -o /boot/grub/grub.cfg
 	Línea
 }
 
@@ -144,11 +152,12 @@ do
 	echo
 	echo "MISCELÁNEA"
 	YT "----------"
-	echo "6. Obtener información sobre banderas USE."
-	echo "7. Consultar los tiempos de instalación de los paquetes."
-	echo "8. Resolución de conflictos por diferencia de archivos."
-	echo "9. Lectura del boletín de noticias de Gentoo."
-	echo "10. SALIR."
+	echo "6. Instalar GRUB."
+	echo "7. Obtener información sobre banderas USE."
+	echo "8. Consultar los tiempos de instalación de los paquetes."
+	echo "9. Resolución de conflictos por diferencia de archivos."
+	echo "10. Lectura del boletín de noticias de Gentoo."
+	echo "11. SALIR."
 	echo
 
 	read_selection
@@ -159,11 +168,12 @@ do
 		3) clear; clean; press_enter;;
 		4) clear; clean-kernel; press_enter;;
 		5) clear; clean-thumbnail; press_enter;;
-		6) clear; use;;
-		7) clear; genlop;;
-		8) clear; diff-files; press_enter;;
-		9) clear; news;;
-		10) clear; exit;;
+		6) clear; install-grub; press_enter;;
+		7) clear; use;;
+		8) clear; genlop;;
+		9) clear; diff-files; press_enter;;
+		10) clear; news;;
+		11) clear; exit;;
 		*) clear; incorrect_selection; press_enter;;
 	esac
 done
