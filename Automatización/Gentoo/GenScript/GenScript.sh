@@ -153,7 +153,7 @@ do
 	echo "MISCELÁNEA"
 	YT "----------"
 	echo "6. Instalar GRUB."
-	echo "7. Obtener información sobre banderas USE."
+	echo "7. Obtener información sobre parámetros USE."
 	echo "8. Consultar los tiempos de instalación de los paquetes."
 	echo "9. Resolución de conflictos por diferencia de archivos."
 	echo "10. Lectura del boletín de noticias de Gentoo."
