@@ -21,7 +21,6 @@ foreach ($repo in $main_only) {
 
 foreach($repo in $other_repos) {
 	# Averiguo el nombre de las ramas disponibles con una solicitud GET.
-	# Utilizo la API de GitHub.
 	$branches = Invoke-RestMethod -Uri "https://api.github.com/repos/foopsss/$repo/branches" -Method GET
 	
 	# Guardo en una variable el nombre de cada rama y la utilizo para descargarlas.
@@ -38,8 +37,7 @@ foreach($repo in $other_repos) {
 }
 
 # Modifico los arreglos de entrada con los repositorios.
-# La idea es añadirles un sufijo, la extension ".zip".
-# Luego comprimo todos los archivos indicados en uno solo.
+# Le añado la extension ".zip" a cada elemento.
 $main_only = $main_only | ForEach-Object {"$_.zip"}
 $other_repos = $other_repos | ForEach-Object {"$_.zip"}
 $all_repos = $main_only + $other_repos
@@ -49,8 +47,6 @@ if (is_windows) {
 	Copy-Item "$onedrive_win\GitHub.zip" -Destination "$zips_win\GitHub.zip" -Force
 	Test-Existence -arch1 "$onedrive_win\GitHub.zip" -arch2 "$zips_win\GitHub.zip"
 } else {
-	# La funcion "is_windows" solo devuelve "Unix" si no uso Windows.
-	# Sin embargo, me es suficiente para el uso que le voy a dar en Linux.
 	Compress-Archive -LiteralPath $all_repos -DestinationPath "$onedrive_linux/GitHub.zip" -Force
 	Copy-Item "$onedrive_linux/GitHub.zip" -Destination "$zips_linux/GitHub.zip" -Force
 	Test-Existence -arch1 "$onedrive_linux/GitHub.zip" -arch2 "$zips_linux/GitHub.zip"
