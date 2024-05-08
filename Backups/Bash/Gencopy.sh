@@ -5,7 +5,7 @@ PORTAGEOUT=$HOME/Documentos/GitHub/gentoo-configs/etc/portage
 DIRENV=$HOME/Documentos/GitHub/gentoo-configs/etc
 DIRVAR=$HOME/Documentos/GitHub/gentoo-configs/var/lib/portage
 
-folders=("binrepos.conf" "env" "package.accept_keywords" "package.env" "package.mask" "package.unmask" "package.use" "postsync.d" "repo.postsync.d" "savedconfig")
+folders=("binrepos.conf" "env" "package.accept_keywords" "package.mask" "package.unmask" "package.use" "postsync.d" "repo.postsync.d" "savedconfig")
 files=("environment" "eselect-repo.conf" "make.conf" "world")
 
 create_folders() {
