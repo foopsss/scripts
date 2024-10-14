@@ -4,7 +4,7 @@ DIRIN=$HOME/.config
 DIROUT=$HOME/Documentos/GitHub/dotfiles
 SHELLOUT=bash
 
-configs=("alacritty" "sway" "waybar" "wofi" "swaync" "gtk-4.0" "gtk-3.0" "hypr" "powershell")
+configs=("alacritty" "sway" "waybar" "wofi" "swaync" "hypr" "powershell")
 shconfigs=(".bashrc" ".bash_aliases")
 
 ConfigCheck() {
