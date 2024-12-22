@@ -26,37 +26,22 @@ repo-sync() {
 	doas emerge -vqfuDN --ask=n --with-bdeps=y @world
 }
 
-update() {
+update-exclude() {
+	exclude_pkg="llvm-core/llvm net-libs/webkit-gtk"
+	
 	Línea
-	doas emerge --ask --verbose --quiet --update --deep --newuse --keep-going --read-news=y --exclude=net-libs/webkit-gtk @world
+	doas emerge --ask --verbose --quiet --update --deep --newuse --keep-going --exclude="$exclude_pkg" @world
 
 	Línea
 	doas eclean-dist -d && doas eclean-pkg -d
 }
 
-update-build-deps() {
+update-binpkg() {
 	Línea
-	doas emerge --ask --verbose --quiet --update --deep --newuse --keep-going --with-bdeps=y --read-news=y --exclude=net-libs/webkit-gtk @world
+	doas emerge --ask --verbose --quiet --update --deep --changed-use --keep-going --getbinpkg @world
 
 	Línea
 	doas eclean-dist -d && doas eclean-pkg -d
-}
-
-buildpackage() {
-	Línea
-	echo "¿Qué paquete le gustaría actualizar?"
-	echo "1. webkit-gtk"
-	echo "2. gcc"
-	Línea
-
-	read_selection
-	Línea
-
-	case $selection in
-		1) doas emerge --ask --verbose --quiet --getbinpkg --buildpkg net-libs/webkit-gtk; doas eclean-dist -d && doas eclean-pkg -d;;
-		2) doas emerge --ask --verbose --quiet --buildpkg sys-devel/gcc; doas eclean-dist -d && doas eclean-pkg -d;;
-		*) clear; incorrect_selection; press_enter;;
-	esac
 }
 
 flatpak-update() {
@@ -95,29 +80,27 @@ do
 	echo
 	echo "PAQUETES/SISTEMA"
 	YT "----------------"
-	echo "2. Actualizar el sistema."
-	echo "3. Actualizar el sistema considerando las dependencias de compilación (--with-bdeps)."
-	echo "4. Actualizar paquetes grandes."
-	echo "5. Actualizar aplicaciones de Flatpak."
-	echo "6. Actualizar el firmware del dispositivo."
+	echo "2. Actualizar el sistema (ignorar paquetes grandes)."
+	echo "3. Actualizar paquetes pesados (binarios de Gentoo)."
+	echo "4. Actualizar aplicaciones de Flatpak."
+	echo "5. Actualizar el firmware del dispositivo."
 	echo
 	echo "MISCELÁNEA"
 	YT "----------"
-	echo "7. Pretender que se va a realizar una actualización."
-	echo "8. SALIR."
+	echo "6. Pretender que se va a realizar una actualización."
+	echo "7. SALIR."
 	echo
 
 	read_selection
 
 	case $selection in
 		1) clear; repo-sync; press_enter;;
-		2) clear; shutdown_system update;;
-		3) clear; shutdown_system update-build-deps;;
-		4) clear; shutdown_system buildpackage;;
-		5) clear; shutdown_system flatpak-update;;
-		6) clear; shutdown_system firmware-update;;
-		7) clear; pretend-update; press_enter;;
-		8) clear; exit;;
+		2) clear; shutdown_system update-exclude;;
+		3) clear; shutdown_system update-binpkg;;
+		4) clear; shutdown_system flatpak-update;;
+		5) clear; shutdown_system firmware-update;;
+		6) clear; pretend-update; press_enter;;
+		7) clear; exit;;
 		*) clear; incorrect_selection; press_enter;;
 	esac
 done
