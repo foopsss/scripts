@@ -30,7 +30,7 @@ update-exclude() {
 	exclude_pkg="llvm-core/llvm net-libs/webkit-gtk"
 	
 	Línea
-	doas emerge --ask --verbose --quiet --update --deep --newuse --keep-going --exclude="$exclude_pkg" @world
+	doas emerge --verbose --update --deep --newuse --tree --unordered-display --exclude="$exclude_pkg" @world
 
 	Línea
 	doas eclean-dist -d && doas eclean-pkg -d
@@ -38,7 +38,7 @@ update-exclude() {
 
 update-binpkg() {
 	Línea
-	doas emerge --ask --verbose --quiet --update --deep --changed-use --keep-going --getbinpkg @world
+	doas emerge --verbose --update --deep --changed-use --getbinpkg --tree --unordered-display @world
 
 	Línea
 	doas eclean-dist -d && doas eclean-pkg -d
