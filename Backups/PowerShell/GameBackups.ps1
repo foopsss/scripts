@@ -33,7 +33,7 @@ function New-Copy {
 	Write-Host "Creando archivo!" -ForegroundColor Gray
 	Compress-Archive -Path "$origin" -DestinationPath "$first_file" -Update -CompressionLevel Optimal
 	Copy-Item "$first_file" -Destination "$second_file" -Force
-	Test-Existence -arch1 "$first_file" -arch2 "$second_file"
+	Test-DoubleExistence -arch1 "$first_file" -arch2 "$second_file"
 }
 
 do

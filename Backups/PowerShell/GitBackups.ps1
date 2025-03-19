@@ -39,15 +39,13 @@ $repos = $repos | ForEach-Object {"$_.zip"}
 if (is_windows) {
 	Compress-Archive -LiteralPath $repos -DestinationPath "$onedrive_win\GitHub.zip" -Force
 	Copy-Item "$onedrive_win\GitHub.zip" -Destination "$zips_win\GitHub.zip" -Force
-	Test-Existence -arch1 "$onedrive_win\GitHub.zip" -arch2 "$zips_win\GitHub.zip"
+	Test-DoubleExistence -arch1 "$onedrive_win\GitHub.zip" -arch2 "$zips_win\GitHub.zip"
 } else {
 	# La funcion "is_windows" solo devuelve "Unix" si no uso Windows.
 	# Sin embargo, me es suficiente para el uso que le voy a dar en Linux.
-	Compress-Archive -LiteralPath $repos -DestinationPath "$onedrive_linux/GitHub.zip" -Force
-	Copy-Item "$onedrive_linux/GitHub.zip" -Destination "$zips_linux/GitHub.zip" -Force
-	Test-Existence -arch1 "$onedrive_linux/GitHub.zip" -arch2 "$zips_linux/GitHub.zip"
+	Compress-Archive -LiteralPath $repos -DestinationPath "$zips_linux/GitHub.zip" -Force
+	Test-SingleExistence -arch "$zips_linux/GitHub.zip"
 }
 
 Remove-Item -LiteralPath $repos
-
 Read-Key

@@ -2,7 +2,7 @@ $parent = Split-Path -Path $pwd -Parent
 $username_win = "liben"
 $onedrive_win = "C:\Users\$username_win\OneDrive\Backups\Zips"
 $zips_win = "$parent\Zips"
-$onedrive_linux = "/home/lucas/Documentos/OneDrive/Backups/Zips"
+$onedrive_linux = "$HOME/Documentos/OneDrive/Backups/Zips"
 $zips_linux = "$parent/Zips"
 
 function is_windows {
@@ -11,7 +11,13 @@ function is_windows {
 	}
 }
 
-function Test-Existence {
+function Read-Key {
+	Write-Host "Presione una tecla para continuar." -ForegroundColor Yellow
+	[void][System.Console]::ReadKey($FALSE)
+	Clear-Host
+}
+
+function Test-DoubleExistence {
 	param
 	(
 		[Parameter(Mandatory=$true, Position=0)]
@@ -27,10 +33,18 @@ function Test-Existence {
 	}
 }
 
-function Read-Key {
-	Write-Host "Presione una tecla para continuar." -ForegroundColor Yellow
-	[void][System.Console]::ReadKey($FALSE)
-	Clear-Host
+function Test-SingleExistence {
+	param
+	(
+		[Parameter(Mandatory=$true)]
+		[string] $arch
+	)
+
+	if (Test-Path -Path $arch -PathType Leaf) {
+		Write-Host "Operacion completada exitosamente." -ForegroundColor Green
+	} else {
+		Write-Error "La operacion no se pudo completar. Intente de nuevo."
+	}
 }
 
 Export-ModuleMember -Variable parent
@@ -40,5 +54,6 @@ Export-ModuleMember -Variable zips_win
 Export-ModuleMember -Variable onedrive_linux
 Export-ModuleMember -Variable zips_linux
 Export-ModuleMember -Function is_windows
-Export-ModuleMember -Function Test-Existence
+Export-ModuleMember -Function Test-DoubleExistence
+Export-ModuleMember -Function Test-SingleExistence
 Export-ModuleMember -Function Read-Key
