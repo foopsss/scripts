@@ -19,8 +19,8 @@ Línea
 echo "GENCOPY"
 YT "-------"
 bash Gencopy.sh
-Línea
-echo "NATGENCOPY"
-YT "----------"
-bash Natgencopy.sh
-Línea
+# Línea
+# echo "NATGENCOPY"
+# YT "----------"
+# bash Natgencopy.sh
+# Línea
