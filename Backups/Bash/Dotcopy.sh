@@ -2,10 +2,10 @@
 
 DIRIN=$HOME/.config
 DIROUT=$HOME/Documentos/GitHub/dotfiles
-SHELLOUT=bash
+HOMEOUT=home
 
 configs=("alacritty" "sway" "waybar" "wofi" "swaync" "hypr" "powershell")
-shconfigs=(".bashrc" ".bash_aliases")
+homeconfigs=(".bashrc" ".bash_custom" ".nanorc")
 
 ConfigCheck() {
     if [ -e $DIRIN/$1 ]
@@ -18,12 +18,12 @@ ConfigCheck() {
     fi
 }
 
-ShellCheck() {
-    if [ ! -e $DIROUT/$SHELLOUT ]
+HomeCheck() {
+    if [ ! -e $DIROUT/$HOMEOUT ]
     then
-        mkdir -p $DIROUT/$SHELLOUT
+        mkdir -p $DIROUT/$HOMEOUT
     fi
-    cp $HOME/$1 $DIROUT/$SHELLOUT/$1
+    cp $HOME/$1 $DIROUT/$HOMEOUT/$1
 }
 
 echo -n "Su directorio de entrada es: "
@@ -36,7 +36,7 @@ do
     ConfigCheck $config
 done
 
-for shconfig in ${shconfigs[@]}
+for homeconfig in ${homeconfigs[@]}
 do
-    ShellCheck $shconfig
+    HomeCheck $homeconfig
 done
