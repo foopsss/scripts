@@ -1,13 +1,9 @@
 #!bin/bash
 
 # Cargo los scripts secundarios requeridos.
-bashlibs=$HOME/Documentos/GitHub/scripts/Libraries/Bash
-
-if [ -d $bashlibs ]; then
-	. $bashlibs/colored_text
-	. $bashlibs/user_input
-	. $bashlibs/misc
-fi
+. colored_text
+. user_input
+. misc
 
 # Funciones locales.
 add_overlay() {

@@ -1,7 +1,9 @@
 #!bin/bash
 
 # Cargo los scripts secundarios requeridos.
-bashlibs=$HOME/Documentos/GitHub/scripts/Libraries/Bash
+. colored_text
+. user_input
+. misc
 
 if [ -d $bashlibs ]; then
 	. $bashlibs/colored_text

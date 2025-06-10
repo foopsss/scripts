@@ -21,26 +21,20 @@
 # https://wiki.gentoo.org/wiki/Genlop
 # https://wiki.gentoo.org/wiki/Flatpak
 
+cd $HOME/Documentos/GitHub/scripts/bash
+
 # Cargo los scripts secundarios requeridos.
-bashlibs=$HOME/Documentos/GitHub/scripts/Libraries/Bash
-
-if [ -d $bashlibs ]; then
-	. $bashlibs/colored_text
-	. $bashlibs/user_input
-	. $bashlibs/misc
-fi
-
-# Ubicación de los scripts auxiliares.
-# Los guardo en una variable para poder abrir los scripts utilizando la ruta completa.
-ScriptsLocation=$HOME/Documentos/GitHub/scripts/Automatización/Gentoo/GenScript
+. colored_text
+. misc
+. user_input
 
 # Funciones locales.
 updates() {
-	bash $ScriptsLocation/UpdatesGentoo.sh
+	bash UpdatesGentoo.sh
 }
 
 packages() {
-	bash $ScriptsLocation/PackagesGentoo.sh
+	bash PackagesGentoo.sh
 }
 
 clean() {
@@ -109,11 +103,11 @@ install-grub() {
 }
 
 use() {
-	bash $ScriptsLocation/EuseGentoo.sh
+	bash EuseGentoo.sh
 }
 
 genlop() {
-	bash $ScriptsLocation/GenlopGentoo.sh
+	bash GenlopGentoo.sh
 }
 
 diff-files() {
@@ -121,7 +115,7 @@ diff-files() {
 }
 
 news() {
-	bash $ScriptsLocation/NewsGentoo.sh
+	bash NewsGentoo.sh
 }
 
 # Defino el menú de selección de opciones.

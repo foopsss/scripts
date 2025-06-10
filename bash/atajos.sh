@@ -10,7 +10,7 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
 
 # Defino el primer atajo.
 $BEGINNING/custom0/ name "Gestión del Sistema"
-$BEGINNING/custom0/ command "gnome-terminal --command="bash /home/lucas/Documentos/GitHub/scripts/Automatización/Gentoo/GenScript/GenScript.sh" --maximize"
+$BEGINNING/custom0/ command "gnome-terminal --command="bash /home/lucas/Documentos/GitHub/scripts/bash/GenScript.sh" --maximize"
 $BEGINNING/custom0/ binding "<Control><Alt>Return"
 
 # Defino el segundo atajo.
