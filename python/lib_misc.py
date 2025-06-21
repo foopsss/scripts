@@ -58,22 +58,14 @@ def pipe_programs(proc1, proc2):
     # a ejecutar.
     try:
         proc1_out = subprocess.Popen(proc1, stdout=subprocess.PIPE)
-
-        try:
-            proc2_out = subprocess.Popen(proc2, stdin=proc1_out.stdout,
-                                         stdout=subprocess.PIPE, text=True)
-            proc1_out.stdout.close()
-            return proc2_out.communicate()[0]
-        # Manejo de errores de la segunda función llamada.
-        except OSError as os_error_two:
-            # Manejo de errores relacionados con el SO como "archivo
-            # no encontrado", "permiso denegado", etc.
-            bg_colour("red", "Error del SO durante la ejecución del segundo programa.")
-            print(f"{os_error_two}")
-            return None
-    # Manejo de errores de la primera función llamada.
+        proc2_out = subprocess.Popen(proc2, stdin=proc1_out.stdout,
+                                     stdout=subprocess.PIPE, text=True)
+        proc1_out.stdout.close()
+        return proc2_out.communicate()[0]
     except OSError as os_error_one:
-        bg_colour("red", "Error del SO durante la ejecución del primer programa.")
+        # Manejo de errores relacionados con el SO como "archivo
+        # no encontrado", "permiso denegado", etc.
+        bg_colour("red", "Error del SO durante la ejecución de un programa.")
         print(f"{os_error_one}")
         return None
 
