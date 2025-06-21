@@ -5,16 +5,14 @@
 # app-admin/eclean-kernel - provee "eclean-kernel".
 # sys-boot/grub - provee "grub-install" y "grub-mkconfig".
 # sys-apps/portage - provee "dispatch-conf".
+# app-admin/eselect - provee "eselect" y sus módulos.
 
-# TODO: añadir CLI flags para abrir partes específicas del script por consola.
-# TODO: añadir algún chequeo en get_choice para lidiar de manera limpia cuando
-#       alguien presiona ENTER.
 # TODO: añadir algún chequeo para cuando se sale forzosamente con CTRL + C.
 
 import os
 import shutil
 
-from lib_misc import press_enter, run_with_pkexec
+from lib_misc import pipe_programs, press_enter, run_program, run_with_pkexec
 from lib_io import bg_colour, clear_screen, draw_line, get_choice
 
 def draw_menu():
@@ -53,9 +51,45 @@ def clean_thumbnails():
             shutil.rmtree(thumbdir)
             bg_colour("green", "La carpeta fue borrada exitosamente.")
         except OSError as error:
-            bg_colour("red", f"La operación ha fallado. Error: {error}")
+            bg_colour("red", f"La operación ha fallado.")
+            print(f"{error}")
     else:
         bg_colour("blue", "¡La carpeta no existe! No se ha borrado nada.")
+
+def read_news():
+    # Obtención del número de noticias disponibles para
+    # leer. Acá se simula el pipeline de una consola con
+    # pipe_programs y se obtiene el número total de entradas
+    # entradas de noticias disponibles para leer revisando
+    # los contenidos de la carpeta "/var/lib/gentoo/news".
+    read_news = pipe_programs(
+                    ["cat", "/var/lib/gentoo/news/news-gentoo.read"],
+                    ["wc", "-l"]
+                )
+    unread_news = pipe_programs(
+                    ["cat", "/var/lib/gentoo/news/news-gentoo.unread"],
+                    ["wc", "-l"]
+                )
+
+    # Si por algún motivo falla alguno de los dos pipes,
+    # entonces no se puede proceder. Eso se considera acá.
+    if (read_news is not None) and (unread_news is not None):
+        news_count = int(read_news) + int(unread_news)
+
+        # Presentación del menú de noticias disponibles
+        # para leer. Debido a que "eselect news list"
+        # devuelve 1 como código de salida aún si se lo
+        # ejecutó exitosamente, debo desactivar el control
+        # de errores para este programa.
+        clear_screen()
+        run_program(["eselect", "news", "list"], False, False)
+        print("")
+
+        # Lectura del boletín de noticias deseado.
+        # Se utiliza el intérprete de consola del sistema
+        # para poder pasar la entrada de noticias por less.
+        entry = get_choice(1, news_count)
+        run_program([f"eselect news read {entry} | less"], True, True)
 
 def main():
     while True:
@@ -82,15 +116,14 @@ def main():
             case 7: print("HOLA7")
             case 8: print("HOLA8")
             case 9: run_with_pkexec(["dispatch-conf"])
-            case 10: print("HOLA10")
+            case 10: read_news()
             case 11: exit(0)
 
-        # Si utilizo alguna de las opciones mencionadas
-        # anteriormente, detengo el script hasta que el
-        # usuario presione ENTER para poder leer cualquier
-        # posible aviso emitido por los programas ejecutados.
-        if (choice >= 3 and choice <= 6) or choice == 9:
-            draw_line(59)
+        # Detengo el script hasta que el usuario presione
+        # ENTER para poder leer la información emitida por
+        # pantalla al utilizar ciertas opciones.
+        if (choice >= 3 and choice <= 6) or (choice >= 8 and choice <= 10):
+            press_enter()
 
 if __name__ == "__main__":
     main()
