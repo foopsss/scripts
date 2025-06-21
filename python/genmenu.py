@@ -4,6 +4,7 @@
 # app-portage/gentoolkit - provee "eclean".
 # app-admin/eclean-kernel - provee "eclean-kernel".
 # sys-boot/grub - provee "grub-install" y "grub-mkconfig".
+# app-portage/genlop - provee "genlop".
 # sys-apps/portage - provee "dispatch-conf".
 # app-admin/eselect - provee "eselect" y sus módulos.
 
@@ -35,11 +36,11 @@ def draw_menu():
     print("")
     print("MISCELÁNEA")
     draw_line(10)
-    print("6. Instalar GRUB.")
-    print("7. Información sobre parámetros USE.")
-    print("8. Tiempos de instalación de los paquetes.")
+    print("6. Instalación de GRUB.")
+    print("7. Obtención de información sobre parámetros USE.")
+    print("8. Obtención del tiempo de instalación de un paquete.")
     print("9. Resolución de conflictos por diferencia de archivos.")
-    print("10. Boletín de noticias de Gentoo.")
+    print("10. Lectura del boletín de noticias de Gentoo.")
     print("11. SALIR.")
     print("")
 
@@ -91,6 +92,30 @@ def read_news():
         entry = get_choice(1, news_count)
         run_program([f"eselect news read {entry} | less"], True, True)
 
+def get_install_times():
+    while True:
+        clear_screen()
+        draw_line(59, "=")
+        print("Apartado para ver tiempos de instalación de paquetes")
+        draw_line(59, "=")
+        print("1. Obtener el tiempo de instalación pasado de un paquete.")
+        print("2. Obtener el tiempo de instalación estimado de un paquete.")
+        print("3. SALIR.")
+        print("")
+        choice = get_choice(1, 3)
+
+        if (choice < 3):
+            pkg = input("Ingrese el nombre de un paquete: ")
+            print("")
+
+        match choice:
+            case 1: run_program(["genlop", "-t", f"{pkg}"])
+            case 2: print(pipe_programs(["emerge", "-p", f"{pkg}"],
+                                        ["genlop", "-p"]))
+            case 3: break
+
+        press_enter()
+
 def main():
     while True:
         clear_screen()
@@ -114,7 +139,7 @@ def main():
                                     grub-mkconfig -o /boot/grub/grub.cfg"],
                                     True)
             case 7: print("HOLA7")
-            case 8: print("HOLA8")
+            case 8: get_install_times()
             case 9: run_with_pkexec(["dispatch-conf"])
             case 10: read_news()
             case 11: exit(0)
@@ -122,7 +147,7 @@ def main():
         # Detengo el script hasta que el usuario presione
         # ENTER para poder leer la información emitida por
         # pantalla al utilizar ciertas opciones.
-        if (choice >= 3 and choice <= 6) or (choice >= 8 and choice <= 10):
+        if (choice >= 3 and choice <= 6) or (choice >= 9 and choice <= 10):
             press_enter()
 
 if __name__ == "__main__":
