@@ -21,9 +21,9 @@ def run_program(command, check_return=True, use_shell=False):
                 subprocess.run(command, check=True, shell=True)
             else:
                 subprocess.run(command, check=True)
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as error:
             bg_colour("red", "Error de ejecución del programa.")
-            bg_colour("red", f"Código de salida: {e.returncode}")
+            bg_colour("red", f"Código de salida: {error.returncode}")
     else:
         if use_shell:
             raise ValueError("No se puede usar check=False con shell=True.")
@@ -44,9 +44,9 @@ def run_with_pkexec(command, mult_op=False):
 
     try:
         subprocess.run(pkexec_var + command, check=True)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as error:
         bg_colour("red", "Error de ejecución del programa.")
-        bg_colour("red", f"Código de salida: {e.returncode}")
+        bg_colour("red", f"Código de salida: {error.returncode}")
 
 def pipe_programs(proc1, proc2):
     # pipe_programs es un wrapper de subprocess.Popen
@@ -65,16 +65,16 @@ def pipe_programs(proc1, proc2):
             proc1_out.stdout.close()
             return proc2_out.communicate()[0]
         # Manejo de errores de la segunda función llamada.
-        except OSError as os_err_two:
+        except OSError as os_error_two:
             # Manejo de errores relacionados con el SO como "archivo
             # no encontrado", "permiso denegado", etc.
             bg_colour("red", "Error del SO durante la ejecución del segundo programa.")
-            print(f"{os_err_two}")
+            print(f"{os_error_two}")
             return None
     # Manejo de errores de la primera función llamada.
-    except OSError as os_err_one:
+    except OSError as os_error_one:
         bg_colour("red", "Error del SO durante la ejecución del primer programa.")
-        print(f"{os_err_one}")
+        print(f"{os_error_one}")
         return None
 
 def press_enter():
