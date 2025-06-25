@@ -52,7 +52,7 @@ def clean_thumbnails():
             shutil.rmtree(thumbdir)
             bg_colour("green", "La carpeta fue borrada exitosamente.")
         except OSError as error:
-            bg_colour("red", f"La operación ha fallado.")
+            bg_colour("red", "La operación ha fallado.")
             print(f"{error}")
     else:
         bg_colour("blue", "¡La carpeta no existe! No se ha borrado nada.")
@@ -110,8 +110,22 @@ def get_install_times():
 
         match choice:
             case 1: run_program(["genlop", "-t", f"{pkg}"])
-            case 2: print(pipe_programs(["emerge", "-p", f"{pkg}"],
-                                        ["genlop", "-p"]))
+            case 2:
+                # Para esta opción, la idea es no utilizar un pipe
+                # con un intérprete de consola, por lo que solo puedo
+                # recibir la salida de la operación cuando se termina
+                # de ejecutar. Proceso dicha salida para obtener el
+                # string que me interesa de ella.
+                genlop_output = pipe_programs(["emerge", "-p", f"{pkg}"],
+                                              ["genlop", "-p"])
+                index = genlop_output.find("Estimated")
+
+                # Para especificar la cota superior de la longitud del
+                # trozo de la salida a mostrar por pantalla, utilizo
+                # "len(genlop_out) - 1" porque la salida original incluye
+                # un salto de línea al final que no me interesa mostrar.
+                extracted_string = genlop_output[index:len(genlop_output) - 1]
+                print(f"{extracted_string}")
             case 3: break
 
         press_enter()

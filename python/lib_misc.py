@@ -62,11 +62,11 @@ def pipe_programs(proc1, proc2):
                                      stdout=subprocess.PIPE, text=True)
         proc1_out.stdout.close()
         return proc2_out.communicate()[0]
-    except OSError as os_error_one:
+    except OSError as error:
         # Manejo de errores relacionados con el SO como "archivo
         # no encontrado", "permiso denegado", etc.
         bg_colour("red", "Error del SO durante la ejecución de un programa.")
-        print(f"{os_error_one}")
+        print(f"{error}")
         return None
 
 def press_enter():
