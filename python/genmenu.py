@@ -8,10 +8,9 @@
 # sys-apps/portage - provee "dispatch-conf".
 # app-admin/eselect - provee "eselect" y sus módulos.
 
-# TODO: añadir algún chequeo para cuando se sale forzosamente con CTRL + C.
-
 import os
 import shutil
+import sys
 
 from lib_misc import pipe_programs, press_enter, run_program, run_with_pkexec
 from lib_io import bg_colour, clear_screen, draw_line, get_choice
@@ -156,7 +155,7 @@ def main():
             case 8: get_install_times()
             case 9: run_with_pkexec(["dispatch-conf"])
             case 10: read_news()
-            case 11: exit(0)
+            case 11: sys.exit(0)
 
         # Detengo el script hasta que el usuario presione
         # ENTER para poder leer la información emitida por
@@ -165,4 +164,8 @@ def main():
             press_enter()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        bg_colour("red", "\nEjecución del programa interrupida. ¡Saliendo!")
+        sys.exit(1)
