@@ -14,11 +14,13 @@ import sys
 
 from lib_misc import pipe_programs, press_enter, run_program, run_with_pkexec
 from lib_io import bg_colour, clear_screen, draw_line, get_choice
+from genmenu_ext import upd_menu
 
 def draw_menu():
     draw_line(59, "=")
     print("¡Bienvenido a la herramienta de administración del sistema!")
     draw_line(59, "=")
+    print("")
     print("ACTUALIZACIONES")
     draw_line(15)
     print("1. Menú de opciones de actualización.")
@@ -127,6 +129,9 @@ def get_install_times():
                 print(f"{extracted_string}")
             case 3: break
 
+        # Esta llamada a press_enter() pausa la ejecución en
+        # cualquier caso, a excepción de cuando se elige salir
+        # del menú.
         press_enter()
 
 def main():
@@ -142,7 +147,7 @@ def main():
             draw_line(59)
 
         match choice:
-            case 1: print("HOLA")
+            case 1: upd_menu()
             case 2: print("HOLA2")
             case 3: run_with_pkexec(["eclean-dist -d && eclean-pkg -d"], True)
             case 4: run_with_pkexec(["eclean-kernel", "-A", "-d", "-n 2"])
