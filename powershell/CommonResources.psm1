@@ -1,11 +1,8 @@
 $parent = Split-Path -Path $pwd -Parent
-$username_win = "liben"
-$onedrive_win = "C:\Users\$username_win\OneDrive\Backups\Zips"
-$zips_win = "$parent\Zips"
-$onedrive_linux = "$HOME/Documentos/OneDrive/Backups/Zips"
-$zips_linux = "$parent/Zips"
+$onedrive_win = "C:\Users\$([Environment]::UserName)\OneDrive\Backups\Zips"
+$zips = Join-Path -Path $parent -ChildPath 'Zips'
 
-function is_windows {
+function Test-WindowsOS {
 	if ([System.Environment]::OSVersion.Platform -eq 'Win32NT') {
 		return $true
 	}
@@ -48,12 +45,9 @@ function Test-SingleExistence {
 }
 
 Export-ModuleMember -Variable parent
-Export-ModuleMember -Variable username_win
 Export-ModuleMember -Variable onedrive_win
-Export-ModuleMember -Variable zips_win
-Export-ModuleMember -Variable onedrive_linux
-Export-ModuleMember -Variable zips_linux
-Export-ModuleMember -Function is_windows
+Export-ModuleMember -Variable zips
+Export-ModuleMember -Function Test-WindowsOS
 Export-ModuleMember -Function Test-DoubleExistence
 Export-ModuleMember -Function Test-SingleExistence
 Export-ModuleMember -Function Read-Key
