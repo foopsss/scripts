@@ -49,6 +49,7 @@ if (Test-WindowsOS) {
 	# Este código está comentado por ahora porque no puedo probarlo.
 	# Copy-Item $ruta_pendrive -Destination "$onedrive_linux/GitHub.zip" -Force
 	# Test-DoubleExistence -arch1 $ruta_pendrive -arch2 "$onedrive_linux/GitHub.zip"
+	Test-SingleExistence -arch $ruta_pendrive
 }
 
 # Limpio los archivos residuales innecesarios y salgo.
