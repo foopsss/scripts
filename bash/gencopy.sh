@@ -5,8 +5,8 @@ PORTAGEOUT=$HOME/Documentos/GitHub/gentoo-configs/etc/portage
 DIRENV=$HOME/Documentos/GitHub/gentoo-configs/etc
 DIRVAR=$HOME/Documentos/GitHub/gentoo-configs/var/lib/portage
 
-folders=("binrepos.conf" "env" "package.accept_keywords" "package.mask" "package.use" "postsync.d" "repo.postsync.d" "savedconfig")
-files=("environment" "eselect-repo.conf" "make.conf" "world")
+folders=("binrepos.conf" "env" "package.accept_keywords" "package.mask" "package.use" "savedconfig")
+files=("eselect-repo.conf" "make.conf" "world")
 
 create_folders() {
 	if [ ! -e $PORTAGEOUT  ]
@@ -43,7 +43,6 @@ for file in ${files[@]}
 do
 	case $file in
 		eselect-repo.conf) cp $DIRIN/repos.conf/$file $PORTAGEOUT/repos.conf/$file;;
-		environment) cp /etc/environment $DIRENV/environment;;
 		world) cp /var/lib/portage/world $DIRVAR/world;;
 		*) cp $DIRIN/$file $PORTAGEOUT/$file;;
 	esac
