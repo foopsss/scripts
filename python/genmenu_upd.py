@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# TODO: investigar como funciona glsa-check para ponerlo acá.
+
 from lib_io import bg_colour, clear_screen, draw_line, get_choice
 from lib_misc import press_enter
 
