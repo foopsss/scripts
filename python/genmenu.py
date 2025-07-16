@@ -3,7 +3,6 @@
 # Paquetes usados en este script:
 # app-portage/gentoolkit - provee "eclean".
 # app-admin/eclean-kernel - provee "eclean-kernel".
-# sys-boot/grub - provee "grub-install" y "grub-mkconfig".
 # app-portage/genlop - provee "genlop".
 # sys-apps/portage - provee "dispatch-conf".
 # app-admin/eselect - provee "eselect" y sus módulos.
@@ -14,7 +13,7 @@ import sys
 
 from lib_misc import pipe_programs, press_enter, run_program, run_with_pkexec
 from lib_io import bg_colour, clear_screen, draw_line, get_choice
-from genmenu_ext import upd_menu
+from genmenu_upd import upd_menu
 
 def draw_menu():
     draw_line(59, "=")
@@ -37,12 +36,11 @@ def draw_menu():
     print("")
     print("MISCELÁNEA")
     draw_line(10)
-    print("6. Instalación de GRUB.")
-    print("7. Obtención de información sobre parámetros USE.")
-    print("8. Obtención del tiempo de instalación de un paquete.")
-    print("9. Resolución de conflictos por diferencia de archivos.")
-    print("10. Lectura del boletín de noticias de Gentoo.")
-    print("11. SALIR.")
+    print("6. Obtención de información sobre parámetros USE.")
+    print("7. Obtención del tiempo de instalación de un paquete.")
+    print("8. Resolución de conflictos por diferencia de archivos.")
+    print("9. Lectura del boletín de noticias de Gentoo.")
+    print("10. SALIR.")
     print("")
 
 def clean_thumbnails():
@@ -138,12 +136,12 @@ def main():
     while True:
         clear_screen()
         draw_menu()
-        choice = get_choice(1, 11)
+        choice = get_choice(1, 10)
 
         # Por motivos estéticos, si utilizo alguna de las
         # opciones que se ejecutan justo debajo del menú,
         # imprimo un separador.
-        if (choice >= 3 and choice <= 6) or choice == 9:
+        if (choice >= 3 and choice <= 6) or choice == 8:
             draw_line(59)
 
         match choice:
@@ -152,20 +150,16 @@ def main():
             case 3: run_with_pkexec(["eclean-dist -d && eclean-pkg -d"], True)
             case 4: run_with_pkexec(["eclean-kernel", "-A", "-d", "-n 2"])
             case 5: clean_thumbnails()
-            case 6: run_with_pkexec(["grub-install --target=x86_64-efi \
-                                    --efi-directory=/boot --removable && \
-                                    grub-mkconfig -o /boot/grub/grub.cfg"],
-                                    True)
-            case 7: print("HOLA7")
-            case 8: get_install_times()
-            case 9: run_with_pkexec(["dispatch-conf"])
-            case 10: read_news()
-            case 11: sys.exit(0)
+            case 6: print("HOLA6")
+            case 7: get_install_times()
+            case 8: run_with_pkexec(["dispatch-conf"])
+            case 9: read_news()
+            case 10: sys.exit(0)
 
         # Detengo el script hasta que el usuario presione
         # ENTER para poder leer la información emitida por
         # pantalla al utilizar ciertas opciones.
-        if (choice >= 3 and choice <= 6) or (choice >= 9 and choice <= 10):
+        if (choice >= 3 and choice <= 6) or (choice == 8):
             press_enter()
 
 if __name__ == "__main__":
