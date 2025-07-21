@@ -11,7 +11,8 @@ import os
 import shutil
 import sys
 
-from modules.subprocess_utils import pipe_programs, run_program, run_as_root
+from modules.subprocess_utils import (pipe_commands, run_command,
+                                      run_command_as_root)
 from modules.console_ui import (bg_colour, clear_screen, draw_line, get_choice,
                                 press_enter)
 
@@ -61,14 +62,14 @@ def clean_thumbnails():
 def read_news():
     # Obtención del número de noticias disponibles para
     # leer. Acá se simula el pipeline de una consola con
-    # pipe_programs y se obtiene el número total de entradas
+    # pipe_commands y se obtiene el número total de entradas
     # entradas de noticias disponibles para leer revisando
     # los contenidos de la carpeta "/var/lib/gentoo/news".
-    read_news = pipe_programs(
+    read_news = pipe_commands(
                     ["cat", "/var/lib/gentoo/news/news-gentoo.read"],
                     ["wc", "-l"]
                 )
-    unread_news = pipe_programs(
+    unread_news = pipe_commands(
                     ["cat", "/var/lib/gentoo/news/news-gentoo.unread"],
                     ["wc", "-l"]
                 )
@@ -84,14 +85,16 @@ def read_news():
         # ejecutó exitosamente, debo desactivar el control
         # de errores para este programa.
         clear_screen()
-        run_program(["eselect", "news", "list"], False, False)
+        run_command(["eselect", "news", "list"], check_return=False,
+                    use_shell=False)
         print("")
 
         # Lectura del boletín de noticias deseado.
         # Se utiliza el intérprete de consola del sistema
         # para poder pasar la entrada de noticias por less.
         entry = get_choice(1, news_count)
-        run_program([f"eselect news read {entry} | less"], True, True)
+        run_command(f"eselect news read {entry} | less", check_return=True,
+                    use_shell=True)
 
 def get_install_times():
     while True:
@@ -110,14 +113,14 @@ def get_install_times():
             print("")
 
         match choice:
-            case 1: run_program(["genlop", "-t", f"{pkg}"])
+            case 1: run_command(["genlop", "-t", f"{pkg}"])
             case 2:
                 # Para esta opción, la idea es no utilizar un pipe
                 # con un intérprete de consola, por lo que solo puedo
                 # recibir la salida de la operación cuando se termina
                 # de ejecutar. Proceso dicha salida para obtener el
                 # string que me interesa de ella.
-                genlop_output = pipe_programs(["emerge", "-p", f"{pkg}"],
+                genlop_output = pipe_commands(["emerge", "-p", f"{pkg}"],
                                               ["genlop", "-p"])
                 index = genlop_output.find("Estimated")
 
@@ -149,12 +152,13 @@ def main():
         match choice:
             case 1: upd_menu()
             case 2: print("HOLA2")
-            case 3: run_as_root(["eclean-dist -d && eclean-pkg -d"], True)
-            case 4: run_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
+            case 3: run_command_as_root("eclean-dist -d && eclean-pkg -d",
+                                        use_shell=True)
+            case 4: run_command_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
             case 5: clean_thumbnails()
             case 6: print("HOLA6")
             case 7: get_install_times()
-            case 8: run_as_root(["dispatch-conf"])
+            case 8: run_command_as_root(["dispatch-conf"])
             case 9: read_news()
             case 10: sys.exit(0)
 
