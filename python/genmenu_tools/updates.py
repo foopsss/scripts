@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # TODO: investigar como funciona glsa-check para ponerlo acá.
 
-from lib_io import bg_colour, clear_screen, draw_line, get_choice
-from lib_misc import press_enter
+from modules.console_ui import (bg_colour, clear_screen, draw_line, get_choice,
+                                press_enter)
 
 def upd_menu():
     while True:

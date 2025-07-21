@@ -2,7 +2,7 @@
 
 import subprocess
 
-from lib_io import bg_colour
+from modules.console_ui import bg_colour
 
 def run_program(command, check_return=True, use_shell=False):
     # run_program es un wrapper de subprocess.run para
@@ -68,8 +68,3 @@ def pipe_programs(proc1, proc2):
         bg_colour("red", "Error del SO durante la ejecución de un programa.")
         print(f"{error}")
         return None
-
-def press_enter():
-    print("")
-    print("Presione ENTER para continuar.", end='')
-    input()

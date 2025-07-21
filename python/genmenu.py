@@ -11,9 +11,11 @@ import os
 import shutil
 import sys
 
-from lib_misc import pipe_programs, press_enter, run_program, run_as_root
-from lib_io import bg_colour, clear_screen, draw_line, get_choice
-from genmenu_upd import upd_menu
+from modules.subprocess_utils import pipe_programs, run_program, run_as_root
+from modules.console_ui import (bg_colour, clear_screen, draw_line, get_choice,
+                                press_enter)
+
+from genmenu_tools.updates import upd_menu
 
 def draw_menu():
     draw_line(59, "=")
