@@ -30,20 +30,20 @@ def run_program(command, check_return=True, use_shell=False):
         else:
             subprocess.run(command, check = False)
 
-def run_with_pkexec(command, mult_op=False):
-    # run_with_pkexec es un wrapper de subprocess.run
+def run_as_root(command, mult_op=False):
+    # run_as_root es un wrapper de subprocess.run
     # que sirve para ejecutar programas externos con
     # permisos elevados, permitiendo realizar múltiples
     # operaciones al mismo tiempo de ser requerido a
     # través de una llamada al intérprete de Bash,
     # pasándole todos los comandos en cadena.
     if mult_op:
-        pkexec_var = ["pkexec", "bash", "-c"]
+        superuser_command = ["doas", "bash", "-c"]
     else:
-        pkexec_var = ["pkexec"]
+        superuser_command = ["doas"]
 
     try:
-        subprocess.run(pkexec_var + command, check=True)
+        subprocess.run(superuser_command + command, check=True)
     except subprocess.CalledProcessError as error:
         bg_colour("red", "Error de ejecución del programa.")
         bg_colour("red", f"Código de salida: {error.returncode}")

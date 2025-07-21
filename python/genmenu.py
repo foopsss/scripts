@@ -11,7 +11,7 @@ import os
 import shutil
 import sys
 
-from lib_misc import pipe_programs, press_enter, run_program, run_with_pkexec
+from lib_misc import pipe_programs, press_enter, run_program, run_as_root
 from lib_io import bg_colour, clear_screen, draw_line, get_choice
 from genmenu_upd import upd_menu
 
@@ -141,18 +141,18 @@ def main():
         # Por motivos estéticos, si utilizo alguna de las
         # opciones que se ejecutan justo debajo del menú,
         # imprimo un separador.
-        if (choice >= 3 and choice <= 6) or choice == 8:
+        if (choice >= 3 and choice <= 6) or (choice == 8):
             draw_line(59)
 
         match choice:
             case 1: upd_menu()
             case 2: print("HOLA2")
-            case 3: run_with_pkexec(["eclean-dist -d && eclean-pkg -d"], True)
-            case 4: run_with_pkexec(["eclean-kernel", "-A", "-d", "-n 2"])
+            case 3: run_as_root(["eclean-dist -d && eclean-pkg -d"], True)
+            case 4: run_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
             case 5: clean_thumbnails()
             case 6: print("HOLA6")
             case 7: get_install_times()
-            case 8: run_with_pkexec(["dispatch-conf"])
+            case 8: run_as_root(["dispatch-conf"])
             case 9: read_news()
             case 10: sys.exit(0)
 
