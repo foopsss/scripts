@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Cargo los scripts secundarios requeridos.
-. colored_text
-. misc
+. modules/colored_text
+. modules/misc
 
 Línea
 echo "DOTCOPY"

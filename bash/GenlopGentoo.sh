@@ -1,9 +1,9 @@
 #!bin/bash
 
 # Cargo los scripts secundarios requeridos.
-. colored_text
-. user_input
-. misc
+. modules/colored_text
+. modules/misc
+. modules/user_input
 
 # Funciones locales.
 package_emerge_time() {

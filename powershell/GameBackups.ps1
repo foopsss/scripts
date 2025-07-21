@@ -1,4 +1,4 @@
-Import-Module $pwd/CommonResources.psm1
+Import-Module $pwd/modules/CommonResources.psm1
 
 function Show-Menu {
     Write-Host "-----------------------------------------------------------------------------------"

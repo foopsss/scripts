@@ -24,9 +24,9 @@
 cd $HOME/Documentos/GitHub/scripts/bash
 
 # Cargo los scripts secundarios requeridos.
-. colored_text
-. misc
-. user_input
+. modules/colored_text
+. modules/misc
+. modules/user_input
 
 # Funciones locales.
 updates() {

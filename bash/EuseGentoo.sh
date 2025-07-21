@@ -1,15 +1,9 @@
 #!bin/bash
 
 # Cargo los scripts secundarios requeridos.
-. colored_text
-. user_input
-. misc
-
-if [ -d $bashlibs ]; then
-	. $bashlibs/colored_text
-	. $bashlibs/user_input
-	. $bashlibs/misc
-fi
+. modules/colored_text
+. modules/user_input
+. modules/misc
 
 # Funciones locales.
 about_use() {
