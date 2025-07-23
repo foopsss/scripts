@@ -146,7 +146,7 @@ def main():
         # Por motivos estéticos, si utilizo alguna de las
         # opciones que se ejecutan justo debajo del menú,
         # imprimo un separador.
-        if (choice >= 3 and choice <= 6) or (choice == 8):
+        if (choice >= 3 and choice <= 5) or (choice == 8):
             draw_line(59)
 
         match choice:
@@ -165,7 +165,7 @@ def main():
         # Detengo el script hasta que el usuario presione
         # ENTER para poder leer la información emitida por
         # pantalla al utilizar ciertas opciones.
-        if (choice >= 3 and choice <= 6) or (choice == 8):
+        if (choice >= 3 and choice <= 5) or (choice == 8):
             press_enter()
 
 if __name__ == "__main__":
