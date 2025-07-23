@@ -2,8 +2,14 @@
 
 # TODO: investigar como funciona glsa-check para ponerlo acá.
 
-from modules.console_ui import (bg_colour, clear_screen, draw_line, get_choice,
-                                press_enter)
+from modules.console_ui import (
+    bg_colour,
+    clear_screen,
+    draw_line,
+    get_choice,
+    press_enter,
+)
+
 
 def upd_menu():
     while True:
@@ -37,9 +43,11 @@ def upd_menu():
             # case 4:
             # case 5:
             # case 6:
-            case 7: break
+            case 7:
+                break
 
         # Esta llamada a press_enter() pausa la ejecución en
         # cualquier caso, a excepción de cuando se elige salir
         # del menú.
         press_enter()
+

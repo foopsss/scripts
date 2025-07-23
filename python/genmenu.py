@@ -11,12 +11,21 @@ import os
 import shutil
 import sys
 
-from modules.subprocess_utils import (pipe_commands, run_command,
-                                      run_command_as_root)
-from modules.console_ui import (bg_colour, clear_screen, draw_line, get_choice,
-                                press_enter)
+from modules.subprocess_utils import (
+    pipe_commands,
+    run_command,
+    run_command_as_root,
+)
+from modules.console_ui import (
+    bg_colour,
+    clear_screen,
+    draw_line,
+    get_choice,
+    press_enter,
+)
 
 from genmenu_tools.updates import upd_menu
+
 
 def draw_menu():
     draw_line(59, "=")
@@ -46,8 +55,9 @@ def draw_menu():
     print("10. SALIR.")
     print("")
 
+
 def clean_thumbnails():
-    thumbdir = os.environ.get('HOME') + "/.cache/thumbnails"
+    thumbdir = os.environ.get("HOME") + "/.cache/thumbnails"
 
     if os.path.exists(thumbdir):
         try:
@@ -59,6 +69,7 @@ def clean_thumbnails():
     else:
         bg_colour("blue", "¡La carpeta no existe! No se ha borrado nada.")
 
+
 def read_news():
     # Obtención del número de noticias disponibles para
     # leer. Acá se simula el pipeline de una consola con
@@ -66,13 +77,11 @@ def read_news():
     # entradas de noticias disponibles para leer revisando
     # los contenidos de la carpeta "/var/lib/gentoo/news".
     read_news = pipe_commands(
-                    ["cat", "/var/lib/gentoo/news/news-gentoo.read"],
-                    ["wc", "-l"]
-                )
+        ["cat", "/var/lib/gentoo/news/news-gentoo.read"], ["wc", "-l"]
+    )
     unread_news = pipe_commands(
-                    ["cat", "/var/lib/gentoo/news/news-gentoo.unread"],
-                    ["wc", "-l"]
-                )
+        ["cat", "/var/lib/gentoo/news/news-gentoo.unread"], ["wc", "-l"]
+    )
 
     # Si por algún motivo falla alguno de los dos pipes,
     # entonces no se puede proceder. Eso se considera acá.
@@ -85,16 +94,21 @@ def read_news():
         # ejecutó exitosamente, debo desactivar el control
         # de errores para este programa.
         clear_screen()
-        run_command(["eselect", "news", "list"], check_return=False,
-                    use_shell=False)
+        run_command(
+            ["eselect", "news", "list"], check_return=False, use_shell=False
+        )
         print("")
 
         # Lectura del boletín de noticias deseado.
         # Se utiliza el intérprete de consola del sistema
         # para poder pasar la entrada de noticias por less.
         entry = get_choice(1, news_count)
-        run_command(f"eselect news read {entry} | less", check_return=True,
-                    use_shell=True)
+        run_command(
+            f"eselect news read {entry} | less",
+            check_return=True,
+            use_shell=True,
+        )
+
 
 def get_install_times():
     while True:
@@ -108,34 +122,40 @@ def get_install_times():
         print("")
         choice = get_choice(1, 3)
 
-        if (choice < 3):
+        if choice < 3:
             pkg = input("Ingrese el nombre de un paquete: ")
             print("")
 
         match choice:
-            case 1: run_command(["genlop", "-t", f"{pkg}"])
+            case 1:
+                run_command(["genlop", "-t", f"{pkg}"])
             case 2:
                 # Para esta opción, la idea es no utilizar un pipe
                 # con un intérprete de consola, por lo que solo puedo
                 # recibir la salida de la operación cuando se termina
                 # de ejecutar. Proceso dicha salida para obtener el
                 # string que me interesa de ella.
-                genlop_output = pipe_commands(["emerge", "-p", f"{pkg}"],
-                                              ["genlop", "-p"])
+                genlop_output = pipe_commands(
+                    ["emerge", "-p", f"{pkg}"], ["genlop", "-p"]
+                )
                 index = genlop_output.find("Estimated")
 
                 # Para especificar la cota superior de la longitud del
                 # trozo de la salida a mostrar por pantalla, utilizo
                 # "len(genlop_out) - 1" porque la salida original incluye
                 # un salto de línea al final que no me interesa mostrar.
-                extracted_string = genlop_output[index:len(genlop_output) - 1]
+                extracted_string = genlop_output[
+                    index : len(genlop_output) - 1
+                ]
                 print(f"{extracted_string}")
-            case 3: break
+            case 3:
+                break
 
         # Esta llamada a press_enter() pausa la ejecución en
         # cualquier caso, a excepción de cuando se elige salir
         # del menú.
         press_enter()
+
 
 def main():
     while True:
@@ -150,17 +170,28 @@ def main():
             draw_line(59)
 
         match choice:
-            case 1: upd_menu()
-            case 2: print("HOLA2")
-            case 3: run_command_as_root("eclean-dist -d && eclean-pkg -d",
-                                        use_shell=True)
-            case 4: run_command_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
-            case 5: clean_thumbnails()
-            case 6: print("HOLA6")
-            case 7: get_install_times()
-            case 8: run_command_as_root(["dispatch-conf"])
-            case 9: read_news()
-            case 10: sys.exit(0)
+            case 1:
+                upd_menu()
+            case 2:
+                print("HOLA2")
+            case 3:
+                run_command_as_root(
+                    "eclean-dist -d && eclean-pkg -d", use_shell=True
+                )
+            case 4:
+                run_command_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
+            case 5:
+                clean_thumbnails()
+            case 6:
+                print("HOLA6")
+            case 7:
+                get_install_times()
+            case 8:
+                run_command_as_root(["dispatch-conf"])
+            case 9:
+                read_news()
+            case 10:
+                sys.exit(0)
 
         # Detengo el script hasta que el usuario presione
         # ENTER para poder leer la información emitida por
@@ -168,9 +199,11 @@ def main():
         if (choice >= 3 and choice <= 5) or (choice == 8):
             press_enter()
 
+
 if __name__ == "__main__":
     try:
         main()
     except (KeyboardInterrupt, EOFError):
         bg_colour("red", "\nEjecución del programa interrupida. ¡Saliendo!")
         sys.exit(1)
+

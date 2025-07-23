@@ -2,6 +2,7 @@
 
 import subprocess
 
+
 # --- Funciones para recibir entradas del usuario ---
 def get_choice(low_lim, upp_lim):
     # low_lim hace referencia a la cota inferior del rango
@@ -31,16 +32,19 @@ def get_choice(low_lim, upp_lim):
                 continue
             else:
                 # De lo contrario, se puede seguir con el programa.
-                return(choice)
+                return choice
+
 
 def press_enter():
     print("")
-    print("Presione ENTER para continuar.", end='')
+    print("Presione ENTER para continuar.", end="")
     input()
+
 
 # --- Funciones de visualización y formato ---
 def clear_screen():
     subprocess.run(["clear"])
+
 
 def draw_line(length, symbol="-"):
     # length permite indicar la longitud deseada para
@@ -48,8 +52,9 @@ def draw_line(length, symbol="-"):
     # el símbolo a utilizar, aunque por defecto se
     # imprimen líneas con el carácter "-".
     for i in range(length - 1):
-        print(symbol, end='')
+        print(symbol, end="")
     print(symbol)
+
 
 def bg_colour(colour, text):
     # Reglas de uso de los colores:
@@ -61,9 +66,14 @@ def bg_colour(colour, text):
     # se colorea el fondo del texto y solo se
     # lo imprime en negritas.
     match colour:
-        case "red": background = 41
-        case "green": background = 42
-        case "blue": background = 44
-        case _: background = 49
+        case "red":
+            background = 41
+        case "green":
+            background = 42
+        case "blue":
+            background = 44
+        case _:
+            background = 49
 
     print(f"\033[1;37;{background}m{text}\033[0m")
+
