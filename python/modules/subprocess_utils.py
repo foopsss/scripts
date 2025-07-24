@@ -185,4 +185,3 @@ def pipe_commands(first_command: list, second_command: list) -> str | None:
         bg_colour("red", "Error del SO durante la ejecución de un programa.")
         print(f"{error}")
         return None
-

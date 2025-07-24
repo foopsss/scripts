@@ -29,7 +29,18 @@ FOREGROUND_COLOURS = {
 }
 
 
-# --- Funciones para recibir entradas del usuario ---
+# --- Funciones privadas ---
+def _background_and_foreground_colour_exception():
+    raise ValueError(
+        "El parámetro colour solo admite los valores 'red', 'green', "
+        "'blue', 'yellow', 'magenta' y 'cyan'."
+    )
+
+
+# --- Funciones públicas ---
+
+
+## --- Funciones para recibir entradas del usuario ---
 def get_choice(low_lim: int, upp_lim: int) -> None:
     """
     get_choice() es una función encargada de recibir la
@@ -82,7 +93,7 @@ def press_enter() -> None:
     input()
 
 
-# --- Funciones de visualización y formato ---
+## --- Funciones de visualización y formato ---
 def clear_screen() -> None:
     """
     clear_screen() es un wrapper de subprocess.run()
@@ -151,7 +162,33 @@ def bg_colour(colour: str, text: str) -> None:
         background_code = BACKGROUND_COLOURS[colour]
         print(f"\033[1;37;{background_code}m{text}\033[0m")
     except KeyError:
-        raise ValueError(
-            "El parámetro colour solo admite los valores 'red', 'green', "
-            "'blue', 'yellow', 'magenta' y 'cyan'."
-        )
+        _background_and_foreground_colour_exception()
+
+
+def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
+    """
+    fg_colour() es una función utilizada para imprimir
+    texto coloreado y en negritas.
+
+    Permite especificar el color a utilizar con una cadena
+    (string), la cual debe tratarse de una de los colores
+    disponibles en el diccionario FOREGROUND_COLOURS,
+    disponible en la cabecera de esta librería, y el texto
+    a imprimir por pantalla o devolver como resultado.
+
+    En caso de que el usuario introduzca un color que no
+    está definido en el diccionario, se producirá una
+    excepción y se mostrará un mensaje de error por
+    pantalla.
+    """
+    try:
+        foreground_code = FOREGROUND_COLOURS[colour]
+        line = f"\033[1;{foreground_code}m{text}\033[0m"
+
+        if print_line:
+            print(line)
+            return None
+        else:
+            return line
+    except KeyError:
+        _background_and_foreground_colour_exception()
