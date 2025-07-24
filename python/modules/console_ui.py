@@ -155,7 +155,3 @@ def bg_colour(colour: str, text: str) -> None:
             "El parámetro colour solo admite los valores 'red', 'green', "
             "'blue', 'yellow', 'magenta' y 'cyan'."
         )
-        raise ValueError(
-            "El parámetro colour solo admite los valores 'red', 'green', "
-            "'blue', 'yellow', 'magenta' y 'cyan'."
-        )
