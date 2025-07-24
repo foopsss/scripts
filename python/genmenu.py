@@ -206,4 +206,3 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, EOFError):
         bg_colour("red", "\nEjecución del programa interrupida. ¡Saliendo!")
         sys.exit(1)
-

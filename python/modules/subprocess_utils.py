@@ -63,20 +63,22 @@ from modules.console_ui import bg_colour
 
 
 # --- Funciones privadas ---
-def _check_command_argument_type(command, use_shell):
-    # _check_command_argument_type() se encarga de validar
-    # los tipos de los comandos que se quieren ejecutar en
-    # las funciones que siguen, en función de si estos se
-    # van a ejecutar a través de un intérprete de consola
-    # o directamente a través de un método de la librería
-    # subprocess.
+def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
+    """
+    _check_command_argument_type() se encarga de validar
+    los tipos de los comandos que se quieren ejecutar en
+    las funciones que siguen, en función de si estos se
+    van a ejecutar a través de un intérprete de consola
+    o directamente a través de un método de la librería
+    subprocess.
+    """
     if use_shell:
         if not isinstance(command, str):
             raise TypeError("El comando debe suministrarse como un string.")
     else:
         if not isinstance(command, list):
             raise TypeError(
-                "El comando debe suministrarse como una cadena de " "strings."
+                "El comando debe suministrarse como una cadena de strings."
             )
 
         if not all(isinstance(item, str) for item in command):
@@ -86,26 +88,32 @@ def _check_command_argument_type(command, use_shell):
             )
 
 
-def _run_command_exception_message(exec_error):
-    # Mensaje de error compartido para las funciones
-    # run_command() y run_command_as_root() en caso de que
-    # se esté manejando la excepción subprocess.CalledProcessError.
+def _run_command_exception_message(exec_error: type[Exception]) -> None:
+    """
+    Mensaje de error compartido para las funciones
+    run_command() y run_command_as_root() en caso de que
+    se esté manejando la excepción subprocess.CalledProcessError.
+    """
     bg_colour("red", "Error de ejecución del programa.")
     bg_colour("red", f"Código de salida: {exec_error.returncode}")
 
 
 # --- Funciones públicas ---
-def run_command(command, check_return=True, use_shell=False):
-    # run_command es un wrapper de subprocess.run para
-    # ejecutar programas externos. Permite deshabilitar
-    # el control de errores de ser necesario, pero por
-    # defecto se controla el código de salida que
-    # devuelven los programas llamados.
-    #
-    # run_command también permite utilizar el intérprete
-    # de consola del sistema para realizar operaciones,
-    # pero esto solo se puede hacer con el control de
-    # errores activado.
+def run_command(
+    command: list | str, check_return: bool = True, use_shell: bool = False
+) -> None:
+    """
+    run_command() es un wrapper de subprocess.run para
+    ejecutar programas externos. Permite deshabilitar
+    el control de errores de ser necesario, pero por
+    defecto se controla el código de salida que
+    devuelven los programas llamados.
+
+    run_command() también permite utilizar el intérprete
+    de consola del sistema para realizar operaciones,
+    pero esto solo se puede hacer con el control de
+    errores activado.
+    """
     if not check_return and use_shell:
         raise ValueError(
             "No se puede usar la función con check_return=False y "
@@ -122,15 +130,17 @@ def run_command(command, check_return=True, use_shell=False):
         _run_command_exception_message(error)
 
 
-def run_command_as_root(command, use_shell=False):
-    # run_command_as_root() es un wrapper de subprocess.run
-    # que sirve para ejecutar comandos externos con permisos
-    # elevados, permitiendo realizar múltiples operaciones
-    # de ser requerido a través de una llamada al intérprete
-    # de consola.
-    #
-    # A diferencia de run_command(), no permite desactivar
-    # el control de errores.
+def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
+    """
+    run_command_as_root() es un wrapper de subprocess.run
+    que sirve para ejecutar comandos externos con permisos
+    elevados, permitiendo realizar múltiples operaciones
+    de ser requerido a través de una llamada al intérprete
+    de consola.
+
+    A diferencia de run_command(), no permite desactivar
+    el control de errores.
+    """
     _check_command_argument_type(command, use_shell)
 
     try:
@@ -144,14 +154,16 @@ def run_command_as_root(command, use_shell=False):
         _run_command_exception_message(error)
 
 
-def pipe_commands(first_command, second_command):
-    # pipe_commands() es un wrapper de subprocess.Popen()
-    # que sirve para simular el uso de pipelines, como las
-    # que se utilizan en los intérpretes de consola. Solo
-    # admite la llamada a dos programas.
-    #
-    # Recibe como entrada dos listas con los programas
-    # a ejecutar.
+def pipe_commands(first_command: list, second_command: list) -> str | None:
+    """
+    pipe_commands() es un wrapper de subprocess.Popen()
+    que sirve para simular el uso de pipelines, como las
+    que se utilizan en los intérpretes de consola. Solo
+    admite la llamada a dos programas.
+
+    Recibe como entrada dos listas con los programas
+    a ejecutar.
+    """
     _check_command_argument_type(first_command, use_shell=False)
     _check_command_argument_type(second_command, use_shell=False)
 
