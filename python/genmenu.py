@@ -19,7 +19,7 @@ from modules.subprocess_utils import (
 from modules.console_ui import (
     bg_colour,
     clear_screen,
-    draw_line,
+    draw_coloured_line,
     get_choice,
     press_enter,
 )
@@ -28,26 +28,26 @@ from genmenu_tools.updates import upd_menu
 
 
 def draw_menu():
-    draw_line(59, "=")
+    draw_coloured_line(59, "=")
     print("¡Bienvenido a la herramienta de administración del sistema!")
-    draw_line(59, "=")
+    draw_coloured_line(59, "=")
     print("")
     print("ACTUALIZACIONES")
-    draw_line(15)
+    draw_coloured_line(15)
     print("1. Menú de opciones de actualización.")
     print("")
     print("PAQUETES Y REPOSITORIOS")
-    draw_line(23)
+    draw_coloured_line(23)
     print("2. Menú de manejo de paquetes y repositorios del sistema.")
     print("")
     print("LIMPIEZA")
-    draw_line(8)
+    draw_coloured_line(8)
     print("3. Limpieza de archivos residuales.")
     print("4. Limpieza de versiones antiguas del kernel.")
     print("5. Limpieza de miniaturas de Nautilus.")
     print("")
     print("MISCELÁNEA")
-    draw_line(10)
+    draw_coloured_line(10)
     print("6. Obtención de información sobre parámetros USE.")
     print("7. Obtención del tiempo de instalación de un paquete.")
     print("8. Resolución de conflictos por diferencia de archivos.")
@@ -113,9 +113,9 @@ def read_news():
 def get_install_times():
     while True:
         clear_screen()
-        draw_line(59, "=")
+        draw_coloured_line(59, "=")
         print("Apartado para ver tiempos de instalación de paquetes")
-        draw_line(59, "=")
+        draw_coloured_line(59, "=")
         print("1. Obtener el tiempo de instalación pasado de un paquete.")
         print("2. Obtener el tiempo de instalación estimado de un paquete.")
         print("3. SALIR.")
@@ -167,7 +167,7 @@ def main():
         # opciones que se ejecutan justo debajo del menú,
         # imprimo un separador.
         if (choice >= 3 and choice <= 5) or (choice == 8):
-            draw_line(59)
+            draw_coloured_line(59)
 
         match choice:
             case 1:

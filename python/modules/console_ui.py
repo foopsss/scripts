@@ -192,3 +192,23 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
             return line
     except KeyError:
         _background_and_foreground_colour_exception()
+
+
+def draw_coloured_line(
+    length: int, symbol: str = "-", colour: str = "yellow"
+) -> None:
+    """
+    draw_coloured_line() es una combinación de draw_line()
+    y fg_colour() que permite dibujar una línea de símbolos
+    de una longitud pasada por parámetro, permitiendo
+    especificar además el símbolo a dibujar y el color a
+    utilizar. Por defecto, se imprime una línea de guiones
+    amarilla.
+
+    Aquí aplican las restricciones de las funciones
+    mencionadas anteriormente con respecto a la longitud de
+    la línea, el símbolo pasado por parámetro y el color
+    pasado por parámetro.
+    """
+    line_str = draw_line(length, symbol, print_line=False)
+    fg_colour(colour, line_str, print_line=True)
