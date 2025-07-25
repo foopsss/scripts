@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Paquetes usados en este modulo:
+# app-admin/doas - provee "doas".
+
 """
 ========================
 DOCUMENTACIÓN DEL MÓDULO

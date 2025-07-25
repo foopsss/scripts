@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 # Paquetes usados en este script:
-# app-portage/gentoolkit - provee "eclean".
+# app-portage/gentoolkit  - provee "eclean".
 # app-admin/eclean-kernel - provee "eclean-kernel".
-# app-portage/genlop - provee "genlop".
-# sys-apps/portage - provee "dispatch-conf".
-# app-admin/eselect - provee "eselect" y sus módulos.
+# app-portage/genlop      - provee "genlop".
+# sys-apps/portage        - provee "dispatch-conf".
+# app-admin/eselect       - provee "eselect" y sus módulos.
 
 import os
 import shutil
