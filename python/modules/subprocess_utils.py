@@ -94,7 +94,7 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
 def _run_command_exception_message(exec_error: type[Exception]) -> None:
     """
     Mensaje de error compartido para las funciones
-    run_command() y run_command_as_root() en caso de que
+    run_command() y run_command_as_root(), en caso de que
     se esté manejando la excepción subprocess.CalledProcessError.
     """
     bg_colour("red", "Error de ejecución del programa.")

@@ -31,16 +31,18 @@ FOREGROUND_COLOURS = {
 
 # --- Funciones privadas ---
 def _background_and_foreground_colour_exception():
+    """
+    Mensaje de error para las funciones bg_colour() y
+    fg_colour(), en caso de que se esté manejando la
+    excepción KeyError.
+    """
     raise ValueError(
         "El parámetro colour solo admite los valores 'red', 'green', "
         "'blue', 'yellow', 'magenta' y 'cyan'."
     )
 
 
-# --- Funciones públicas ---
-
-
-## --- Funciones para recibir entradas del usuario ---
+# --- Funciones públicas para recibir entradas del usuario ---
 def get_choice(low_lim: int, upp_lim: int) -> None:
     """
     get_choice() es una función encargada de recibir la
@@ -54,7 +56,22 @@ def get_choice(low_lim: int, upp_lim: int) -> None:
     la tecla ENTER sin introducir contenido) o si se introduce
     una letra, la función mostrará un mensaje de error y le
     pedirá al usuario nuevamente que introduzca su elección.
+
+    Asimismo, si los límites especificados al llamar a la
+    la función son menores a uno, se producirá una excepción
+    y se mostrará un mensaje de error por pantalla.
     """
+    if low_lim <= 0 or upp_lim <= 0:
+        raise ValueError(
+            "Ni el límite inferior ni el límite superior pueden ser "
+            "menores a uno."
+        )
+
+    if upp_lim < low_lim:
+        raise ValueError(
+            "El límite superior no puede ser menor al límite inferior."
+        )
+
     while True:
         choice_str = input("Ingrese su elección: ")
 
@@ -93,7 +110,7 @@ def press_enter() -> None:
     input()
 
 
-## --- Funciones de visualización y formato ---
+# --- Funciones públicas de visualización y formato ---
 def clear_screen() -> None:
     """
     clear_screen() es un wrapper de subprocess.run()

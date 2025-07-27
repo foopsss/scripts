@@ -4,18 +4,25 @@
 # app-portage/gentoolkit  - provee "eclean".
 # app-admin/eclean-kernel - provee "eclean-kernel".
 # app-portage/genlop      - provee "genlop".
-# sys-apps/portage        - provee "dispatch-conf".
+# sys-apps/portage        - provee "emerge" y "dispatch-conf".
 # app-admin/eselect       - provee "eselect" y sus módulos.
+
+# TODO: considerar la creación de un módulo adicional que sirva para manejar
+#       instalaciones del kernel. Idealmente, permitiría manejar versiones
+#       del kernel, determinando cuales son las versiones instaladas y
+#       permitiendo modificar el archivo world para poner las dos versiones
+#       más nuevas ahí y remover las otras si hace falta, etc.
+# TODO: investigar como funciona glsa-check para ponerlo en el menú de
+#       actualizaciones o paquetes.
+# TODO: considerar crear un módulo aparte para la lógica de backups
+#       de Snapper, si es que es necesario.
+# TODO: si el usuario no está conectado a internet cuando ejecuta el
+#       script, mostrar una advertencia en la cabecera.
 
 import os
 import shutil
 import sys
 
-from modules.subprocess_utils import (
-    pipe_commands,
-    run_command,
-    run_command_as_root,
-)
 from modules.console_ui import (
     bg_colour,
     clear_screen,
@@ -24,7 +31,13 @@ from modules.console_ui import (
     press_enter,
 )
 
-from genmenu_tools.updates import upd_menu
+from modules.subprocess_utils import (
+    pipe_commands,
+    run_command,
+    run_command_as_root,
+)
+
+from genmenu_tools.updates import updates_menu
 
 
 def draw_menu():
@@ -171,13 +184,18 @@ def main():
 
         match choice:
             case 1:
-                upd_menu()
+                updates_menu()
             case 2:
                 print("HOLA2")
             case 3:
-                run_command_as_root(
-                    "eclean-dist -d && eclean-pkg -d", use_shell=True
-                )
+                # doas recuerda al último usuario autenticado
+                # por 5 minutos, tiempo más que suficiente para
+                # ejecutar estas dos opciones, por lo que no es
+                # necesario llamarlas juntas a través de un
+                # intérprete de consola para mantener los permisos
+                # de superusuario.
+                run_command_as_root(["eclean-dist", "-d"])
+                run_command_as_root(["eclean-pkg", "-d"])
             case 4:
                 run_command_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
             case 5:
