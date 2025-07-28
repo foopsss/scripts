@@ -91,14 +91,60 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
             )
 
 
-def _run_command_exception_message(exec_error: type[Exception]) -> None:
+def _run_command_calledprocesserror_exception_message(
+    error: subprocess.CalledProcessError
+) -> None:
     """
-    Mensaje de error compartido para las funciones
-    run_command() y run_command_as_root(), en caso de que
-    se esté manejando la excepción subprocess.CalledProcessError.
+    Mensaje de error compartido para las funciones run_command()
+    y run_command_as_root(), en caso de que se esté manejando la
+    excepción subprocess.CalledProcessError.
     """
-    bg_colour("red", "Error de ejecución del programa.")
-    bg_colour("red", f"Código de salida: {exec_error.returncode}")
+    bg_colour("red", f"Error de ejecución del comando {error.cmd}.")
+    bg_colour("red", f"Código de salida: {error.returncode}")
+
+
+def _run_command_timeoutexpired_exception_message(
+    error: subprocess.TimeoutExpired
+) -> None:
+    """
+    Mensaje de error compartido para las funciones run_command()
+    y run_command_as_root(), en caso de que se esté manejando la
+    excepción subprocess.TimeoutExpired.
+    """
+    bg_colour(
+        "red",
+        f"Se esperaron {error.timeout} segundos para ejecutar "
+        f"el comando {error.cmd}, pero no se recibió respuesta.",
+    )
+
+
+def _run_command_filenotfounderror_exception_message(
+    command: str | list
+) -> None:
+    """
+    Mensaje de error compartido para las funciones run_command()
+    y run_command_as_root(), en caso de que se esté manejando la
+    excepción FileNotFoundError.
+    """
+    if isinstance(command, list):
+        command_str = " ".join(command)
+    else:
+        command_str = command
+
+    bg_colour("red", f"No existe el comando {command_str}.")
+
+
+def _unknown_exception_message(error: Exception) -> None:
+    """
+    Mensaje de error compartido para las funciones run_command()
+    y run_command_as_root(), en caso de que se esté manejando
+    alguna excepción no contemplada previamente.
+    """
+    bg_colour(
+        "red",
+        "Se produjo un error inesperado al ejecutar el comando.\n"
+        f"Error encontrado: {error}"
+    )
 
 
 # --- Funciones públicas ---
@@ -127,10 +173,23 @@ def run_command(
 
     try:
         subprocess.run(command, check=check_return, shell=use_shell)
-    except subprocess.CalledProcessError as error:
-        # Si el comando no se puede ejecutar por algún motivo, se manejará
-        # este error.
-        _run_command_exception_message(error)
+    except subprocess.CalledProcessError as exec_error:
+        # Si el comando no logra ejecutarse correctamente por algún
+        # motivo, se manejará este error.
+        _run_command_calledprocesserror_exception_message(exec_error)
+    except subprocess.TimeoutExpired as timeout_error:
+        # Si el comando no logra ejecutarse aún después de esperar
+        # una determinada cantidad de tiempo, se manejará este error.
+        _run_command_timeoutexpired_exception_message(timeout_error)
+    except FileNotFoundError:
+        # Si el comando no existe, ya sea porque corresponde a un
+        # programa que no está instalado, invocado incorrectamente,
+        # o cualquiera otra razón, se manejará este error.
+        _run_command_filenotfounderror_exception_message(command)
+    except Exception as unknown_error:
+        # Cualquier otro error que no se haya podido manejar
+        # anteriormente se tratará acá.
+        _unknown_exception_message(unknown_error)
 
 
 def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
@@ -151,10 +210,23 @@ def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
             subprocess.run(f"doas {command}", check=True, shell=True)
         else:
             subprocess.run(["doas"] + command, check=True, shell=False)
-    except subprocess.CalledProcessError as error:
-        # Si el comando no se puede ejecutar por algún motivo, se manejará
-        # este error.
-        _run_command_exception_message(error)
+    except subprocess.CalledProcessError as exec_error:
+        # Si el comando no logra ejecutarse correctamente por algún motivo,
+        # se manejará este error.
+        _run_command_calledprocesserror_exception_message(exec_error)
+    except subprocess.TimeoutExpired as timeout_error:
+        # Si el comando no logra ejecutarse aún después de esperar una
+        # determinada cantidad de tiempo, se manejará este error.
+        _run_command_timeoutexpired_exception_message(timeout_error)
+    except FileNotFoundError:
+        # Si el comando no existe, ya sea porque corresponde a un
+        # programa que no está instalado, invocado incorrectamente,
+        # o cualquiera otra razón, se manejará este error.
+        _run_command_filenotfounderror_exception_message(command)
+    except Exception as unknown_error:
+        # Cualquier otro error que no se haya podido manejar
+        # anteriormente se tratará acá.
+        _unknown_exception_message(unknown_error)
 
 
 def pipe_commands(first_command: list, second_command: list) -> str | None:
@@ -171,20 +243,71 @@ def pipe_commands(first_command: list, second_command: list) -> str | None:
     _check_command_argument_type(second_command, use_shell=False)
 
     try:
-        first_command_out = subprocess.Popen(
-            first_command, stdout=subprocess.PIPE
-        )
-        second_command_out = subprocess.Popen(
-            second_command,
-            stdin=first_command_out.stdout,
+        with subprocess.Popen(
+            first_command,
             stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
+        ) as first_process:
+            with subprocess.Popen(
+                second_command,
+                stdin=first_process.stdout,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            ) as second_process:
+                # Cierro la salida del primer comando para evitar
+                # deadlocks (puntos muertos o bloqueos).
+                first_process.stdout.close()
+
+                # Guardo la salida estándar del segundo proceso y
+                # descarto el error estándar, ya que no me interesa.
+                stdout_second, _ = second_process.communicate()
+
+            # Descarto tanto la salida estándar como el error
+            # estándar del primer proceso, ya que no me interesa
+            # ninguna de las dos cosas.
+            _, _ = first_process.communicate()
+
+        # Si alguno de los comandos ejecutados falla, causar
+        # una excepción. Esta excepción luego será agarrada
+        # por la última condición del bloque "try-except".
+        if first_process.returncode != 0:
+            raise RuntimeError(
+                f"El primer comando, '{' '.join(first_command)}', falló con "
+                f"el código de salida {first_process.returncode}."
+            )
+
+        if second_process.returncode != 0:
+            raise RuntimeError(
+                f"El segundo comando, '{' '.join(second_command)}', falló "
+                f"con el código de salida {second_process.returncode}."
+            )
+
+        # Antes de devolver la salida del segundo comando,
+        # conviene limpiarla para remover cosas como espacios
+        # en blanco innecesarios.
+        return stdout_second.strip()
+    except FileNotFoundError as filenotfound_error:
+        # Si el comando no existe, ya sea porque corresponde a un
+        # programa que no está instalado, invocado incorrectamente,
+        # o cualquiera otra razón, se manejará este error.
+        _run_command_filenotfounderror_exception_message(
+            filenotfound_error.filename
         )
-        first_command_out.stdout.close()
-        return second_command_out.communicate()[0]
+        return None
     except OSError as error:
         # Manejo de errores relacionados con el SO como "archivo
         # no encontrado", "permiso denegado", etc.
-        bg_colour("red", "Error del SO durante la ejecución de un programa.")
-        print(f"{error}")
+        bg_colour(
+            "red",
+            "Se ha producido un error del SO durante la ejecución de "
+            "un programa.\n"
+            f"El error encontrado es: {error}"
+        )
+        return None
+    except Exception as unknown_error:
+        # Cualquier otro error que no se haya podido manejar
+        # anteriormente se tratará acá.
+        _unknown_exception_message(unknown_error)
         return None

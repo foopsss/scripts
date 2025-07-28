@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
 
+"""
+========================
+DOCUMENTACIÓN DEL MÓDULO
+========================
+Este módulo contiene una serie de funciones relacionadas al aspecto estético
+de los scripts y el control de entradas recibidas por parte del usuario.
+"""
+
 import subprocess
 
 # Diccionarios a utilizar en las funciones encargadas de colorear contenidos.
 BACKGROUND_COLOURS = {
     # Reglas de uso de los colores:
     # * El rojo se usa para mensajes de error.
+    # * El amarillo se usa para mostrar advertencias.
     # * El verde para mensajes de éxito o confirmación.
     # * El azul para mostrar otros mensajes por pantalla.
     # * Los demás colores no tienen un propósito establecido
     #   actualmente.
     "red": 41,
+    "yellow": 43,
     "green": 42,
     "blue": 44,
-    "yellow": 43,
     "magenta": 45,
     "cyan": 46,
 }
@@ -21,9 +30,9 @@ BACKGROUND_COLOURS = {
 
 FOREGROUND_COLOURS = {
     "red": 31,
+    "yellow": 33,
     "green": 32,
     "blue": 34,
-    "yellow": 33,
     "magenta": 35,
     "cyan": 36,
 }
