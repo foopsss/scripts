@@ -92,7 +92,7 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
 
 
 def _run_command_calledprocesserror_exception_message(
-    error: subprocess.CalledProcessError
+    error: subprocess.CalledProcessError,
 ) -> None:
     """
     Mensaje de error compartido para las funciones run_command()
@@ -104,7 +104,7 @@ def _run_command_calledprocesserror_exception_message(
 
 
 def _run_command_timeoutexpired_exception_message(
-    error: subprocess.TimeoutExpired
+    error: subprocess.TimeoutExpired,
 ) -> None:
     """
     Mensaje de error compartido para las funciones run_command()
@@ -119,7 +119,7 @@ def _run_command_timeoutexpired_exception_message(
 
 
 def _run_command_filenotfounderror_exception_message(
-    command: str | list
+    command: str | list,
 ) -> None:
     """
     Mensaje de error compartido para las funciones run_command()
@@ -143,7 +143,7 @@ def _unknown_exception_message(error: Exception) -> None:
     bg_colour(
         "red",
         "Se produjo un error inesperado al ejecutar el comando.\n"
-        f"Error encontrado: {error}"
+        f"Error encontrado: {error}",
     )
 
 
@@ -303,7 +303,7 @@ def pipe_commands(first_command: list, second_command: list) -> str | None:
             "red",
             "Se ha producido un error del SO durante la ejecución de "
             "un programa.\n"
-            f"El error encontrado es: {error}"
+            f"El error encontrado es: {error}",
         )
         return None
     except Exception as unknown_error:
