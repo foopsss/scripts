@@ -14,10 +14,8 @@
 #       más nuevas ahí y remover las otras si hace falta, etc.
 # TODO: investigar como funciona glsa-check para ponerlo en el menú de
 #       actualizaciones o paquetes.
-# TODO: considerar crear un módulo aparte para la lógica de backups
-#       de Snapper, si es que es necesario.
-# TODO: si el usuario no está conectado a internet cuando ejecuta el
-#       script, mostrar una advertencia en la cabecera.
+# TODO: añadir la lógica para crear snapshots con Snapper en el módulo
+#       de actualizaciones.
 
 import os
 import shutil
