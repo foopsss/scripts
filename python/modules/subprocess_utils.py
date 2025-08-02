@@ -43,21 +43,29 @@ métodos subprocess.run() y subprocess.Popen().
 
   --- Manejo de errores en tiempo de ejecución ---
 
-  -  Los errores de ejecución son captados a través del manejo de la excepción
-     "subprocess.CalledProcessError". En caso de ocurrir un error de ejecución
-     se le informará al usuario y se mostrará el código de error.
+  -  Los errores de ejecución son captados a través del manejo de las
+     excepciones "subprocess.CalledProcessError", "subprocess.TimeoutExpired",
+     "FileNotFoundError" y "Exception" (para cualquier otro tipo de posible
+     error imprevisto). En caso de ocurrir un error de ejecución se le
+     informará al usuario y se mostrará un código y/o mensaje de error.
 
 * Siempre que no se intente ejecutar comandos a través del intérprete de
   consola, run_command() permite deshabilitar el control de errores. Sin
   embargo, en el caso de run_command_as_root(), el control de errores
   siempre está habilitado.
 
+### Particularidades de la función run_command_and_get_return_code() ###
+* En esta función también se realiza una validación del comando pasado por
+  parámetro, debiendo tratarse este de una lista de cadenas. Asimismo, también
+  se controlan los mismos errores en tiempo de ejecución que se controlan en
+  las funciones run_command() y run_command_as_root().
+
 ### Particularidades de la función pipe_commands() ###
-* Al igual que con las funciones run_command() y run_command_as_root(), los
-  argumentos "first_command" y "second_command" deben tratarse de cadenas de
-  strings. En caso de que no tengan el formato correcto, sucederá lo mismo
-  que sucede con las validaciones en run_command() y run_command_as_root(),
-  a través de la función _check_command_argument_type().
+* Al igual que con la función, run_command_and_get_return_code(), los
+  argumentos "first_command" y "second_command" deben tratarse de listas
+  de cadenas. En caso de que no tengan el formato correcto, sucederá lo
+  mismo que sucede con las validaciones en run_command() y
+  run_command_as_root(), a través de la función _check_command_argument_type().
 """
 
 import subprocess
@@ -95,9 +103,9 @@ def _run_command_calledprocesserror_exception_message(
     error: subprocess.CalledProcessError,
 ) -> None:
     """
-    Mensaje de error compartido para las funciones run_command()
-    y run_command_as_root(), en caso de que se esté manejando la
-    excepción subprocess.CalledProcessError.
+    Mensaje de error compartido para las funciones run_command(),
+    run_command_as_root() y run_command_and_get_return_code(), en
+    caso de que se esté manejando la excepción subprocess.CalledProcessError.
     """
     bg_colour("red", f"Error de ejecución del comando {error.cmd}.")
     bg_colour("red", f"Código de salida: {error.returncode}")
@@ -107,9 +115,9 @@ def _run_command_timeoutexpired_exception_message(
     error: subprocess.TimeoutExpired,
 ) -> None:
     """
-    Mensaje de error compartido para las funciones run_command()
-    y run_command_as_root(), en caso de que se esté manejando la
-    excepción subprocess.TimeoutExpired.
+    Mensaje de error compartido para las funciones run_command(),
+    run_command_as_root() y run_command_and_get_return_code(), en
+    caso de que se esté manejando la excepción subprocess.TimeoutExpired.
     """
     bg_colour(
         "red",
@@ -122,9 +130,10 @@ def _run_command_filenotfounderror_exception_message(
     command: str | list,
 ) -> None:
     """
-    Mensaje de error compartido para las funciones run_command()
-    y run_command_as_root(), en caso de que se esté manejando la
-    excepción FileNotFoundError.
+    Mensaje de error compartido para las funciones run_command(),
+    run_command_as_root(), run_command_and_get_return_code() y
+    pipe_commands(), en caso de que se esté manejando la excepción
+    FileNotFoundError.
     """
     if isinstance(command, list):
         command_str = " ".join(command)
@@ -136,9 +145,8 @@ def _run_command_filenotfounderror_exception_message(
 
 def _unknown_exception_message(error: Exception) -> None:
     """
-    Mensaje de error compartido para las funciones run_command()
-    y run_command_as_root(), en caso de que se esté manejando
-    alguna excepción no contemplada previamente.
+    Mensaje de error compartido para todas las funciones, en caso de
+    que se esté manejando alguna excepción no contemplada previamente.
     """
     bg_colour(
         "red",
@@ -227,6 +235,41 @@ def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
         # Cualquier otro error que no se haya podido manejar
         # anteriormente se tratará acá.
         _unknown_exception_message(unknown_error)
+
+
+def run_command_and_get_return_code(command: list) -> int | None:
+    """
+    run_command_and_get_return_code() es un wrapper de subprocess.run()
+    que sirve para ejecutar comandos externos y almacenar el código de
+    salida de estos.
+
+    A diferencia de las otras funciones, el control de errores está
+    desactivado para que no se produzca una excepción del tipo
+    subprocess.CalledProcessError, devolviendo directamente el código
+    de salida de la función. Tampoco se muestra por pantalla la salida
+    estándar o el error estándar del comando externo ejecutado.
+    """
+    _check_command_argument_type(command, use_shell=False)
+
+    try:
+        result = subprocess.run(command, check=False, capture_output=True)
+        return result.returncode
+    except subprocess.TimeoutExpired as timeout_error:
+        # Si el comando no logra ejecutarse aún después de esperar una
+        # determinada cantidad de tiempo, se manejará este error.
+        _run_command_timeoutexpired_exception_message(timeout_error)
+        return None
+    except FileNotFoundError:
+        # Si el comando no existe, ya sea porque corresponde a un
+        # programa que no está instalado, invocado incorrectamente,
+        # o cualquiera otra razón, se manejará este error.
+        _run_command_filenotfounderror_exception_message(command)
+        return None
+    except Exception as unknown_error:
+        # Cualquier otro error que no se haya podido manejar
+        # anteriormente se tratará acá.
+        _unknown_exception_message(unknown_error)
+        return None
 
 
 def pipe_commands(first_command: list, second_command: list) -> str | None:
