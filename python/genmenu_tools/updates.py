@@ -6,6 +6,7 @@
 # sys-apps/fwupd   - provee "fwupdmgr".
 
 from modules.console_ui import (
+    bg_colour,
     clear_screen,
     draw_coloured_line,
     get_choice,
@@ -14,8 +15,50 @@ from modules.console_ui import (
 
 from modules.subprocess_utils import (
     run_command,
+    run_command_and_get_return_code,
     run_command_as_root,
 )
+
+
+def check_internet_connection():
+    # Este chequeo de conexión es relativamente "barato"
+    # en cuanto al tiempo que cuesta realizarlo, por lo
+    # que me siento cómodo realizándolo cada vez que se
+    # muestra el menú principal de actualizaciones.
+    #
+    # Yo al menos no observo una diferencia notable en
+    # el tiempo que tarda el menú en mostrarse por
+    # pantalla.
+    ping_exit_code = run_command_and_get_return_code(
+        ["ping", "-c", "1", "www.google.com"]
+    )
+
+    if ping_exit_code != 0:
+        draw_coloured_line(48)
+        bg_colour("red", "¡No cuenta con conexión a Internet!")
+        bg_colour(
+            "yellow",
+            "Varias opciones de este menú no podrán ser\nutilizadas."
+        )
+
+
+def draw_updates_menu():
+    draw_coloured_line(48, "=")
+    print("Apartado para actualizar el software del sistema")
+    draw_coloured_line(48, "=")
+    print("")
+    print("PAQUETES/REPOSITORIOS")
+    draw_coloured_line(21)
+    print("1. Sincronizar repositorios.")
+    print("2. Actualizar el sistema.")
+    print("3. Actualizar las aplicaciones de Flatpak.")
+    print("4. Actualizar el firmware del dispositivo.")
+    print("")
+    print("MISCELÁNEA")
+    draw_coloured_line(10)
+    print("5. Pretender que se va a realizar una actualización.")
+    print("6. SALIR.")
+    print("")
 
 
 def sincronize_repositories():
@@ -53,22 +96,8 @@ def update_firmware():
 def updates_menu():
     while True:
         clear_screen()
-        draw_coloured_line(48, "=")
-        print("Apartado para actualizar el software del sistema")
-        draw_coloured_line(48, "=")
-        print("")
-        print("PAQUETES/REPOSITORIOS")
-        draw_coloured_line(21)
-        print("1. Sincronizar repositorios.")
-        print("2. Actualizar el sistema.")
-        print("3. Actualizar las aplicaciones de Flatpak.")
-        print("4. Actualizar el firmware del dispositivo.")
-        print("")
-        print("MISCELÁNEA")
-        draw_coloured_line(10)
-        print("5. Pretender que se va a realizar una actualización.")
-        print("6. SALIR.")
-        print("")
+        check_internet_connection()
+        draw_updates_menu()
         choice = get_choice(1, 6)
 
         # Antes de ejecutar las opciones, conviene limpiar
