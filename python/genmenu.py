@@ -7,15 +7,9 @@
 # sys-apps/portage        - provee "emerge" y "dispatch-conf".
 # app-admin/eselect       - provee "eselect" y sus módulos.
 
-# TODO: considerar la creación de un módulo adicional que sirva para manejar
-#       instalaciones del kernel. Idealmente, permitiría manejar versiones
-#       del kernel, determinando cuales son las versiones instaladas y
-#       permitiendo modificar el archivo world para poner las dos versiones
-#       más nuevas ahí y remover las otras si hace falta, etc.
-# TODO: investigar como funciona glsa-check para ponerlo en el menú de
-#       actualizaciones o paquetes.
-# TODO: añadir la lógica para crear snapshots con Snapper en el módulo
-#       de actualizaciones.
+# TODO: crear un módulo adicional que ofrezca opciones para manejar las
+#       snapshots del sistema creadas con Snapper, y capaz listar los
+#       subvolúmenes de BTRFS.
 
 import os
 import shutil

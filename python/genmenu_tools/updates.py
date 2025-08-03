@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
 # Paquetes usados en este módulo:
-# sys-apps/portage - provee "emerge" y "emaint".
-# sys-apps/flatpak - provee "flatpak".
-# sys-apps/fwupd   - provee "fwupdmgr".
+# sys-apps/portage   - provee "emerge", "emaint" y "glsa-check".
+# sys-apps/flatpak   - provee "flatpak".
+# sys-apps/fwupd     - provee "fwupdmgr".
+# app-backup/snapper - provee "snapper".
+
+# TODO: añadir una función que permita generar y/o actualizar una entrada de
+#        systemd-boot que permita bootear el sistema desde una snapshot.
+# Info: https://www.google.com/search?client=firefox-b-d&channel=entpr&q=boot+to+snapper+snapshots+using+systemd-boot
+
+from datetime import date
 
 from modules.console_ui import (
     bg_colour,
@@ -34,11 +41,10 @@ def check_internet_connection():
     )
 
     if ping_exit_code != 0:
-        draw_coloured_line(48)
+        draw_coloured_line(48, "=")
         bg_colour("red", "¡No cuenta con conexión a Internet!")
         bg_colour(
-            "yellow",
-            "Varias opciones de este menú no podrán ser\nutilizadas."
+            "yellow", "Varias opciones de este menú no podrán ser\nutilizadas."
         )
 
 
@@ -57,14 +63,57 @@ def draw_updates_menu():
     print("MISCELÁNEA")
     draw_coloured_line(10)
     print("5. Pretender que se va a realizar una actualización.")
-    print("6. SALIR.")
+    print("6. Revisar si el sistema está expuesto a fallos de")
+    print("   ciberseguridad.")
+    print("7. SALIR.")
     print("")
+
+
+def create_pre_update_snapshot():
+    fecha = date.today().strftime("%d/%m/%Y")
+    snapshot_str = (
+        "Snapshot previa a una actualización del sistema"
+        f" - Creada el {fecha}."
+    )
+
+    # Limpieza de snapshots innecesarias.
+    run_command(["snapper", "-c", "root", "cleanup", "number"])
+    run_command(["snapper", "-c", "home", "cleanup", "number"])
+
+    # Snapshot del volumen @.
+    run_command(
+        [
+            "snapper",
+            "-c",
+            "root",
+            "create",
+            "-c",
+            "number",
+            "--description",
+            f"{snapshot_str}",
+        ],
+    )
+
+    # Snapshot del volumen @home.
+    run_command(
+        [
+            "snapper",
+            "-c",
+            "home",
+            "create",
+            "-c",
+            "number",
+            "--description",
+            f"{snapshot_str}",
+        ],
+    )
 
 
 def sincronize_repositories():
     draw_coloured_line(30)
     print("Sincronización de repositorios")
     draw_coloured_line(30)
+    create_pre_update_snapshot()
     run_command_as_root(["emaint", "-a", "sync"])
     draw_coloured_line(36)
     print("Descarga de código fuente y paquetes")
@@ -93,12 +142,48 @@ def update_firmware():
     run_command(["fwupdmgr", "update"], check_return=False)
 
 
+def cve_check_menu():
+    while True:
+        clear_screen()
+        draw_coloured_line(56, "=")
+        print("Apartado para verificar si el sistema está expuesto a un")
+        print("un fallo de seguridad.")
+        draw_coloured_line(56, "=")
+        print("1. Controlar si el sistema está afectado por alguno de")
+        print("   los fallos publicados.")
+        print("2. Obtener los pasos requeridos para remediar un fallo.")
+        print("3. SALIR.")
+        print("")
+        choice = get_choice(1, 3)
+
+        # Por motivos estéticos, si utilizo alguna de las
+        # opciones que se ejecutan justo debajo del menú,
+        # imprimo un separador.
+        if choice < 3:
+            draw_coloured_line(59)
+
+        match choice:
+            case 1:
+                run_command(["glsa-check", "-t", "all"])
+            case 2:
+                cve_id = input("Ingrese la ID de un fallo reportado: ")
+                print("")
+                run_command(["glsa-check", "-p", f"{cve_id}"])
+            case 3:
+                break
+
+        # Esta llamada a press_enter() pausa la ejecución en
+        # cualquier caso, a excepción de cuando se elige salir
+        # del menú.
+        press_enter()
+
+
 def updates_menu():
     while True:
         clear_screen()
         check_internet_connection()
         draw_updates_menu()
-        choice = get_choice(1, 6)
+        choice = get_choice(1, 7)
 
         # Antes de ejecutar las opciones, conviene limpiar
         # la pantalla. De lo contrario, se genera un caos
@@ -117,9 +202,12 @@ def updates_menu():
             case 5:
                 run_command(["emerge", "-puDN", "@world"])
             case 6:
+                cve_check_menu()
+            case 7:
                 break
 
         # Esta llamada a press_enter() pausa la ejecución en
         # cualquier caso, a excepción de cuando se elige salir
         # del menú.
-        press_enter()
+        if choice < 6:
+            press_enter()
