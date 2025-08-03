@@ -147,7 +147,7 @@ def cve_check_menu():
         clear_screen()
         draw_coloured_line(56, "=")
         print("Apartado para verificar si el sistema está expuesto a un")
-        print("un fallo de seguridad.")
+        print("un fallo de seguridad")
         draw_coloured_line(56, "=")
         print("1. Controlar si el sistema está afectado por alguno de")
         print("   los fallos publicados.")
