@@ -10,6 +10,8 @@ de los scripts y el control de entradas recibidas por parte del usuario.
 
 import subprocess
 
+from typing import Literal
+
 # Diccionarios a utilizar en las funciones encargadas de colorear contenidos.
 BACKGROUND_COLOURS = {
     # Reglas de uso de los colores:
@@ -52,6 +54,46 @@ def _background_and_foreground_colour_exception():
 
 
 # --- Funciones públicas para recibir entradas del usuario ---
+def get_validated_input(
+    msg: str, return_type: Literal["str", "int"] = "str"
+) -> str | int:
+    """
+    get_validated_input() es un wrapper de la función input() que
+    sirve para controlar la entrada recibida por parte del usuario.
+    La idea es evitar que se permita introducir respuestas vacías o
+    que no concuerden con el tipo de dato especificado.
+
+    La función admite dos tipos de datos: cadenas ("str") y números
+    enteros ("int").
+    """
+    if return_type not in ["str", "int"]:
+        raise ValueError(
+            "El parámetro 'return_type' debe ser una cadena ('str') o"
+            " un número entero ('int')."
+        )
+
+    while True:
+        input_str = input(f"{msg}")
+
+        # Si el usuario no introduce nada y presiona ENTER,
+        # o si introduce caracteres que no sean números cuando
+        # se necesita recibir un número, hay que imprimir un
+        # mensaje de error y solicitar una elección correcta.
+        if input_str == "":
+            bg_colour("red", "¡Introduzca un valor!")
+            continue
+        elif return_type == "int" and not input_str.isdigit():
+            bg_colour("red", "¡Solo se pueden introducir números!")
+            continue
+        else:
+            break
+
+    if return_type == "str":
+        return input_str
+    else:
+        return int(input_str)
+
+
 def get_choice(low_lim: int, upp_lim: int) -> None:
     """
     get_choice() es una función encargada de recibir la
@@ -60,11 +102,10 @@ def get_choice(low_lim: int, upp_lim: int) -> None:
     low_lim (para el límite inferior) y upp_lim (para el
     límite superior).
 
-    Si el valor recibido se encuentra por fuera del rango
-    establecido, si no se realiza una elección (se presiona
-    la tecla ENTER sin introducir contenido) o si se introduce
-    una letra, la función mostrará un mensaje de error y le
-    pedirá al usuario nuevamente que introduzca su elección.
+    Esta función se apoya en los chequeos realizados
+    previamente al llamar a la función get_validated_input()
+    y luego verifica si el usuario realiza una elección que
+    se encuentra por fuera del rango permitido.
 
     Asimismo, si los límites especificados al llamar a la
     la función son menores a uno, se producirá una excepción
@@ -82,29 +123,20 @@ def get_choice(low_lim: int, upp_lim: int) -> None:
         )
 
     while True:
-        choice_str = input("Ingrese su elección: ")
+        choice = get_validated_input(
+            msg="Ingrese su elección: ",
+            return_type="int",
+        )
 
-        # Si el usuario no introduce nada y presiona ENTER,
-        # o si introduce caracteres que no sean números, hay
-        # que imprimir un mensaje de error y solicitar una
-        # elección correcta.
-        if choice_str == "":
-            bg_colour("red", "¡Introduzca una elección!")
-            continue
-        elif not choice_str.isdigit():
-            bg_colour("red", "¡Solo se pueden introducir números!")
+        if choice < low_lim or choice > upp_lim:
+            # Si el usuario introduce un valor por fuera del
+            # rango aceptado, hay que imprimir un mensaje de
+            # error y luego solicitarle una elección correcta.
+            bg_colour("red", "¡Introduzca un número válido!")
             continue
         else:
-            choice = int(choice_str)
-            if choice < low_lim or choice > upp_lim:
-                # Si el usuario introduce un valor por fuera del
-                # rango aceptado, hay que imprimir un mensaje de
-                # error y luego solicitarle una elección correcta.
-                bg_colour("red", "¡Introduzca un número válido!")
-                continue
-            else:
-                # De lo contrario, se puede seguir con el programa.
-                return choice
+            # De lo contrario, se puede seguir con el programa.
+            return choice
 
 
 def press_enter() -> None:
