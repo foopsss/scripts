@@ -6,10 +6,6 @@
 # sys-apps/fwupd     - provee "fwupdmgr".
 # app-backup/snapper - provee "snapper".
 
-# TODO: añadir una función que permita generar y/o actualizar una entrada de
-#        systemd-boot que permita bootear el sistema desde una snapshot.
-# Info: https://www.google.com/search?client=firefox-b-d&channel=entpr&q=boot+to+snapper+snapshots+using+systemd-boot
-
 from modules.console_ui import (
     bg_colour,
     clear_screen,
@@ -151,7 +147,8 @@ def updates_menu():
         # Antes de ejecutar las opciones, conviene limpiar
         # la pantalla. De lo contrario, se genera un caos
         # visual tremendo.
-        clear_screen()
+        if choice < 7:
+            clear_screen()
 
         match choice:
             case 1:
@@ -171,6 +168,6 @@ def updates_menu():
 
         # Esta llamada a press_enter() pausa la ejecución en
         # cualquier caso, a excepción de cuando se elige salir
-        # del menú.
+        # del menú o se entra a otro apartado del módulo.
         if choice < 6:
             press_enter()

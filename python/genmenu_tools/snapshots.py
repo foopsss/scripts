@@ -113,7 +113,7 @@ def snapshot_management_menu():
         #
         # Si utilizo alguna opción que requiera limpiar
         # la pantalla, hago eso.
-        if (choice == 1) or (choice > 2 and choice < 4):
+        if choice == 1 or choice == 3:
             draw_coloured_line(59)
         else:
             clear_screen()
@@ -133,5 +133,8 @@ def snapshot_management_menu():
             case 5:
                 break
 
+        # Esta llamada a press_enter() pausa la ejecución en
+        # cualquier caso, a excepción de cuando se elige salir
+        # del menú.
         if choice < 5:
             press_enter()

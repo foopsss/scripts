@@ -3,9 +3,13 @@
 # Paquetes usados en este script:
 # app-portage/gentoolkit  - provee "eclean".
 # app-admin/eclean-kernel - provee "eclean-kernel".
-# app-portage/genlop      - provee "genlop".
-# sys-apps/portage        - provee "emerge" y "dispatch-conf".
+# sys-apps/portage        - provee "dispatch-conf".
+# sys-apps/coreutils      - provee "cat" y "wc".
 # app-admin/eselect       - provee "eselect" y sus módulos.
+
+# TODO: añadir una función que permita generar y/o actualizar una entrada de
+#        systemd-boot que permita bootear el sistema desde una snapshot.
+# Info: https://www.google.com/search?client=firefox-b-d&channel=entpr&q=boot+to+snapper+snapshots+using+systemd-boot
 
 import os
 import shutil
@@ -27,6 +31,7 @@ from modules.subprocess_utils import (
 
 from genmenu_tools.updates import updates_menu
 from genmenu_tools.snapshots import snapshot_management_menu
+from genmenu_tools.package_management import package_management_menu
 
 
 def draw_menu():
@@ -39,18 +44,19 @@ def draw_menu():
     print("1. Menú de opciones de actualización.")
     print("2. Menú de manejo de paquetes y repositorios del sistema.")
     print("3. Menú de manejo de snapshots.")
+    print("4. Menú de obtención de información sobre USE flags.")
     print("")
     print("OPCIONES DE LIMPIEZA")
     draw_coloured_line(20)
-    print("4. Limpiar archivos residuales.")
-    print("5. Limpiar versiones antiguas del kernel.")
-    print("6. Limpiar miniaturas de Nautilus.")
+    print("5. Limpiar archivos residuales.")
+    print("6. Limpiar versiones antiguas del kernel.")
+    print("7. Limpiar miniaturas de Nautilus.")
     print("")
     print("MISCELÁNEA")
     draw_coloured_line(10)
-    print("7. Resolver conflictos por diferencia de archivos.")
-    print("8. Leer el boletín de noticias de Gentoo.")
-    print("9. SALIR.")
+    print("8. Resolver conflictos por diferencia de archivos.")
+    print("9. Leer el boletín de noticias de Gentoo.")
+    print("10. SALIR.")
     print("")
 
 
@@ -111,7 +117,7 @@ def main():
     while True:
         clear_screen()
         draw_menu()
-        choice = get_choice(1, 9)
+        choice = get_choice(1, 10)
 
         # Por motivos estéticos, si utilizo alguna de las
         # opciones que se ejecutan justo debajo del menú,
@@ -119,19 +125,21 @@ def main():
         #
         # Si utilizo alguna opción que requiera limpiar
         # la pantalla, hago eso.
-        if choice >= 4 and choice <= 7:
+        if choice >= 5 and choice <= 8:
             draw_coloured_line(59)
-        elif choice == 8:
+        elif choice == 9:
             clear_screen()
 
         match choice:
             case 1:
                 updates_menu()
             case 2:
-                print("HOLA2")
+                package_management_menu()
             case 3:
                 snapshot_management_menu()
             case 4:
+                print("HOLAAA4")
+            case 5:
                 # doas recuerda al último usuario autenticado
                 # por 5 minutos, tiempo más que suficiente para
                 # ejecutar estas dos opciones, por lo que no es
@@ -140,21 +148,22 @@ def main():
                 # de superusuario.
                 run_command_as_root(["eclean-dist", "-d"])
                 run_command_as_root(["eclean-pkg", "-d"])
-            case 5:
-                run_command_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
             case 6:
-                clean_thumbnails()
+                run_command_as_root(["eclean-kernel", "-A", "-d", "-n 2"])
             case 7:
-                run_command_as_root(["dispatch-conf"])
+                clean_thumbnails()
             case 8:
-                read_news()
+                run_command_as_root(["dispatch-conf"])
             case 9:
+                read_news()
+            case 10:
                 sys.exit(0)
 
-        # Detengo el script hasta que el usuario presione
-        # ENTER para poder leer la información emitida por
-        # pantalla al utilizar ciertas opciones.
-        if choice >= 4 and choice <= 7:
+        # Esta llamada a press_enter() pausa la ejecución en
+        # cualquier caso, a excepción de cuando se elige salir
+        # del menú o se entra a otro apartado del script u otros
+        # módulos.
+        if choice >= 5 and choice <= 8:
             press_enter()
 
 
