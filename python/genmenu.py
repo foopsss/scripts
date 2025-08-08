@@ -111,7 +111,7 @@ def main():
     while True:
         clear_screen()
         draw_menu()
-        choice = get_choice(1, 10)
+        choice = get_choice(1, 9)
 
         # Por motivos estéticos, si utilizo alguna de las
         # opciones que se ejecutan justo debajo del menú,
