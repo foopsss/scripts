@@ -5,6 +5,7 @@
 # app-backup/snapper - provee "snapper".
 
 from modules.console_ui import (
+    bg_colour,
     clear_screen,
     draw_coloured_line,
     get_choice,
@@ -86,11 +87,38 @@ def create_system_snapshot(snapshot_description: str):
     )
 
 
+def get_input_and_create_snapshot():
+    while True:
+        snapshot_str = input("Introduzca una descripción para la snapshot: ")
+
+        if snapshot_str == "":
+            bg_colour("red", "¡Introduzca una descripción!")
+            continue
+        else:
+            break
+
+    create_system_snapshot(snapshot_str)
+
+
 def delete_system_snapshot():
     get_snapshots_list()
     print("")
 
-    snapshot_number = int(input("Introduzca el número de snapshot a borrar: "))
+    while True:
+        snapshot_number_str = input(
+            "Introduzca el número de snapshot a borrar: "
+        )
+
+        if snapshot_number_str == "":
+            bg_colour("red", "¡Introduzca una elección!")
+            continue
+        elif not snapshot_number_str.isdigit():
+            bg_colour("red", "¡Solo se pueden introducir números!")
+            continue
+        else:
+            break
+
+    snapshot_number = int(snapshot_number_str)
     print("")
 
     run_command(["snapper", "-c", "root", "delete", f"{snapshot_number}"])
@@ -120,10 +148,7 @@ def snapshot_management_menu():
             case 2:
                 get_snapshots_list()
             case 3:
-                snapshot_str = input(
-                    "Introduzca una descripción para la snapshot: "
-                )
-                create_system_snapshot(snapshot_str)
+                get_input_and_create_snapshot()
             case 4:
                 delete_system_snapshot()
             case 5:
