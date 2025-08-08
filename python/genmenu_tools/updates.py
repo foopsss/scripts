@@ -10,8 +10,6 @@
 #        systemd-boot que permita bootear el sistema desde una snapshot.
 # Info: https://www.google.com/search?client=firefox-b-d&channel=entpr&q=boot+to+snapper+snapshots+using+systemd-boot
 
-from datetime import date
-
 from modules.console_ui import (
     bg_colour,
     clear_screen,
@@ -25,6 +23,8 @@ from modules.subprocess_utils import (
     run_command_and_get_return_code,
     run_command_as_root,
 )
+
+from genmenu_tools.snapshots import create_system_snapshot
 
 
 def check_internet_connection():
@@ -43,9 +43,7 @@ def check_internet_connection():
     if ping_exit_code != 0:
         draw_coloured_line(48, "=")
         bg_colour("red", "¡No cuenta con conexión a Internet!")
-        bg_colour(
-            "yellow", "Varias opciones de este menú no podrán ser\nutilizadas."
-        )
+        bg_colour("yellow", "No podrá utilizar algunas opciones del menú.")
 
 
 def draw_updates_menu():
@@ -70,43 +68,8 @@ def draw_updates_menu():
 
 
 def create_pre_update_snapshot():
-    fecha = date.today().strftime("%d/%m/%Y")
-    snapshot_str = (
-        "Snapshot previa a una actualización del sistema"
-        f" - Creada el {fecha}."
-    )
-
-    # Limpieza de snapshots innecesarias.
-    run_command(["snapper", "-c", "root", "cleanup", "number"])
-    run_command(["snapper", "-c", "home", "cleanup", "number"])
-
-    # Snapshot del volumen @.
-    run_command(
-        [
-            "snapper",
-            "-c",
-            "root",
-            "create",
-            "-c",
-            "number",
-            "--description",
-            f"{snapshot_str}",
-        ],
-    )
-
-    # Snapshot del volumen @home.
-    run_command(
-        [
-            "snapper",
-            "-c",
-            "home",
-            "create",
-            "-c",
-            "number",
-            "--description",
-            f"{snapshot_str}",
-        ],
-    )
+    snapshot_str = "Snapshot previa a una actualización del sistema"
+    create_system_snapshot(snapshot_str)
 
 
 def sincronize_repositories():
