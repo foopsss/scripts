@@ -4,7 +4,6 @@
 # sys-apps/portage   - provee "emerge", "emaint" y "glsa-check".
 # sys-apps/flatpak   - provee "flatpak".
 # sys-apps/fwupd     - provee "fwupdmgr".
-# app-backup/snapper - provee "snapper".
 
 from modules.console_ui import (
     bg_colour,
