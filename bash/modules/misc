@@ -1,0 +1,38 @@
+### Archivo de Funciones. ###
+### Acá se almacenan funciones sin una categoría definida. ###
+
+Línea() {
+	# Esta función imprime una línea de guiones.
+	YT "-------------------------------------------------------------------------------------------------------"
+}
+export -f Línea
+
+resize_window() {
+	# Esta función utiliza una secuencia para definir el tamaño de la ventana.
+	printf '\e[8;32;104t'
+}
+export -f resize_window
+
+incorrect_selection() {
+	# En caso de que la selección realizada no sea la correcta, esta función muestra un mensaje de error.
+	RBT "¡Selección incorrecta! Por favor, intente de nuevo."
+}
+export -f incorrect_selection
+
+shutdown_system() {
+	Línea
+	echo -n "¿Desea apagar el equipo luego de esta operación? [S/N]: "
+	read answer
+
+	if [ "$answer" = "S" ] || [ "$answer" = "s" ]
+	then
+		GBT "El sistema será apagado tras realizar las operaciones pendientes."
+		$1
+		systemctl poweroff -i
+	else
+		RBT "El sistema NO será apagado tras realizar las operaciones pendientes."
+		$1
+		press_enter
+	fi
+}
+export -f shutdown_system

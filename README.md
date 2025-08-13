@@ -1,0 +1,2 @@
+# Scripts
+Here I store some scripts I made thanks to the Internet community that I'd like to share. The scripts are sorted by the language used and stored in folders named as such. They are used to either back-up something or to present the user with a TUI to do something.

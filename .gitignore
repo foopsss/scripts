@@ -1,0 +1,2 @@
+# Regla para ignorar los archivos de caché de Python.
+*.pyc

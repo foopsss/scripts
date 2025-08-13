@@ -1,0 +1,58 @@
+### Archivo de Funciones. ###
+### Acá se almacenan funciones para recibir una indicación del usuario en varias formas. ###
+
+read_selection() {
+	echo -n "Escriba el número correspondiente a la operación que desee realizar y presione ENTER: "
+	read selection
+}
+export -f read_selection
+
+press_enter() {
+	echo
+	echo -n "Presione ENTER para continuar."
+	read
+	clear
+}
+export -f press_enter
+
+ask_package() {
+	echo -n "Nombre del paquete: "
+	read package
+}
+export -f ask_package
+
+ask_repository() {
+	echo -n "Nombre del repositorio: "
+	read repository
+}
+export -f ask_repository
+
+ask_use() {
+	echo -n "Nombre del parámetro: "
+	read use
+}
+export -f ask_use
+
+ask_news() {
+	echo -n "Número de noticia: "
+	read news
+}
+export -f ask_news
+
+ask_command() {
+	echo -n "Comando: "
+	read command
+}
+export -f ask_command
+
+ask_version () {
+	echo -n "Versión: "
+	read version
+}
+export -f ask_version
+
+ask_file() {
+	echo -n "Nombre (y/o ruta) del archivo: "
+	read file
+}
+export -f ask_file
