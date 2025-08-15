@@ -100,6 +100,7 @@ def package_management_menu():
                 run_command_as_root(
                     ["eselect", "repository", "enable", f"{user_input}"]
                 )
+                run_command_as_root(["emerge", "--sync", f"{user_input}"])
             case 2:
                 run_command_as_root(
                     ["eselect", "repository", "remove", f"{user_input}"]
