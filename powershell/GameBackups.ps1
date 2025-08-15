@@ -36,6 +36,8 @@ function New-Copy {
 	Test-DoubleExistence -arch1 "$first_file" -arch2 "$second_file"
 }
 
+$onedrive_zips_folder = Join-Path -Path $onedrive_folder -ChildPath 'Backups\Zips'
+
 do
 {
     Show-Menu
@@ -48,8 +50,8 @@ do
         '1' {
             $minecraft = @{
 				origin = "I:\Minecraft\Instalaciones\Fabric\saves\Lucas3"
-				first_file = "$onedrive_win\Lucas3.zip"
-				second_file = "$zips_win\Lucas3.zip"
+				first_file = "$onedrive_zips_folder\Lucas3.zip"
+				second_file = "$zips_usb\Lucas3.zip"
 			}
             New-Copy @minecraft
         }
@@ -57,8 +59,8 @@ do
         '2' {
             $codwaw = @{
 				origin = "C:\Users\liben\AppData\Local\Activision\CoDWaW"
-				first_file = "$onedrive_win\Call of Duty World at War.zip"
-				second_file = "$zips_win\Call of Duty World at War.zip"
+				first_file = "$onedrive_zips_folder\Call of Duty World at War.zip"
+				second_file = "$zips_usb\Call of Duty World at War.zip"
 			}
 			New-Copy @codwaw
         }
@@ -66,8 +68,8 @@ do
         '3' {
             $gtasa = @{
 				origin = "C:\Users\$username_win\Documents\GTA San Andreas User Files"
-				first_file = "$onedrive_win\Grand Theft Auto San Andreas.zip"
-				second_file = "$zips_win\Grand Theft Auto San Andreas.zip"
+				first_file = "$onedrive_zips_folder\Grand Theft Auto San Andreas.zip"
+				second_file = "$zips_usb\Grand Theft Auto San Andreas.zip"
 			}
 			New-Copy @gtasa
         }
@@ -75,8 +77,8 @@ do
 		'4' {
 			$twd = @{
 				origin = "C:\Users\$username_win\Documents\Telltale Games"
-				first_file = "$onedrive_win\The Walking Dead Definitive Edition.zip"
-				second_file = "$zips_win\The Walking Dead Definitive Edition.zip"
+				first_file = "$onedrive_zips_folder\The Walking Dead Definitive Edition.zip"
+				second_file = "$zips_usb\The Walking Dead Definitive Edition.zip"
 			}
 			New-Copy @twd
 		}

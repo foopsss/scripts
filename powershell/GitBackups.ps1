@@ -36,21 +36,13 @@ foreach($repo in $repos) {
 $repos = $repos | ForEach-Object {"$_.zip"}
 
 # Comprimo los archivos obtenidos previamente en un solo archivo de salida.
-$ruta_pendrive = Join-Path -Path $zips -ChildPath 'GitHub.zip'
+$ruta_pendrive = Join-Path -Path $zips_usb -ChildPath 'GitHub.zip'
+$ruta_onedrive = Join-Path -Path $onedrive_folder -ChildPath 'Backups/Zips/GitHub.zip'
 Compress-Archive -LiteralPath $repos -DestinationPath $ruta_pendrive -Force
 
 # Copio el archivo a OneDrive.
-if (Test-WindowsOS) {
-	Copy-Item $ruta_pendrive -Destination "$onedrive_win\GitHub.zip" -Force
-	Test-DoubleExistence -arch1 $ruta_pendrive -arch2 "$onedrive_win\GitHub.zip"
-} else {
-	# La funcion "is_windows" solo devuelve "Unix" si no uso Windows.
-	# Sin embargo, me es suficiente para el uso que le voy a dar.
-	# Este código está comentado por ahora porque no puedo probarlo.
-	# Copy-Item $ruta_pendrive -Destination "$onedrive_linux/GitHub.zip" -Force
-	# Test-DoubleExistence -arch1 $ruta_pendrive -arch2 "$onedrive_linux/GitHub.zip"
-	Test-SingleExistence -arch $ruta_pendrive
-}
+Copy-Item $ruta_pendrive -Destination $ruta_onedrive -Force
+Test-DoubleExistence -arch1 $ruta_pendrive -arch2 $ruta_onedrive
 
 # Limpio los archivos residuales innecesarios y salgo.
 Remove-Item -LiteralPath $repos
