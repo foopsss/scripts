@@ -13,7 +13,7 @@ import subprocess
 from typing import Literal
 
 # Diccionarios a utilizar en las funciones encargadas de colorear contenidos.
-BACKGROUND_COLOURS = {
+_BACKGROUND_COLOURS = {
     # Reglas de uso de los colores:
     # * El rojo se usa para mensajes de error.
     # * El amarillo se usa para mostrar advertencias.
@@ -30,7 +30,7 @@ BACKGROUND_COLOURS = {
 }
 
 
-FOREGROUND_COLOURS = {
+_FOREGROUND_COLOURS = {
     "red": 31,
     "yellow": 33,
     "green": 32,
@@ -207,7 +207,7 @@ def bg_colour(colour: str, text: str) -> None:
 
     Permite especificar el color a utilizar con una cadena
     (string), la cual debe tratarse de una de los colores
-    disponibles en el diccionario BACKGROUND_COLOURS,
+    disponibles en el diccionario _BACKGROUND_COLOURS,
     disponible en la cabecera de esta librería, y el texto
     a imprimir por pantalla.
 
@@ -217,7 +217,7 @@ def bg_colour(colour: str, text: str) -> None:
     pantalla.
     """
     try:
-        background_code = BACKGROUND_COLOURS[colour]
+        background_code = _BACKGROUND_COLOURS[colour]
         print(f"\033[1;37;{background_code}m{text}\033[0m")
     except KeyError:
         _background_and_foreground_colour_exception()
@@ -230,7 +230,7 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
 
     Permite especificar el color a utilizar con una cadena
     (string), la cual debe tratarse de una de los colores
-    disponibles en el diccionario FOREGROUND_COLOURS,
+    disponibles en el diccionario _FOREGROUND_COLOURS,
     disponible en la cabecera de esta librería, y el texto
     a imprimir por pantalla o devolver como resultado.
 
@@ -240,7 +240,7 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
     pantalla.
     """
     try:
-        foreground_code = FOREGROUND_COLOURS[colour]
+        foreground_code = _FOREGROUND_COLOURS[colour]
         line = f"\033[1;{foreground_code}m{text}\033[0m"
 
         if print_line:
