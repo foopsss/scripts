@@ -73,7 +73,7 @@ def get_validated_input(
         )
 
     while True:
-        input_str = input(f"{msg}")
+        input_str = input(f"{msg}: ")
 
         # Si el usuario no introduce nada y presiona ENTER,
         # o si introduce caracteres que no sean números cuando
