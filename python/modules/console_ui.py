@@ -124,7 +124,7 @@ def get_choice(low_lim: int, upp_lim: int) -> None:
 
     while True:
         choice = get_validated_input(
-            msg="Ingrese su elección: ",
+            msg="Ingrese su elección",
             return_type="int",
         )
 
