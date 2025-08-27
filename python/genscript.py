@@ -77,37 +77,35 @@ def read_news():
     # pipe_commands y se obtiene el número total de entradas
     # entradas de noticias disponibles para leer revisando
     # los contenidos de la carpeta "/var/lib/gentoo/news".
-    read_news = pipe_commands(
-        ["cat", "/var/lib/gentoo/news/news-gentoo.read"], ["wc", "-l"]
+    news_folder = "/var/lib/gentoo/news"
+    news_count = 0
+
+    for file in os.listdir(news_folder):
+        if file.endswith(".read") or file.endswith(".unread"):
+            file_line_count = pipe_commands(
+                ["cat", f"/var/lib/gentoo/news/{file}"], ["wc", "-l"]
+            )
+            news_count += int(file_line_count)
+
+    # Presentación del menú de noticias disponibles
+    # para leer. Debido a que "eselect news list"
+    # devuelve 1 como código de salida aún si se lo
+    # ejecutó exitosamente, debo desactivar el control
+    # de errores para este programa.
+    run_command(
+        ["eselect", "news", "list"], check_return=False, use_shell=False
     )
-    unread_news = pipe_commands(
-        ["cat", "/var/lib/gentoo/news/news-gentoo.unread"], ["wc", "-l"]
+    print("")
+
+    # Lectura del boletín de noticias deseado.
+    # Se utiliza el intérprete de consola del sistema
+    # para poder pasar la entrada de noticias por less.
+    entry = get_choice(1, news_count)
+    run_command(
+        f"eselect news read {entry} | less",
+        check_return=True,
+        use_shell=True,
     )
-
-    # Si por algún motivo falla alguno de los dos pipes,
-    # entonces no se puede proceder. Eso se considera acá.
-    if (read_news is not None) and (unread_news is not None):
-        news_count = int(read_news) + int(unread_news)
-
-        # Presentación del menú de noticias disponibles
-        # para leer. Debido a que "eselect news list"
-        # devuelve 1 como código de salida aún si se lo
-        # ejecutó exitosamente, debo desactivar el control
-        # de errores para este programa.
-        run_command(
-            ["eselect", "news", "list"], check_return=False, use_shell=False
-        )
-        print("")
-
-        # Lectura del boletín de noticias deseado.
-        # Se utiliza el intérprete de consola del sistema
-        # para poder pasar la entrada de noticias por less.
-        entry = get_choice(1, news_count)
-        run_command(
-            f"eselect news read {entry} | less",
-            check_return=True,
-            use_shell=True,
-        )
 
 
 def main():
