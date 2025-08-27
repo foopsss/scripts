@@ -20,40 +20,44 @@ diccionario es la siguiente:
 2. "options": una lista que debe contener los títulos de los apartados y las
    opciones a ejecutar. Cada elemento de esta lista es un diccionario que
    puede tener los siguientes parámetros:
-   2.1. "type": describe el tipo de elemento. Puede contener los valores
-        'header', 'menu', 'cmd', 'multiple_cmd', 'piped_cmd', 'function',
-        'exit_script' y 'exit_menu'.
-   2.2. "name": el texto a mostrar en el encabezado u opción del menú.
-   2.3. "action": la acción a realizar. Su tipo de dato depende del valor del
-        parámetro "type":
-        2.3.1. Si "type" tiene el valor 'header', debe estar ausente o tener el
-               valor 'None'.
-        2.3.2. Si "type" tiene el valor 'menu', debe contener una referencia al
-               diccionario a pasarle como parámetro a la función run_menu(),
-               sin que esta sea un string.
-        2.3.3. Si "type" tiene el valor 'cmd', debe contener una lista de
-               strings.
-        2.3.4. Si "type" tiene los valores 'multiple_cmd' o 'piped_cmd',
-               debe tratarse de una lista de listas de strings.
-        2.3.5. Si "type" tiene el valor 'function', debe contener una
+   2.1. "name": el texto a mostrar en el encabezado u opción del menú.
+   2.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
+        realizar:
+        2.2.1. Si se debe entrar a un menu, "action" debe contener una
+               referencia al diccionario a pasarle como parámetro a la función
+               run_menu(), sin que esta sea un string.
+        2.2.2. Si se debe ejecutar una función, "action" debe contener una
                referencia a la función a ejecutar, sin que esta sea un string.
-        2.3.5. Si "type" tiene los valores 'exit_script' o 'exit_menu', debe
-               estar ausente o tener el valor 'None'.
-   2.4. "aesthetic_action": la acción estética a ejecutar antes de la acción
+        2.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
+               contener una lista, la cual estará compuesta a su vez por una o
+               más listas de strings. En caso de que se deban ejecutar dos
+               comandos con pipes, el primer elemento de la lista deberá ser el
+               string "pipe", luego del cual vendrán las dos listas de strings
+               correspondientes a los comandos a ejecutar.
+        2.2.4. Si se desea salir de un menú de opciones para volver a otro menú
+               anterior, "action" deberá contener el string 'exit_menu'.
+        2.2.5. Si se desea salir del script, "action" deberá contener el string
+               'exit_script'.
+        2.2.6. Si se desea mostrar un título de apartado, "action" debe estar
+               ausente o contener el valor None.
+   2.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
         principal. Puede contener los valores 'print_line' o 'clear_screen'.
-   2.5. "prompt": el mensaje para solicitar una entrada del usuario.
-   2.6. "prompt_input": el tipo de dato que debe tener la entrada provista por
-        el usuario. Puede contener los valores 'str' o 'int'.
-   2.7. "piped_cmd_input_position": si el valor del parámetro "type" es
-        'piped_cmd', indica a qué comando se le anexa la entrada provista por
-        el usuario, si al primero o al segundo. Puede contener los valores
-        'first' o 'second'.
-   2.8. "requires_root": describe si el comando debe ejecutarse con permisos
+   2.4. "prompt": el mensaje para solicitar una entrada del usuario.
+   2.5. "piped_cmd_input_position": indica a qué comando se le anexa la entrada
+        provista por el usuario, si al primero o al segundo, en caso de que se
+        deban ejecutar comandos con pipes. Puede contener los valores 'first' o
+        'second'.
+   2.6. "requires_root": describe si el comando debe ejecutarse con permisos
         de superusuario o no. Puede contener los valores True o False.
 
-   A excepción de "type" y "name", que deben ser obligatorios. Todos los demás
-   parámetros pueden ser opcionales.
+   A excepción de "title" y "name", que deben ser obligatorios, todos los demás
+   parámetros pueden ser opcionales en el diccionario de entrada. Para cada
+   elemento de la lista "options", el único parámetro obligatorio es "name".
 """
+
+# TODO: investigar una manera de usar marcadores "root" para etiquetar los
+#       comandos que deben ejecutarse con permisos de superusuario, en vez de
+#       usar la llave "requires_root".
 
 import sys
 
@@ -85,14 +89,15 @@ def _draw_menu(menu_data: dict) -> None:
     # Impresión del encabezado de la sección.
     # Este debe ser el primer elemento de la lista que
     # define su estructura, de nombre "title".
-    draw_coloured_line(len(menu_data["title"]), "=")
+    title_length = len(menu_data["title"])
+    draw_coloured_line(title_length, "=")
     print(menu_data["title"])
-    draw_coloured_line(len(menu_data["title"]), "=")
+    draw_coloured_line(title_length, "=")
 
     # Impresión del listado de opciones.
     option_number = 1
     for item in menu_data["options"]:
-        if item["type"] == "header":
+        if "action" not in item:
             print(f"\n{item["name"]}")
             draw_coloured_line(len(item["name"]))
         else:
@@ -127,11 +132,11 @@ def _get_command_options(menu_data: dict) -> list:
     # Recorrido de la lista "options" definida dentro
     # del diccionario de entrada.
     for item in menu_data["options"]:
-        if item["type"] != "header":
+        if "action" in item:
             # Si un ítem de la lista "opciones" contenida
-            # dentro del diccionario de entrada NO es del
-            # tipo encabezado, se lo añade a la lista de
-            # salida.
+            # dentro del diccionario de entrada tiene una
+            # llave "action" definida, entonces lo añado
+            # a la lista de salida.
             command_options.append(item)
 
     return command_options
@@ -154,61 +159,43 @@ def _handle_action(menu_option: dict) -> None:
     # ingrese algo por pantalla, se lo pido acá.
     # Se utiliza el mensaje definido en el campo "prompt"
     # del diccionario almacenado en "menu_option".
+    user_input = None
     if "prompt" in menu_option:
-        if "prompt_input" == "str":
-            user_input = get_validated_input(menu_option["prompt"])
-        elif "prompt_input" == "int":
-            user_input = get_validated_input(
-                msg=menu_option["prompt"],
-                return_type="int",
-            )
+        user_input = get_validated_input(menu_option["prompt"])
 
-    # En aquellos casos donde trabajo con comandos, hago
-    # copias de sus valores, de manera que no las pueda
-    # alterar irreversiblemente en caso de procesar una
-    # entrada provista por el usuario, anexando dicha
-    # entrada a la definición en el diccionario de los
-    # comandos.
-    match menu_option["type"]:
-        case "cmd":
-            command = menu_option["action"].copy()
-            if "prompt" in menu_option:
-                command.append(user_input)
+    # Ejecución de la opción elegida.
+    if callable(menu_option["action"]):
+        # Se debe ejecutar una función.
+        menu_option["action"]()
+    elif isinstance(menu_option["action"], list):
+        # Trabajo con una copia del diccionario pasado por
+        # parámetro para no alterar el original.
+        commands_to_run = menu_option["action"].copy()
+        run_as_root = menu_option.get("requires_root", False)
 
-            if menu_option["requires_root"] is True:
-                run_command_as_root(command)
-            elif menu_option["requires_root"] is False:
-                run_command(command)
-        case "multiple_cmd":
-            for cmd in menu_option["action"]:
-                command = cmd.copy()
-                if "prompt" in menu_option:
+        if commands_to_run[0] == "pipe":
+            # Se deben ejecutar comandos con pipes.
+            piped_commands = commands_to_run[1:]
+            if user_input:
+                input_position = menu_option["piped_cmd_input_position"]
+                if input_position == "first":
+                    piped_commands[0].append(user_input)
+                elif input_position == "second":
+                    piped_commands[1].append(user_input)
+
+            result = pipe_commands(*piped_commands)
+            print(f"{result}")
+        else:
+            # Se deben ejecutar uno o varios comandos de
+            # forma sucesiva.
+            for command in commands_to_run:
+                if user_input:
                     command.append(user_input)
 
-                if menu_option["requires_root"] is True:
+                if run_as_root:
                     run_command_as_root(command)
-                elif menu_option["requires_root"] is False:
+                else:
                     run_command(command)
-        case "piped_cmd":
-            piped_commands_list = []
-
-            for cmd in menu_option["action"]:
-                cmd_copy = cmd.copy()
-                piped_commands_list.append(cmd_copy)
-
-            if "prompt" in menu_option:
-                if menu_option["piped_cmd_input_position"] == "first":
-                    piped_commands_list[0].append(user_input)
-                elif menu_option["piped_cmd_input_position"] == "second":
-                    piped_commands_list[1].append(user_input)
-
-            # Le paso todas las operaciones contenidas en la
-            # lista "piped_commands_list" como argumentos a
-            # piped_commands y ejecuto.
-            result = pipe_commands(*piped_commands_list)
-            print(f"{result}")
-        case "function":
-            menu_option["action"]()
 
 
 # --- Funciones públicas ---
@@ -232,28 +219,35 @@ def run_menu(menu_data: dict) -> None:
         options = _get_command_options(menu_data)
         option_number = get_choice(1, len(options))
 
-        # Obtengo el elemento de la lista "options" del diccionario
-        # de entrada que corresponde a la operación que se quiere
-        # realizar, el cual es un diccionario también.
+        # Obtengo el elemento de la lista "options" del
+        # diccionario de entrada que corresponde a la
+        # operación que se quiere realizar, el cual es
+        # un diccionario también.
         #
-        # Los números de índice de la listas empiezan a contarse
-        # desde el 0, mientras que yo en los menús acostumbro a
-        # empezar desde el 1, por lo que se debe subsanar esa
-        # diferencia.
+        # Los números de índice de la listas empiezan a
+        # contarse desde el 0, mientras que yo en los
+        # menús acostumbro a empezar desde el 1, por lo
+        # que se debe subsanar esa diferencia.
         #
-        # También controlo que la opción elegida por el usuario
-        # no tenga combinaciones incorrectas de parámetros en
-        # su definición.
+        # También controlo que la opción elegida por el
+        # usuario no tenga combinaciones incorrectas de
+        # parámetros en su definición.
         option = options[option_number - 1]
+        # _check_option_parameters(option)
 
-        # En primera instancia, controlo si el usuario desea
-        # salir o dirigirse a otro menú.
-        if option["type"] == "exit_script":
-            sys.exit(0)
-        elif option["type"] == "exit_menu":
+        # Luego de obtener el elemento, obtengo el valor
+        # de la clave "action".
+        action = option["action"]
+
+        # En primera instancia, controlo si el usuario
+        # desea salir o dirigirse a otro menú.
+        if isinstance(action, dict):
+            run_menu(action)
+            continue
+        elif isinstance(action, str) and action == "exit_menu":
             break
-        elif option["type"] == "menu":
-            run_menu(option["action"])
+        elif isinstance(action, str) and action == "exit_script":
+            sys.exit(0)
 
         # Por motivos estéticos, si utilizo alguna de las
         # opciones que se ejecutan justo debajo del menú,
@@ -267,10 +261,10 @@ def run_menu(menu_data: dict) -> None:
             elif option["aesthetic_action"] == "print_line":
                 draw_coloured_line(len(menu_data["title"]))
 
-        # Ejecuto la acción elegida por el usuario.
+        # Si la elección del usuario no es salir del script,
+        # ir o salir de un menú, ejecuto la acción elegida.
         _handle_action(option)
 
-        # Esta llamada a press_enter() pausa la ejecución en
-        # cualquier caso, a excepción de cuando se elige salir
-        # del menú.
-        press_enter()
+        # Luego de ejecutar la acción elegida, pauso el script.
+        if action != "exit_menu":
+            press_enter()
