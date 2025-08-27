@@ -7,50 +7,49 @@ DOCUMENTACIÓN DEL MÓDULO
 Este módulo contiene una serie de funciones relacionadas al aspecto estético
 y el funcionamiento de los scripts. Específicamente, contiene lo relacionado
 a la impresión por pantalla de un menú de opciones y el tratamiento de las
-opciones definidas en un menú, cosas que estarán todas definidas en una
-estructura de datos que deberá ser procesada por las funciones de este módulo.
+opciones definidas en el menú, cosas que estarán definidas en una estructura
+de datos que deberá ser procesada por las funciones de este módulo.
 
 ### Estructura de datos a utilizar en la librería ###
 La estructura de datos a procesar será un diccionario, el cual debe contener
-la cabecera del menú, los encabezados para agrupar opciones en apartados (si
-los hubiere) y las opciones en sí mismas. La estructura que debe tener el
-diccionario es la siguiente.
+el encabezado del menú, los títulos para agrupar opciones en apartados (si los
+hubiere) y las opciones en sí mismas. La estructura que debe tener el
+diccionario es la siguiente:
 
-1. "title": parámetro que contiene el texto a mostrar en la cabecera.
-2. "options": una lista que debe contener el texto a mostrar en los encabezados
-   y las opciones a ejecutar. Cada elemento de esta lista se tratará de un
-   diccionario, el cual podrá tener los siguientes parámetros:
-   2.1. "type": describe el tipo de elemento que contiene el diccionario y
-        puede contener los valores 'header', 'menu', 'cmd', 'multiple_cmd',
-        'piped_cmd', 'function', 'exit_script' y 'exit_menu'.
-   2.2. "name": contiene el texto a mostrar en el encabezado u opción del
-        menú.
-   2.3. "action": contiene la acción a realizar. Su tipo de dato depende de la
-        acción a realizar definida en el parámetro "type":
-        2.3.1. Si "type" tiene el valor 'header', debería estar vacío o tener
-               el valor 'None'.
+1. "title": contiene el texto a mostrar en el encabezado.
+2. "options": una lista que debe contener los títulos de los apartados y las
+   opciones a ejecutar. Cada elemento de esta lista es un diccionario que
+   puede tener los siguientes parámetros:
+   2.1. "type": describe el tipo de elemento. Puede contener los valores
+        'header', 'menu', 'cmd', 'multiple_cmd', 'piped_cmd', 'function',
+        'exit_script' y 'exit_menu'.
+   2.2. "name": el texto a mostrar en el encabezado u opción del menú.
+   2.3. "action": la acción a realizar. Su tipo de dato depende del valor del
+        parámetro "type":
+        2.3.1. Si "type" tiene el valor 'header', debe estar ausente o tener el
+               valor 'None'.
         2.3.2. Si "type" tiene el valor 'menu', debe contener una referencia al
                diccionario a pasarle como parámetro a la función run_menu(),
                sin que esta sea un string.
-        2.3.3. Si "type" tiene los valores 'cmd', 'multiple_cmd' o 'piped_cmd',
-               debe tratarse de una lista.
-        2.3.4. Si "type" tiene el valor 'function', debe contener un llamado
-               a la función a ejecutar, sin que este sea un string.
-        2.3.5. Si "type" tiene los valores 'exit_script' o 'exit_menu', debería
-               estar vacío o tener el valor 'None'.
-   2.4. "aesthetic_action": describe que acción estética debe ejecutarse antes
-        de ejecutar la acción definida en "action". Puede contener los valores
-        'print_line' o 'clear_screen'.
-   2.5. "prompt": contiene el mensaje a mostrarle por pantalla al usuario en
-        caso de que se le deba pedir que provea una entrada.
-   2.6. "prompt_input": contiene el tipo de dato que debe tener la entrada
-        provista por el usuario.
+        2.3.3. Si "type" tiene el valor 'cmd', debe contener una lista de
+               strings.
+        2.3.4. Si "type" tiene los valores 'multiple_cmd' o 'piped_cmd',
+               debe tratarse de una lista de listas de strings.
+        2.3.5. Si "type" tiene el valor 'function', debe contener una
+               referencia a la función a ejecutar, sin que esta sea un string.
+        2.3.5. Si "type" tiene los valores 'exit_script' o 'exit_menu', debe
+               estar ausente o tener el valor 'None'.
+   2.4. "aesthetic_action": la acción estética a ejecutar antes de la acción
+        principal. Puede contener los valores 'print_line' o 'clear_screen'.
+   2.5. "prompt": el mensaje para solicitar una entrada del usuario.
+   2.6. "prompt_input": el tipo de dato que debe tener la entrada provista por
+        el usuario. Puede contener los valores 'str' o 'int'.
    2.7. "piped_cmd_input_position": si el valor del parámetro "type" es
         'piped_cmd', indica a qué comando se le anexa la entrada provista por
         el usuario, si al primero o al segundo. Puede contener los valores
         'first' o 'second'.
    2.8. "requires_root": describe si el comando debe ejecutarse con permisos
-        de superusuario o no. Puede contener los valores 'True' o 'False'.
+        de superusuario o no. Puede contener los valores True o False.
 
    A excepción de "type" y "name", que deben ser obligatorios. Todos los demás
    parámetros pueden ser opcionales.
