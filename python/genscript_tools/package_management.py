@@ -57,8 +57,8 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
             "requires_root": True,
         },
         {
-            "name": "Obtener una lista de paquetes que dependen de un paquete\n"
-            "   determinado.",
+            "name": "Obtener una lista de paquetes que dependen de un paquete"
+            "\n   determinado.",
             "action": [["equery", "d"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
@@ -81,7 +81,8 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
             "prompt": "Nombre del paquete",
         },
         {
-            "name": "Buscar el paquete que provee un comando o archivo específico.",
+            "name": "Buscar el paquete que provee un comando o archivo"
+            " específico.",
             "action": [["equery", "b"]],
             "aesthetic_action": "print_line",
             "prompt": "Comando/archivo",
