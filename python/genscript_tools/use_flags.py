@@ -15,21 +15,21 @@ USE_FLAGS_MENU_DATA = {
         },
         {
             "name": "Obtener una lista de USE flags disponibles para un\n"
-                    "   paquete específico.",
+            "   paquete específico.",
             "action": [["equery", "u"]],
             "prompt": "Nombre del paquete",
             "aesthetic_action": "clear_screen",
         },
         {
             "name": "Obtener una lista de paquetes que tienen una USE\n"
-                    "   flag específica.",
+            "   flag específica.",
             "action": [["equery", "h"]],
             "prompt": "USE flag",
             "aesthetic_action": "clear_screen",
         },
         {
             "name": "Obtener una lista de paquetes compilados con una\n"
-                    "   USE flag específica.",
+            "   USE flag específica.",
             "action": [["eix", "--installed-with-use"]],
             "prompt": "USE flag",
             "aesthetic_action": "clear_screen",
@@ -37,6 +37,6 @@ USE_FLAGS_MENU_DATA = {
         {
             "name": "SALIR.",
             "action": "exit_menu",
-        }
-    ]
+        },
+    ],
 }
