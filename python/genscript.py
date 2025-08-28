@@ -29,7 +29,7 @@ from modules.menu_creation import run_menu
 # from genscript_tools.updates import UPDATES_MENU_DATA
 # from genscript_tools.package_management import PACKAGE_MANAGEMENT_MENU_DATA
 # from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
-# from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
+from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
 
 
 def clean_thumbnails():
@@ -104,7 +104,7 @@ MAIN_MENU_DATA = {
         },
         {
             "name": "Menú de obtención de información sobre USE flags.",
-            "action": "USE_FLAGS_MENU_DATA",
+            "action": USE_FLAGS_MENU_DATA,
             "aesthetic_action": "clear_screen",
         },
         {"name": "OPCIONES DE LIMPIEZA"},
