@@ -110,7 +110,10 @@ MAIN_MENU_DATA = {
         {"name": "OPCIONES DE LIMPIEZA"},
         {
             "name": "Limpiar archivos residuales.",
-            "action": [["qlist", "-IRv"], ["grep"]],
+            "action": [
+                ["qlist", "-IRv"],
+                ["grep"],
+            ],
             "aesthetic_action": "print_line",
             "requires_root": True,
         },
