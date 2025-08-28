@@ -59,6 +59,7 @@ diccionario es la siguiente:
 #       comandos que deben ejecutarse con permisos de superusuario, en vez de
 #       usar la llave "requires_root".
 
+import copy
 import sys
 
 from modules.console_ui import (
@@ -162,6 +163,7 @@ def _handle_action(menu_option: dict) -> None:
     user_input = None
     if "prompt" in menu_option:
         user_input = get_validated_input(menu_option["prompt"])
+        print("")
 
     # Ejecución de la opción elegida.
     if callable(menu_option["action"]):
@@ -170,7 +172,7 @@ def _handle_action(menu_option: dict) -> None:
     elif isinstance(menu_option["action"], list):
         # Trabajo con una copia del diccionario pasado por
         # parámetro para no alterar el original.
-        commands_to_run = menu_option["action"].copy()
+        commands_to_run = copy.deepcopy(menu_option["action"])
         run_as_root = menu_option.get("requires_root", False)
 
         if commands_to_run[0] == "pipe":
