@@ -111,8 +111,8 @@ MAIN_MENU_DATA = {
         {
             "name": "Limpiar archivos residuales.",
             "action": [
-                ["qlist", "-IRv"],
-                ["grep"],
+                ["eclean-dist", "-d"],
+                ["eclean-pkg", "-d"],
             ],
             "aesthetic_action": "print_line",
             "requires_root": True,
