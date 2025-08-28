@@ -58,6 +58,9 @@ diccionario es la siguiente:
 # TODO: investigar una manera de usar marcadores "root" para etiquetar los
 #       comandos que deben ejecutarse con permisos de superusuario, en vez de
 #       usar la llave "requires_root".
+# TODO: investigar una manera de usar marcadores "prompt" para etiquetar los
+#       comandos a los que se les debe añadir la entrada provista por el
+#       usuario.
 
 import copy
 import sys
