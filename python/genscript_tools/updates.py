@@ -7,11 +7,7 @@
 
 from modules.console_ui import (
     bg_colour,
-    clear_screen,
     draw_coloured_line,
-    get_choice,
-    get_validated_input,
-    press_enter,
 )
 
 from modules.subprocess_utils import (
@@ -37,58 +33,20 @@ def check_internet_connection():
     )
 
     if ping_exit_code != 0:
-        draw_coloured_line(48, "=")
         bg_colour("red", "¡No cuenta con conexión a Internet!")
         bg_colour("yellow", "No podrá utilizar algunas opciones del menú.")
-
-
-def draw_updates_menu():
-    draw_coloured_line(48, "=")
-    print("Apartado para actualizar el software del sistema")
-    draw_coloured_line(48, "=")
-    print("")
-    print("PAQUETES/REPOSITORIOS")
-    draw_coloured_line(21)
-    print("1. Sincronizar repositorios.")
-    print("2. Actualizar el sistema.")
-    print("3. Actualizar las aplicaciones de Flatpak.")
-    print("4. Actualizar el firmware del dispositivo.")
-    print("")
-    print("MISCELÁNEA")
-    draw_coloured_line(10)
-    print("5. Pretender que se va a realizar una actualización.")
-    print("6. Revisar si el sistema está expuesto a fallos de")
-    print("   ciberseguridad.")
-    print("7. SALIR.")
-    print("")
-
-
-def create_pre_update_snapshot():
-    snapshot_str = "Snapshot previa a una actualización del sistema"
-    create_system_snapshot(snapshot_str)
 
 
 def sincronize_repositories():
     draw_coloured_line(30)
     print("Sincronización de repositorios")
     draw_coloured_line(30)
-    create_pre_update_snapshot()
+    create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
     draw_coloured_line(36)
     print("Descarga de código fuente y paquetes")
     draw_coloured_line(36)
     run_command(["emerge", "-fuDN", "@world"])
-
-
-def update_flatpak_apps():
-    draw_coloured_line(27)
-    print("Remoción de runtimes viejos")
-    draw_coloured_line(27)
-    run_command(["flatpak", "uninstall", "--unused", "-y"])
-    draw_coloured_line(25)
-    print("Actualización de Flatpaks")
-    draw_coloured_line(25)
-    run_command(["flatpak", "update", "-y"])
 
 
 def update_firmware():
@@ -101,75 +59,74 @@ def update_firmware():
     run_command(["fwupdmgr", "update"], check_return=False)
 
 
-def cve_check_menu():
-    while True:
-        clear_screen()
-        draw_coloured_line(56, "=")
-        print("Apartado para verificar si el sistema está expuesto a un")
-        print("un fallo de seguridad")
-        draw_coloured_line(56, "=")
-        print("1. Controlar si el sistema está afectado por alguno de")
-        print("   los fallos publicados.")
-        print("2. Obtener los pasos requeridos para remediar un fallo.")
-        print("3. SALIR.")
-        print("")
-        choice = get_choice(1, 3)
-
-        # Por motivos estéticos, si utilizo alguna de las
-        # opciones que se ejecutan justo debajo del menú,
-        # imprimo un separador.
-        if choice < 3:
-            draw_coloured_line(59)
-
-        match choice:
-            case 1:
-                run_command(["glsa-check", "-t", "all"])
-            case 2:
-                cve_id = get_validated_input(
-                    msg="Ingrese la ID de un fallo reportado: ",
-                )
-                print("")
-                run_command(["glsa-check", "-p", f"{cve_id}"])
-            case 3:
-                break
-
-        # Esta llamada a press_enter() pausa la ejecución en
-        # cualquier caso, a excepción de cuando se elige salir
-        # del menú.
-        press_enter()
+CVE_CHECK_MENU_DATA = {
+    "title": "Apartado para controlar posibles fallos de seguridad",
+    "options": [
+        {
+            "name": "Controlar si el sistema está afectado por alguno de\n"
+            "   los fallos publicados.",
+            "action": [["glsa-check", "-t", "all"]],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Obtener los pasos requeridos para remediar un fallo.",
+            "action": [["glsa-check", "-p"]],
+            "prompt": "Ingrese la ID de un fallo reportado",
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "SALIR.",
+            "action": "exit_menu",
+        },
+    ],
+}
 
 
-def updates_menu():
-    while True:
-        clear_screen()
-        check_internet_connection()
-        draw_updates_menu()
-        choice = get_choice(1, 7)
-
-        # Antes de ejecutar las opciones, conviene limpiar
-        # la pantalla. De lo contrario, se genera un caos
-        # visual tremendo.
-        if choice < 7:
-            clear_screen()
-
-        match choice:
-            case 1:
-                sincronize_repositories()
-            case 2:
-                run_command_as_root(["emerge", "-uDN", "@world"])
-            case 3:
-                update_flatpak_apps()
-            case 4:
-                update_firmware()
-            case 5:
-                run_command(["emerge", "-puDN", "@world"])
-            case 6:
-                cve_check_menu()
-            case 7:
-                break
-
-        # Esta llamada a press_enter() pausa la ejecución en
-        # cualquier caso, a excepción de cuando se elige salir
-        # del menú o se entra a otro apartado del módulo.
-        if choice < 6:
-            press_enter()
+UPDATES_MENU_DATA = {
+    "title": "Apartado para actualizar el software del sistema",
+    "pre_menu_hook": check_internet_connection,
+    "options": [
+        {"name": "PAQUETES/REPOSITORIOS"},
+        {
+            "name": "Sincronizar repositorios.",
+            "action": sincronize_repositories,
+            "aesthetic_action": "clear_screen",
+            "requires_root": True,
+        },
+        {
+            "name": "Actualizar el sistema.",
+            "action": [["emerge", "-uDN", "@world"]],
+            "aesthetic_action": "clear_screen",
+            "requires_root": True,
+        },
+        {
+            "name": "Actualizar las aplicaciones de Flatpak.",
+            "action": [
+                ["flatpak", "uninstall", "--unused", "-y"],
+                ["flatpak", "update", "-y"],
+            ],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Actualizar el firmware del dispositivo.",
+            "action": update_firmware,
+            "aesthetic_action": "clear_screen",
+        },
+        {"name": "MISCELÁNEA"},
+        {
+            "name": "Pretender que se va a realizar una actualización.",
+            "action": [["emerge", "-puDN", "@world"]],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Revisar si el sistema está expuesto a fallos de\n"
+            "   ciberseguridad.",
+            "action": CVE_CHECK_MENU_DATA,
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "SALIR.",
+            "action": "exit_menu",
+        },
+    ],
+}

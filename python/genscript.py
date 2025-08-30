@@ -28,7 +28,7 @@ from modules.menu_creation import run_menu
 
 from genscript_tools.package_management import PACKAGE_MANAGEMENT_MENU_DATA
 # from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
-# from genscript_tools.updates import UPDATES_MENU_DATA
+from genscript_tools.updates import UPDATES_MENU_DATA
 from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
 
 
@@ -89,7 +89,7 @@ MAIN_MENU_DATA = {
         {"name": "APARTADOS ADICIONALES"},
         {
             "name": "Menú de opciones de actualización.",
-            "action": "UPDATES_MENU_DATA",
+            "action": UPDATES_MENU_DATA,
             "aesthetic_action": "clear_screen",
         },
         {
