@@ -54,6 +54,9 @@ def get_snapshots_list():
 
 
 def create_system_snapshot(snapshot_description: str):
+    if not isinstance(snapshot_description, str):
+        raise ValueError("La descripción de la snapshot debe ser un string.")
+
     # Limpieza de snapshots innecesarias.
     run_command(["snapper", "-c", "root", "cleanup", "number"])
     run_command(["snapper", "-c", "home", "cleanup", "number"])
