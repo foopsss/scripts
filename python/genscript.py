@@ -7,9 +7,6 @@
 # sys-apps/coreutils      - provee "cat" y "wc".
 # app-admin/eselect       - provee "eselect" y sus módulos.
 
-# TODO: convertir los strings de "action" a llamados literales para los items
-#       de tipo "menu".
-
 import os
 import shutil
 import sys
@@ -25,9 +22,8 @@ from modules.subprocess_utils import (
 )
 
 from modules.menu_creation import run_menu
-
 from genscript_tools.package_management import PACKAGE_MANAGEMENT_MENU_DATA
-# from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
+from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
 from genscript_tools.updates import UPDATES_MENU_DATA
 from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
 
@@ -99,7 +95,7 @@ MAIN_MENU_DATA = {
         },
         {
             "name": "Menú de manejo de snapshots.",
-            "action": "SNAPSHOT_MANAGEMENT_MENU_DATA",
+            "action": SNAPSHOT_MANAGEMENT_MENU_DATA,
             "aesthetic_action": "clear_screen",
         },
         {
@@ -140,7 +136,10 @@ MAIN_MENU_DATA = {
             "action": read_news,
             "aesthetic_action": "clear_screen",
         },
-        {"name": "SALIR.", "action": "exit_script"},
+        {
+            "name": "SALIR.",
+            "action": "exit_script",
+        },
     ],
 }
 

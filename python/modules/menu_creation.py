@@ -68,6 +68,8 @@ diccionario es la siguiente:
 # TODO: investigar una manera de usar marcadores "prompt" para etiquetar los
 #       comandos a los que se les debe añadir la entrada provista por el
 #       usuario.
+# TODO: añadir controles de tipo, valores y estructura a la hora de ejecutar
+#       los contenidos del diccionario.
 
 # Chequear luego:
 # https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function#41188411

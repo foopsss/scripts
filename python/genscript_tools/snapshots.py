@@ -5,40 +5,13 @@
 # app-backup/snapper - provee "snapper".
 
 from modules.console_ui import (
-    clear_screen,
     draw_coloured_line,
-    get_choice,
     get_validated_input,
-    press_enter,
 )
 
 from modules.subprocess_utils import (
     run_command,
-    run_command_as_root,
 )
-
-
-def draw_snapshot_management_menu():
-    draw_coloured_line(55, "=")
-    print("Apartado para manejar las snapshots creadas con Snapper")
-    print("y los subvolúmenes de BTRFS")
-    draw_coloured_line(55, "=")
-    print("")
-    print("MANEJO DE SUBVOLÚMENES")
-    draw_coloured_line(22)
-    print("1. Obtener el listado de subvolúmenes presentes actualmente.")
-    print("")
-    print("MANEJO DE SNAPSHOTS")
-    draw_coloured_line(19)
-    print("2. Obtener el listado de snapshots existentes actualmente")
-    print("   para los subvolúmenes del sistema.")
-    print("3. Crear una snapshot del sistema.")
-    print("4. Eliminar una snapshot del sistema.")
-    print("")
-    print("MISCELÁNEA")
-    draw_coloured_line(10)
-    print("5. Salir")
-    print("")
 
 
 def get_snapshots_list():
@@ -54,6 +27,9 @@ def get_snapshots_list():
 
 
 def create_system_snapshot(snapshot_description: str):
+    if not isinstance(snapshot_description, str):
+        raise ValueError("La descripción de la snapshot debe ser un string.")
+
     # Limpieza de snapshots innecesarias.
     run_command(["snapper", "-c", "root", "cleanup", "number"])
     run_command(["snapper", "-c", "home", "cleanup", "number"])
@@ -87,6 +63,13 @@ def create_system_snapshot(snapshot_description: str):
     )
 
 
+def create_system_snapshot_with_prompt():
+    snapshot_str = get_validated_input(
+        "Introduzca una descripción para la snapshot: "
+    )
+    create_system_snapshot(snapshot_str)
+
+
 def delete_system_snapshot():
     get_snapshots_list()
     print("")
@@ -101,39 +84,38 @@ def delete_system_snapshot():
     run_command(["snapper", "-c", "home", "delete", f"{snapshot_number}"])
 
 
-def snapshot_management_menu():
-    while True:
-        clear_screen()
-        draw_snapshot_management_menu()
-        choice = get_choice(1, 5)
-
-        # Por motivos estéticos, si utilizo alguna de las
-        # opciones que se ejecutan justo debajo del menú,
-        # imprimo un separador.
-        #
-        # Si utilizo alguna opción que requiera limpiar
-        # la pantalla, hago eso.
-        if choice == 1 or choice == 3:
-            draw_coloured_line(59)
-        else:
-            clear_screen()
-
-        match choice:
-            case 1:
-                run_command_as_root(["btrfs", "subvolume", "list", "/"])
-            case 2:
-                get_snapshots_list()
-            case 3:
-                snapshot_str = get_validated_input(
-                    "Introduzca una descripción para la snapshot: "
-                )
-                create_system_snapshot(snapshot_str)
-            case 4:
-                delete_system_snapshot()
-            case 5:
-                break
-
-        # Esta llamada a press_enter() pausa la ejecución en
-        # cualquier caso, a excepción de cuando se elige salir
-        # del menú.
-        press_enter()
+SNAPSHOT_MANAGEMENT_MENU_DATA = {
+    "title": "Apartado para manejar snapshots de Snapper y subvolúmenes de"
+    " BTRFS",
+    "options": [
+        {"name": "MANEJO DE SUBVOLÚMENES"},
+        {
+            "name": "Obtener el listado de subvolúmenes presentes actualmente.",
+            "action": [["btrfs", "subvolume", "list", "/"]],
+            "aesthetic_action": "print_line",
+            "requires_root": True,
+        },
+        {"name": "MANEJO DE SNAPSHOTS"},
+        {
+            "name": "Obtener el listado de snapshots existentes actualmente\n"
+            "   para los subvolúmenes del sistema.",
+            "action": get_snapshots_list,
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Crear una snapshot del sistema.",
+            "action": create_system_snapshot_with_prompt,
+            "aesthetic_action": "print_line",
+        },
+        {
+            "name": "Eliminar una snapshot del sistema.",
+            "action": delete_system_snapshot,
+            "aesthetic_action": "clear_screen",
+        },
+        {"name": "MISCELÁNEA"},
+        {
+            "name": "SALIR.",
+            "action": "exit_menu",
+        },
+    ],
+}
