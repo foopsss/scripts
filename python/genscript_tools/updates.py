@@ -63,16 +63,11 @@ def draw_updates_menu():
     print("")
 
 
-def create_pre_update_snapshot():
-    snapshot_str = "Snapshot previa a una actualización del sistema"
-    create_system_snapshot(snapshot_str)
-
-
 def sincronize_repositories():
     draw_coloured_line(30)
     print("Sincronización de repositorios")
     draw_coloured_line(30)
-    create_pre_update_snapshot()
+    create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
     draw_coloured_line(36)
     print("Descarga de código fuente y paquetes")
