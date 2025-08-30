@@ -16,38 +16,41 @@ el encabezado del menú, los títulos para agrupar opciones en apartados (si los
 hubiere) y las opciones en sí mismas. La estructura que debe tener el
 diccionario es la siguiente:
 
-1. "title": contiene el texto a mostrar en el encabezado.
-2. "options": una lista que debe contener los títulos de los apartados y las
+1. "title": debe contener el texto a mostrar en el encabezado.
+2. "pre_menu_hook": debe contener una referencia a una función a ejecutar, que
+   servirá para llevar a cabo tareas necesarias previo a la impresión por
+   pantalla del encabezado de menú y las opciones.
+3. "options": una lista que debe contener los títulos de los apartados y las
    opciones a ejecutar. Cada elemento de esta lista es un diccionario que
    puede tener los siguientes parámetros:
-   2.1. "name": el texto a mostrar en el encabezado u opción del menú.
-   2.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
+   3.1. "name": el texto a mostrar en el encabezado u opción del menú.
+   3.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
         realizar:
-        2.2.1. Si se debe entrar a un menu, "action" debe contener una
+        3.2.1. Si se debe entrar a un menu, "action" debe contener una
                referencia al diccionario a pasarle como parámetro a la función
                run_menu(), sin que esta sea un string.
-        2.2.2. Si se debe ejecutar una función, "action" debe contener una
+        3.2.2. Si se debe ejecutar una función, "action" debe contener una
                referencia a la función a ejecutar, sin que esta sea un string.
-        2.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
+        3.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
                contener una lista, la cual estará compuesta a su vez por una o
                más listas de strings. En caso de que se deban ejecutar dos
                comandos con pipes, el primer elemento de la lista deberá ser el
                string "pipe", luego del cual vendrán las dos listas de strings
                correspondientes a los comandos a ejecutar.
-        2.2.4. Si se desea salir de un menú de opciones para volver a otro menú
+        3.2.4. Si se desea salir de un menú de opciones para volver a otro menú
                anterior, "action" deberá contener el string 'exit_menu'.
-        2.2.5. Si se desea salir del script, "action" deberá contener el string
+        3.2.5. Si se desea salir del script, "action" deberá contener el string
                'exit_script'.
-        2.2.6. Si se desea mostrar un título de apartado, "action" debe estar
+        3.2.6. Si se desea mostrar un título de apartado, "action" debe estar
                ausente o contener el valor None.
-   2.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
+   3.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
         principal. Puede contener los valores 'print_line' o 'clear_screen'.
-   2.4. "prompt": el mensaje para solicitar una entrada del usuario.
-   2.5. "piped_cmd_input_position": indica a qué comando se le anexa la entrada
+   3.4. "prompt": el mensaje para solicitar una entrada del usuario.
+   3.5. "piped_cmd_input_position": indica a qué comando se le anexa la entrada
         provista por el usuario, si al primero o al segundo, en caso de que se
         deban ejecutar comandos con pipes. Puede contener los valores 'first' o
         'second'.
-   2.6. "requires_root": describe si el comando debe ejecutarse con permisos
+   3.6. "requires_root": describe si el comando debe ejecutarse con permisos
         de superusuario o no. Puede contener los valores True o False.
 
    A excepción de "title" y "name", que deben ser obligatorios, todos los demás
@@ -58,9 +61,16 @@ diccionario es la siguiente:
 # TODO: investigar una manera de usar marcadores "root" para etiquetar los
 #       comandos que deben ejecutarse con permisos de superusuario, en vez de
 #       usar la llave "requires_root".
+#       * Se pueden añadir los tags al principio de cada elemento de la lista
+#         "actions", de manera que no choquen con el tag "pipe" que debe ir
+#         como primer elemento de la lista "actions" si hay que usar la función
+#         pipe_commands.
 # TODO: investigar una manera de usar marcadores "prompt" para etiquetar los
 #       comandos a los que se les debe añadir la entrada provista por el
 #       usuario.
+
+# Chequear luego:
+# https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function#41188411
 
 import copy
 import sys
@@ -90,10 +100,16 @@ def _draw_menu(menu_data: dict) -> None:
     y cualquier posible encabezado de sección a mostrar
     para dividir las opciones disponibles en apartados.
     """
-    # Impresión del encabezado de la sección.
-    # Este debe ser el primer elemento de la lista que
-    # define su estructura, de nombre "title".
+    # Ejecución de cualquier posible cosa requerida
+    # previo a la impresión del encabezado y el menú
+    # de opciones.
     title_length = len(menu_data["title"])
+    pre_menu_hook = menu_data.get("pre_menu_hook", None)
+    if pre_menu_hook is not None and callable(pre_menu_hook):
+        draw_coloured_line(title_length, "=")
+        pre_menu_hook()
+
+    # Impresión del encabezado de la sección.
     draw_coloured_line(title_length, "=")
     print(menu_data["title"])
     draw_coloured_line(title_length, "=")
