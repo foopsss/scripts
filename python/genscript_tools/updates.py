@@ -46,7 +46,7 @@ def sincronize_repositories():
     draw_coloured_line(36)
     print("Descarga de código fuente y paquetes")
     draw_coloured_line(36)
-    run_command(["emerge", "-fuDN", "@world"])
+    run_command_as_root(["emerge", "-fuDN", "@world"])
 
 
 def update_firmware():
