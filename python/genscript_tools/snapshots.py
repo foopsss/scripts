@@ -77,10 +77,8 @@ def delete_system_snapshot():
     print("")
 
     snapshot_number = get_validated_input(
-        msg="Introduzca el número de snapshot a borrar",
-        return_type="int",
+        "Introduzca el número de snapshot a borrar: ",
     )
-    print("")
 
     run_command(["snapper", "-c", "root", "delete", f"{snapshot_number}"])
     run_command(["snapper", "-c", "home", "delete", f"{snapshot_number}"])
