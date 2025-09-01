@@ -33,10 +33,8 @@ diccionario es la siguiente:
                referencia a la función a ejecutar, sin que esta sea un string.
         3.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
                contener una lista, la cual estará compuesta a su vez por una o
-               más listas de strings. En caso de que se deban ejecutar dos
-               comandos con pipes, el primer elemento de la lista deberá ser el
-               string "pipe", luego del cual vendrán las dos listas de strings
-               correspondientes a los comandos a ejecutar.
+               más listas de strings. Para correr comandos con pipes o permisos
+               de superusuario, véase la siguiente sección.
         3.2.4. Si se desea salir de un menú de opciones para volver a otro menú
                anterior, "action" deberá contener el string 'exit_menu'.
         3.2.5. Si se desea salir del script, "action" deberá contener el string
@@ -50,21 +48,28 @@ diccionario es la siguiente:
         provista por el usuario, si al primero o al segundo, en caso de que se
         deban ejecutar comandos con pipes. Puede contener los valores 'first' o
         'second'.
-   3.6. "requires_root": describe si el comando debe ejecutarse con permisos
-        de superusuario o no. Puede contener los valores True o False.
 
    A excepción de "title" y "name", que deben ser obligatorios, todos los demás
    parámetros pueden ser opcionales en el diccionario de entrada. Para cada
    elemento de la lista "options", el único parámetro obligatorio es "name".
+
+### Modos especiales de ejecución ###
+De acuerdo a lo estipulado en el inciso 3.2.3, a la hora de ejecutar uno o más
+comandos, la clave "action" debe contener una lista que a su vez contenga otras
+listas de strings en las cuales deben estar definidas los comandos a ejecutar.
+
+Tanto la lista contenida por la clave "action" como las listas con definiciones
+de comandos pueden incluir "etiquetas" (strings) que indiquen si estos comandos
+deben ejecutarse de cierta forma:
+
+* En caso de que algún comando deba ejecutarse con permisos de superusuario, se
+  le debe incluir en primera posición (0) el string "root" a la lista que lo
+  define.
+* En caso de que dos comandos deban ejecutarse con pipes, el primer elemento de
+  la lista contenida por la clave "action" debe ser el string "pipe", seguido
+  de las listas con las definiciones de comandos.
 """
 
-# TODO: investigar una manera de usar marcadores "root" para etiquetar los
-#       comandos que deben ejecutarse con permisos de superusuario, en vez de
-#       usar la llave "requires_root".
-#       * Se pueden añadir los tags al principio de cada elemento de la lista
-#         "actions", de manera que no choquen con el tag "pipe" que debe ir
-#         como primer elemento de la lista "actions" si hay que usar la función
-#         pipe_commands.
 # TODO: investigar una manera de usar marcadores "prompt" para etiquetar los
 #       comandos a los que se les debe añadir la entrada provista por el
 #       usuario.
@@ -194,7 +199,6 @@ def _handle_action(menu_option: dict) -> None:
         # Trabajo con una copia del diccionario pasado por
         # parámetro para no alterar el original.
         commands_to_run = copy.deepcopy(menu_option["action"])
-        run_as_root = menu_option.get("requires_root", False)
 
         if commands_to_run[0] == "pipe":
             # Se deben ejecutar comandos con pipes.
@@ -215,8 +219,17 @@ def _handle_action(menu_option: dict) -> None:
                 if user_input:
                     command.append(user_input)
 
-                if run_as_root:
-                    run_command_as_root(command)
+                # Si el primer elemento de la lista que contiene
+                # el comando tiene el string "root", ejecutar
+                # con permisos de superusuario.
+                #
+                # Lo peor que podría pasar en este caso es que
+                # dicho string no esté en la primera posición
+                # de la lista, en cuyo caso se le va a pasar un
+                # comando inexistente a la funciones run_command()
+                # y run_command_as_root().
+                if command[0] == "root":
+                    run_command_as_root(command[1:])
                 else:
                     run_command(command)
 

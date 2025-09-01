@@ -38,14 +38,17 @@ def check_internet_connection():
 
 
 def sincronize_repositories():
-    draw_coloured_line(30)
-    print("Sincronización de repositorios")
-    draw_coloured_line(30)
+    title1_str = "Sincronización de repositorios"
+    draw_coloured_line(len(title1_str), "=")
+    print(title1_str)
+    draw_coloured_line(len(title1_str), "=")
     create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
-    draw_coloured_line(36)
-    print("Descarga de código fuente y paquetes")
-    draw_coloured_line(36)
+
+    title2_str = "Descarga de código fuente y paquetes"
+    draw_coloured_line(len(title2_str), "=")
+    print(title2_str)
+    draw_coloured_line(len(title2_str), "=")
     run_command_as_root(["emerge", "-fuDN", "@world"])
 
 
@@ -91,13 +94,11 @@ UPDATES_MENU_DATA = {
             "name": "Sincronizar repositorios.",
             "action": sincronize_repositories,
             "aesthetic_action": "clear_screen",
-            "requires_root": True,
         },
         {
             "name": "Actualizar el sistema.",
-            "action": [["emerge", "-uDN", "@world"]],
+            "action": [["root", "emerge", "-uDN", "@world"]],
             "aesthetic_action": "clear_screen",
-            "requires_root": True,
         },
         {
             "name": "Actualizar las aplicaciones de Flatpak.",

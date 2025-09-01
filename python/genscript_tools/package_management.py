@@ -14,47 +14,41 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {
             "name": "Añadir un repositorio externo.",
             "action": [
-                ["eselect", "repository", "enable"],
-                ["emerge", "--sync"],
+                ["root", "eselect", "repository", "enable"],
+                ["root", "emerge", "--sync"],
             ],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del repositorio",
-            "requires_root": True,
         },
         {
             "name": "Remover un repositorio externo.",
-            "action": [["eselect", "repository", "remove"]],
+            "action": [["root", "eselect", "repository", "remove"]],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del repositorio",
-            "requires_root": True,
         },
         {"name": "PAQUETES"},
         {
             "name": "Instalar un paquete.",
-            "action": [["emerge"]],
+            "action": [["root", "emerge"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
-            "requires_root": True,
         },
         {
             "name": "Añadir un paquete a @world.",
-            "action": [["emerge", "-n"]],
+            "action": [["root", "emerge", "-n"]],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del paquete",
-            "requires_root": True,
         },
         {
             "name": "Remover un paquete de @world.",
-            "action": [["emerge", "-W"]],
+            "action": [["root", "emerge", "-W"]],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del paquete",
-            "requires_root": True,
         },
         {
             "name": "Remover paquetes sin uso.",
-            "action": [["emerge", "-c"]],
+            "action": [["root", "emerge", "-c"]],
             "aesthetic_action": "clear_screen",
-            "requires_root": True,
         },
         {
             "name": "Obtener una lista de paquetes que dependen de un paquete"
@@ -90,15 +84,13 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {"name": "RECONSTRUCCIÓN DE PAQUETES POR ACTUALIZACIÓN"},
         {
             "name": "Reconstruir paquetes compilados con librerías viejas.",
-            "action": [["emerge", "@preserved-rebuild"]],
+            "action": [["root", "emerge", "@preserved-rebuild"]],
             "aesthetic_action": "clear_screen",
-            "requires_root": True,
         },
         {
             "name": "Reconstruir paquetes de Perl y remover los innecesarios.",
-            "action": [["perl-cleaner", "--all"]],
+            "action": [["root", "perl-cleaner", "--all"]],
             "aesthetic_action": "clear_screen",
-            "requires_root": True,
         },
         {"name": "FLATPAK"},
         {

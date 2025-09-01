@@ -107,17 +107,15 @@ MAIN_MENU_DATA = {
         {
             "name": "Limpiar archivos residuales.",
             "action": [
-                ["eclean-dist", "-d"],
-                ["eclean-pkg", "-d"],
+                ["root", "eclean-dist", "-d"],
+                ["root", "eclean-pkg", "-d"],
             ],
             "aesthetic_action": "print_line",
-            "requires_root": True,
         },
         {
             "name": "Limpiar versiones antiguas del kernel.",
-            "action": [["eclean-kernel", "-A", "-d", "-n 2"]],
+            "action": [["root", "eclean-kernel", "-A", "-d", "-n 2"]],
             "aesthetic_action": "print_line",
-            "requires_root": True,
         },
         {
             "name": "Limpiar miniaturas de Nautilus.",
@@ -127,9 +125,8 @@ MAIN_MENU_DATA = {
         {"name": "MISCELÁNEA"},
         {
             "name": "Resolver conflictos por diferencia de archivos.",
-            "action": [["dispatch-conf"]],
+            "action": [["root", "dispatch-conf"]],
             "aesthetic_action": "print_line",
-            "requires_root": True,
         },
         {
             "name": "Leer el boletín de noticias de Gentoo.",
