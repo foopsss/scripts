@@ -127,7 +127,7 @@ def cve_check_menu():
                 run_command(["glsa-check", "-t", "all"])
             case 2:
                 cve_id = get_validated_input(
-                    "Ingrese la ID de un fallo reportado: "
+                    "Ingrese la ID de un fallo reportado"
                 )
                 print("")
                 run_command(["glsa-check", "-p", f"{cve_id}"])

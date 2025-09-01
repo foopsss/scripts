@@ -43,9 +43,9 @@ def use_flags_management_menu():
         clear_screen()
 
         if (choice == 1) or (choice >= 3 and choice < 5):
-            user_input = get_validated_input("USE flag: ")
+            user_input = get_validated_input("USE flag")
         elif choice == 2:
-            user_input = get_validated_input("Nombre del paquete: ")
+            user_input = get_validated_input("Nombre del paquete")
 
         # Pequeño separador entre el diálogo de arriba y la
         # salida de la opción a ejecutar.

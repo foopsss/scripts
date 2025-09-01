@@ -86,13 +86,13 @@ def package_management_menu():
         # acá.
         match choice:
             case 1 | 2:
-                user_input = get_validated_input("Nombre del repositorio: ")
+                user_input = get_validated_input("Nombre del repositorio")
                 print("")
             case 3 | 4 | 5 | 7 | 8 | 9 | 13 | 14:
-                user_input = get_validated_input("Nombre del paquete: ")
+                user_input = get_validated_input("Nombre del paquete")
                 print("")
             case 10:
-                user_input = get_validated_input("Comando/archivo: ")
+                user_input = get_validated_input("Comando/archivo")
                 print("")
 
         match choice:
