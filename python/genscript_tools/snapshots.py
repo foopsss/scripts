@@ -42,14 +42,16 @@ def draw_snapshot_management_menu():
 
 
 def get_snapshots_list():
-    draw_coloured_line(24, "=")
-    print("Snapshots del volumen @/")
-    draw_coloured_line(24, "=")
+    title1_str = "Snapshots del volumen @/"
+    draw_coloured_line(len(title1_str), "=")
+    print(title1_str)
+    draw_coloured_line(len(title1_str), "=")
     run_command(["snapper", "-c", "root", "list"])
-    print("")
-    draw_coloured_line(28, "=")
-    print("Snapshots del volumen @/home")
-    draw_coloured_line(28, "=")
+
+    title2_str = "Snapshots del volumen @/home"
+    draw_coloured_line(len(title2_str), "=")
+    print(title2_str)
+    draw_coloured_line(len(title2_str), "=")
     run_command(["snapper", "-c", "home", "list"])
 
 

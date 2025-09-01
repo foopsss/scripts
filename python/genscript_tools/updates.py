@@ -64,25 +64,31 @@ def draw_updates_menu():
 
 
 def sincronize_repositories():
-    draw_coloured_line(30)
-    print("Sincronización de repositorios")
-    draw_coloured_line(30)
+    title1_str = "Sincronización de repositorios"
+    draw_coloured_line(len(title1_str), "=")
+    print(title1_str)
+    draw_coloured_line(len(title1_str), "=")
     create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
-    draw_coloured_line(36)
-    print("Descarga de código fuente y paquetes")
-    draw_coloured_line(36)
+
+    title2_str = "Descarga de código fuente y paquetes"
+    draw_coloured_line(len(title2_str), "=")
+    print(title2_str)
+    draw_coloured_line(len(title2_str), "=")
     run_command_as_root(["emerge", "-fuDN", "@world"])
 
 
 def update_flatpak_apps():
-    draw_coloured_line(27)
-    print("Remoción de runtimes viejos")
-    draw_coloured_line(27)
+    title1_str = "Remoción de runtimes viejos"
+    draw_coloured_line(len(title1_str), "=")
+    print(title1_str)
+    draw_coloured_line(len(title1_str), "=")
     run_command(["flatpak", "uninstall", "--unused", "-y"])
-    draw_coloured_line(25)
-    print("Actualización de Flatpaks")
-    draw_coloured_line(25)
+
+    title2_str = "Actualización de Flatpaks"
+    draw_coloured_line(len(title2_str), "=")
+    print(title2_str)
+    draw_coloured_line(len(title2_str), "=")
     run_command(["flatpak", "update", "-y"])
 
 
@@ -121,7 +127,7 @@ def cve_check_menu():
                 run_command(["glsa-check", "-t", "all"])
             case 2:
                 cve_id = get_validated_input(
-                    msg="Ingrese la ID de un fallo reportado: ",
+                    "Ingrese la ID de un fallo reportado: "
                 )
                 print("")
                 run_command(["glsa-check", "-p", f"{cve_id}"])
