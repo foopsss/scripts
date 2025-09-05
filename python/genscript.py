@@ -27,9 +27,6 @@ from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
 from genscript_tools.updates import UPDATES_MENU_DATA
 from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
 
-# TODO: volver a añadir una opción para obtener el tiempo de instalación de un
-#       paquete.
-
 
 def clean_thumbnails():
     thumbdir = os.environ.get("HOME") + "/.cache/thumbnails"

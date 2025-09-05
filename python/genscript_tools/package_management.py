@@ -5,6 +5,7 @@
 # app-admin/eselect         - provee "eselect" y sus módulos.
 # app-portage/gentoolkit    - provee "equery".
 # app-portage/portage-utils - provee "qlist".
+# app-portage/genlop        - provee "genlop".
 # sys-apps/flatpak          - provee "flatpak".
 
 PACKAGE_MANAGEMENT_MENU_DATA = {
@@ -81,6 +82,12 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
             "action": [["#UINPUT", "equery", "b"]],
             "aesthetic_action": "print_line",
             "prompt": "Comando/archivo",
+        },
+        {
+            "name": "Obtener el tiempo de instalación de un paquete.",
+            "action": [["#UINPUT", "genlop", "-t"]],
+            "aesthetic_action": "clear_screen",
+            "prompt": "Nombre del paquete",
         },
         {"name": "RECONSTRUCCIÓN DE PAQUETES POR ACTUALIZACIÓN"},
         {
