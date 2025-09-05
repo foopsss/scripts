@@ -73,7 +73,7 @@ CVE_CHECK_MENU_DATA = {
         },
         {
             "name": "Obtener los pasos requeridos para remediar un fallo.",
-            "action": [["glsa-check", "-p"]],
+            "action": [["#UINPUT", "glsa-check", "-p"]],
             "prompt": "Ingrese la ID de un fallo reportado",
             "aesthetic_action": "clear_screen",
         },
@@ -97,7 +97,7 @@ UPDATES_MENU_DATA = {
         },
         {
             "name": "Actualizar el sistema.",
-            "action": [["root", "emerge", "-uDN", "@world"]],
+            "action": [["#ROOT", "emerge", "-uDN", "@world"]],
             "aesthetic_action": "clear_screen",
         },
         {

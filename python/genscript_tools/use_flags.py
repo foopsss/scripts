@@ -9,28 +9,28 @@ USE_FLAGS_MENU_DATA = {
     "options": [
         {
             "name": "Obtener información sobre una USE flag específica.",
-            "action": [["euse", "-i"]],
+            "action": [["#UINPUT", "euse", "-i"]],
             "prompt": "USE flag",
             "aesthetic_action": "clear_screen",
         },
         {
             "name": "Obtener una lista de USE flags disponibles para un\n"
             "   paquete específico.",
-            "action": [["equery", "u"]],
+            "action": [["#UINPUT", "equery", "u"]],
             "prompt": "Nombre del paquete",
             "aesthetic_action": "clear_screen",
         },
         {
             "name": "Obtener una lista de paquetes que tienen una USE\n"
             "   flag específica.",
-            "action": [["equery", "h"]],
+            "action": [["#UINPUT", "equery", "h"]],
             "prompt": "USE flag",
             "aesthetic_action": "clear_screen",
         },
         {
             "name": "Obtener una lista de paquetes compilados con una\n"
             "   USE flag específica.",
-            "action": [["eix", "--installed-with-use"]],
+            "action": [["#UINPUT", "eix", "--installed-with-use"]],
             "prompt": "USE flag",
             "aesthetic_action": "clear_screen",
         },

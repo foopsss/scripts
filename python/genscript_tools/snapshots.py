@@ -92,7 +92,7 @@ SNAPSHOT_MANAGEMENT_MENU_DATA = {
         {
             "name": "Obtener el listado de subvolúmenes presentes"
             " actualmente.",
-            "action": [["root", "btrfs", "subvolume", "list", "/"]],
+            "action": [["#ROOT", "btrfs", "subvolume", "list", "/"]],
             "aesthetic_action": "print_line",
         },
         {"name": "MANEJO DE SNAPSHOTS"},

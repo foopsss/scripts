@@ -27,6 +27,8 @@ from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
 from genscript_tools.updates import UPDATES_MENU_DATA
 from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
 
+# TODO: volver a añadir una opción para obtener el tiempo de instalación de un
+#       paquete.
 
 def clean_thumbnails():
     thumbdir = os.environ.get("HOME") + "/.cache/thumbnails"
@@ -107,14 +109,14 @@ MAIN_MENU_DATA = {
         {
             "name": "Limpiar archivos residuales.",
             "action": [
-                ["root", "eclean-dist", "-d"],
-                ["root", "eclean-pkg", "-d"],
+                ["#ROOT", "eclean-dist", "-d"],
+                ["#ROOT", "eclean-pkg", "-d"],
             ],
             "aesthetic_action": "print_line",
         },
         {
             "name": "Limpiar versiones antiguas del kernel.",
-            "action": [["root", "eclean-kernel", "-A", "-d", "-n 2"]],
+            "action": [["#ROOT", "eclean-kernel", "-A", "-d", "-n 2"]],
             "aesthetic_action": "print_line",
         },
         {
@@ -125,7 +127,7 @@ MAIN_MENU_DATA = {
         {"name": "MISCELÁNEA"},
         {
             "name": "Resolver conflictos por diferencia de archivos.",
-            "action": [["root", "dispatch-conf"]],
+            "action": [["#ROOT", "dispatch-conf"]],
             "aesthetic_action": "print_line",
         },
         {

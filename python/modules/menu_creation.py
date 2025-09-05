@@ -44,10 +44,6 @@ diccionario es la siguiente:
    3.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
         principal. Puede contener los valores 'print_line' o 'clear_screen'.
    3.4. "prompt": el mensaje para solicitar una entrada del usuario.
-   3.5. "piped_cmd_input_position": indica a qué comando se le anexa la entrada
-        provista por el usuario, si al primero o al segundo, en caso de que se
-        deban ejecutar comandos con pipes. Puede contener los valores 'first' o
-        'second'.
 
    A excepción de "title" y "name", que deben ser obligatorios, todos los demás
    parámetros pueden ser opcionales en el diccionario de entrada. Para cada
@@ -62,17 +58,21 @@ Tanto la lista contenida por la clave "action" como las listas con definiciones
 de comandos pueden incluir "etiquetas" (strings) que indiquen si estos comandos
 deben ejecutarse de cierta forma:
 
-* En caso de que algún comando deba ejecutarse con permisos de superusuario, se
-  le debe incluir en primera posición (0) el string "root" a la lista que lo
-  define.
+* En caso de que un comando deba ejecutarse con permisos de superusuario, se le
+  debe incluir el string "#ROOT" a la lista que lo define, antes de los strings
+  pertenecientes al comando.
+* En caso de que a un comando se le deba anexar una entrada introducida por el
+  usuario, en caso de haberla, se le debe incluir el string "#UINPUT" a la
+  lista que lo define, antes de los strings pertenecientes al comando.
 * En caso de que dos comandos deban ejecutarse con pipes, el primer elemento de
-  la lista contenida por la clave "action" debe ser el string "pipe", seguido
+  la lista contenida por la clave "action" debe ser el string "#PIPE", seguido
   de las listas con las definiciones de comandos.
+  ** Asimismo, en caso de que alguno de los comandos deba ejecutarse con
+     permisos de superusuario o se le deba anexar una entrada provista por el
+     usuario, se deben incluir los strings "#ROOT" y "#UINPUT", de acuerdo a lo
+     descripto para los casos anteriores.
 """
 
-# TODO: investigar una manera de usar marcadores "prompt" para etiquetar los
-#       comandos a los que se les debe añadir la entrada provista por el
-#       usuario.
 # TODO: añadir controles de tipo, valores y estructura a la hora de ejecutar
 #       los contenidos del diccionario.
 
@@ -193,45 +193,44 @@ def _handle_action(menu_option: dict) -> None:
 
     # Ejecución de la opción elegida.
     if callable(menu_option["action"]):
-        # Se debe ejecutar una función.
         menu_option["action"]()
     elif isinstance(menu_option["action"], list):
-        # Trabajo con una copia del diccionario pasado por
-        # parámetro para no alterar el original.
-        commands_to_run = copy.deepcopy(menu_option["action"])
+        # Trabajo con una copia del diccionario pasado
+        # por parámetro para no alterar el original.
+        commands_from_action = copy.deepcopy(menu_option["action"])
 
-        if commands_to_run[0] == "pipe":
-            # Se deben ejecutar comandos con pipes.
-            piped_commands = commands_to_run[1:]
-            if user_input:
-                input_position = menu_option["piped_cmd_input_position"]
-                if input_position == "first":
-                    piped_commands[0].append(user_input)
-                elif input_position == "second":
-                    piped_commands[1].append(user_input)
+        if "#PIPE" in commands_from_action:
+            piped_commands = []
+
+            for command in commands_from_action:
+                if not isinstance(command, str):
+                    if "#ROOT" in command:
+                        command.insert(0, "doas")
+                    if "#UINPUT" in command:
+                        command.append(user_input)
+                    piped_commands.append(
+                        [i for i in command if "#" not in i]
+                    )
 
             result = pipe_commands(*piped_commands)
             print(f"{result}")
         else:
-            # Se deben ejecutar uno o varios comandos de
-            # forma sucesiva.
-            for command in commands_to_run:
-                if user_input:
-                    command.append(user_input)
+            for command in commands_from_action:
+                command_without_tags = []
+                requires_root = False
 
-                # Si el primer elemento de la lista que contiene
-                # el comando tiene el string "root", ejecutar
-                # con permisos de superusuario.
-                #
-                # Lo peor que podría pasar en este caso es que
-                # dicho string no esté en la primera posición
-                # de la lista, en cuyo caso se le va a pasar un
-                # comando inexistente a la funciones run_command()
-                # y run_command_as_root().
-                if command[0] == "root":
-                    run_command_as_root(command[1:])
+                if "#ROOT" in command:
+                    requires_root = True
+                if "#UINPUT" in command:
+                    command.append(user_input)
+                command_without_tags = (
+                    [i for i in command if "#" not in i]
+                )
+
+                if requires_root:
+                    run_command_as_root(command_without_tags)
                 else:
-                    run_command(command)
+                    run_command(command_without_tags)
 
 
 # --- Funciones públicas ---
