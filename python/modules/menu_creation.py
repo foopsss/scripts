@@ -241,9 +241,7 @@ def _handle_action(menu_option: dict) -> None:
                         command.insert(0, "doas")
                     if "#UINPUT" in command:
                         command.append(user_input)
-                    piped_commands.append(
-                        [i for i in command if "#" not in i]
-                    )
+                    piped_commands.append([i for i in command if "#" not in i])
 
             result = pipe_commands(*piped_commands)
             print(f"{result}")
@@ -256,9 +254,7 @@ def _handle_action(menu_option: dict) -> None:
                     requires_root = True
                 if "#UINPUT" in command:
                     command.append(user_input)
-                command_without_tags = (
-                    [i for i in command if "#" not in i]
-                )
+                command_without_tags = [i for i in command if "#" not in i]
 
                 if requires_root:
                     run_command_as_root(command_without_tags)
