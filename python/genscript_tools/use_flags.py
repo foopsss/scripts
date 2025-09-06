@@ -5,6 +5,7 @@
 # app-portage/eix        - provee "eix".
 
 USE_FLAGS_MENU_DATA = {
+    "dict_name": "USE_FLAGS_MENU_DATA",
     "title": "Apartado para obtener información sobre las USE flags",
     "options": [
         {

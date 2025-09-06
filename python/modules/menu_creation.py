@@ -16,38 +16,42 @@ el encabezado del menú, los títulos para agrupar opciones en apartados (si los
 hubiere) y las opciones en sí mismas. La estructura que debe tener el
 diccionario es la siguiente:
 
-1. "title": debe contener el texto a mostrar en el encabezado.
-2. "pre_menu_hook": debe contener una referencia a una función a ejecutar, que
+1. "dict_name": debe contener el nombre que se le da a la variable que contiene
+   la estructura de datos. Posteriormente se utiliza para poder otorgar
+   mensajes de error informativos.
+2. "title": debe contener el texto a mostrar en el encabezado.
+3. "pre_menu_hook": debe contener una referencia a una función a ejecutar, que
    servirá para llevar a cabo tareas necesarias previo a la impresión por
    pantalla del encabezado de menú y las opciones.
-3. "options": una lista que debe contener los títulos de los apartados y las
+4. "options": una lista que debe contener los títulos de los apartados y las
    opciones a ejecutar. Cada elemento de esta lista es un diccionario que
    puede tener los siguientes parámetros:
-   3.1. "name": el texto a mostrar en el encabezado u opción del menú.
-   3.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
+   4.1. "name": el texto a mostrar en el encabezado u opción del menú.
+   4.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
         realizar:
-        3.2.1. Si se debe entrar a un menu, "action" debe contener una
+        4.2.1. Si se debe entrar a un menu, "action" debe contener una
                referencia al diccionario a pasarle como parámetro a la función
                run_menu(), sin que esta sea un string.
-        3.2.2. Si se debe ejecutar una función, "action" debe contener una
+        4.2.2. Si se debe ejecutar una función, "action" debe contener una
                referencia a la función a ejecutar, sin que esta sea un string.
-        3.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
+        4.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
                contener una lista, la cual estará compuesta a su vez por una o
                más listas de strings. Para correr comandos con pipes o permisos
                de superusuario, véase la siguiente sección.
-        3.2.4. Si se desea salir de un menú de opciones para volver a otro menú
+        4.2.4. Si se desea salir de un menú de opciones para volver a otro menú
                anterior, "action" deberá contener el string 'exit_menu'.
-        3.2.5. Si se desea salir del script, "action" deberá contener el string
+        4.2.5. Si se desea salir del script, "action" deberá contener el string
                'exit_script'.
-        3.2.6. Si se desea mostrar un título de apartado, "action" debe estar
+        4.2.6. Si se desea mostrar un título de apartado, "action" debe estar
                ausente o contener el valor None.
-   3.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
+   4.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
         principal. Puede contener los valores 'print_line' o 'clear_screen'.
-   3.4. "prompt": el mensaje para solicitar una entrada del usuario.
+   4.4. "prompt": el mensaje para solicitar una entrada del usuario.
 
-   A excepción de "title" y "name", que deben ser obligatorios, todos los demás
-   parámetros pueden ser opcionales en el diccionario de entrada. Para cada
-   elemento de la lista "options", el único parámetro obligatorio es "name".
+   A excepción de "dict_name", "title" y "name", que deben ser obligatorios,
+   todos los demás parámetros pueden ser opcionales en el diccionario de
+   entrada. Para cada elemento de la lista "options", el único parámetro
+   obligatorio es "name".
 
 ### Modos especiales de ejecución ###
 De acuerdo a lo estipulado en el inciso 3.2.3, a la hora de ejecutar uno o más
@@ -96,8 +100,62 @@ from modules.subprocess_utils import (
     run_command_as_root,
 )
 
+from typing import Literal
+
 
 # --- Funciones privadas para controlar errores ---
+def _check_parameter(
+    param_name: str, param_type: Literal["str", "list"], param: str | list
+) -> None:
+    """
+    _check_parameter() es una función que sirve para proveer
+    controles de existencia, tipo y longitud para variables
+    que sean cadenas o listas.
+
+    La idea es que esta función se utilice luego en otras
+    funciones que necesitan controlar varias variables de
+    estos tipos, de manera que no se repita la escritura de
+    la lógica de control.
+    """
+    # Controles de parámetros de la función.
+    if not isinstance(param_name, str):
+        raise TypeError(
+            "El parámetro 'param_name' debe ser una cadena (string)."
+        )
+
+    if param_type not in ["str", "list"]:
+        raise TypeError(
+            "El parámetro 'param_type' debe contener las cadenas 'str' o"
+            " 'list'."
+        )
+
+    if not (isinstance(param, str) or isinstance(param, list)):
+        raise TypeError(
+            "El parámetro 'param' debe ser una cadena (string) o una lista."
+        )
+
+    # Controles realizados por la función.
+    if param is None:
+        raise KeyError(
+            f"Se debe proveer el parámetro '{param_name}'."
+        )
+
+    if param_type == "str" and not isinstance(param, str):
+        raise TypeError(
+            f"El parámetro '{param_name}' debe ser una cadena (string)."
+        )
+    elif param_type == "list" and not isinstance(param, list):
+        raise TypeError(
+            f"El parámetro '{param_name}' debe ser una lista (list)."
+        )
+
+    if (param_type == "str" or param_type == "list") and len(param) == 0:
+        raise ValueError(
+            f"El parámetro '{param_name}' debe tener una longitud mayor a"
+            " cero."
+        )
+
+
 def _check_basic_dictionary_structure(menu_data: dict) -> None:
     """
     _check_basic_dictionary_structure() es una función
@@ -108,39 +166,47 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
     en el diccionario, aspecto que es delegado a las
     siguientes funciones de la sección.
     """
+    if not isinstance(menu_data, dict):
+        raise ValueError(
+            "La estructura de datos a procesar debe ser un diccionario."
+        )
+
+    dict_name = menu_data.get("dict_name", None)
     title = menu_data.get("title", None)
     options_list = menu_data.get("options", None)
 
-    # Controles de título.
-    if title is None:
-        raise KeyError(
-            "Se debe proveer una cabecera ('title') para imprimir con el menú."
-        )
-    if not isinstance(title, str):
-        raise TypeError(
-            "La cabecera ('title') debe tratarse de una cadena (string)."
-        )
-    if len(title) == 0:
+    _check_parameter("dict_name", "str", dict_name)
+    _check_parameter("title", "str", title)
+    _check_parameter("options_list", "list", options_list)
+
+
+def _check_options_name(menu_data: dict) -> None:
+    """
+    _check_options_name() es una función que controla
+    que cada elemento definido en la lista de opciones
+    'options' contenga el parámetro 'name'.
+    """
+    if not isinstance(menu_data, dict):
         raise ValueError(
-            "El título ('title') debe tener una longitud mayor a cero."
+            "La estructura de datos a procesar debe ser un diccionario."
         )
 
-    # Controles de la lista de opciones.
-    if options_list is None:
-        raise KeyError(
-            "Se debe proveer una lista de opciones ('options') para ejecutar"
-            " con el menú."
-        )
+    option_counter = 0
+    for option in menu_data["options"]:
+        option_counter += 1
+        name = option.get("name", None)
 
-    if not isinstance(options_list, list):
-        raise TypeError(
-            "Las opciones ('options') deben proveerse en una lista."
-        )
-    else:
-        if len(options_list) == 0:
-            raise ValueError(
-                "La lista de opciones ('options') debe tener elementos."
+        if name is None:
+            raise KeyError(
+                f"El elemento N.° {option_counter} del diccionario"
+                f" {menu_data['dict_name']} no tiene el parámetro 'name'."
             )
+        _check_parameter("name", "str", name)
+
+
+# def _check_option_parameters(menu_option: dict) -> None:
+#     """
+#     """
 
 
 # --- Funciones privadas para construir el menú y ejecutar acciones ---
@@ -289,6 +355,7 @@ def run_menu(menu_data: dict) -> None:
     de la librería "menu_creation".
     """
     _check_basic_dictionary_structure(menu_data)
+    _check_options_name(menu_data)
     while True:
         clear_screen()
         _draw_menu(menu_data)

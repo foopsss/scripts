@@ -9,6 +9,7 @@
 # sys-apps/flatpak          - provee "flatpak".
 
 PACKAGE_MANAGEMENT_MENU_DATA = {
+    "dict_name": "PACKAGE_MANAGEMENT_MENU_DATA",
     "title": "Apartado para manejar los paquetes y repositorios del sistema",
     "options": [
         {"name": "REPOSITORIOS"},

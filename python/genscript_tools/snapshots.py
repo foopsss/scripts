@@ -85,6 +85,7 @@ def delete_system_snapshot():
 
 
 SNAPSHOT_MANAGEMENT_MENU_DATA = {
+    "dict_name": "SNAPSHOT_MANAGEMENT_MENU_DATA",
     "title": "Apartado para manejar snapshots de Snapper y subvolúmenes de"
     " BTRFS",
     "options": [

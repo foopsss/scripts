@@ -63,6 +63,7 @@ def update_firmware():
 
 
 CVE_CHECK_MENU_DATA = {
+    "dict_name": "CVE_CHECK_MENU_DATA",
     "title": "Apartado para controlar posibles fallos de seguridad",
     "options": [
         {
@@ -86,6 +87,7 @@ CVE_CHECK_MENU_DATA = {
 
 
 UPDATES_MENU_DATA = {
+    "dict_name": "UPDATES_MENU_DATA",
     "title": "Apartado para actualizar el software del sistema",
     "pre_menu_hook": check_internet_connection,
     "options": [

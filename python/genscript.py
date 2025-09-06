@@ -80,6 +80,7 @@ def read_news():
 
 
 MAIN_MENU_DATA = {
+    "dict_name": "MAIN_MENU_DATA",
     "title": "¡Bienvenido a la herramienta de administración del sistema!",
     "options": [
         {"name": "APARTADOS ADICIONALES"},
