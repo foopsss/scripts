@@ -66,8 +66,11 @@ def get_validated_input(
     La función admite dos tipos de datos: cadenas ("str") y números
     enteros ("int").
     """
+    if not isinstance(msg, str):
+        raise TypeError("El parámetro 'msg' debe ser una cadena ('str').")
+
     if return_type not in ["str", "int"]:
-        raise ValueError(
+        raise TypeError(
             "El parámetro 'return_type' debe ser una cadena ('str') o"
             " un número entero ('int')."
         )
@@ -183,10 +186,16 @@ def draw_line(
     """
     if length <= 0:
         raise ValueError("La longitud de la línea debe ser mayor a cero.")
-    if not isinstance(symbol, str) or len(symbol) != 1:
+
+    if not isinstance(symbol, str):
+        raise TypeError(
+            "El símbolo debe tratarse de una cadena ('str')."
+        )
+
+    if len(symbol) != 1:
         raise ValueError(
-            "El símbolo debe tratarse de un string compuesto por un solo"
-            " carácter."
+            "La cadena que contiene el símbolo a imprimir debe tener"
+            " exactamente un elemento."
         )
 
     # Composición de la cadena a mostrar/devolver utilizando
