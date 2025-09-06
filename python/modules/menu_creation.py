@@ -99,6 +99,15 @@ from modules.subprocess_utils import (
 
 # --- Funciones privadas para controlar errores ---
 def _check_basic_dictionary_structure(menu_data: dict) -> None:
+    """
+    _check_basic_dictionary_structure() es una función
+    que provee controles de estructura para detectar
+    errores básicos en la definición de los primeros
+    elementos del diccionario de entrada. Sin embargo,
+    no realiza un control de las opciones definidas
+    en el diccionario, aspecto que es delegado a las
+    siguientes funciones de la sección.
+    """
     title = menu_data.get("title", None)
     options_list = menu_data.get("options", None)
 
