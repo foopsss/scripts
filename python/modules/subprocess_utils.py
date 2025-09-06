@@ -83,18 +83,26 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
     o directamente a través de un método de la librería
     subprocess.
     """
+    # Controles de parámetros de la función.
+    if not isinstance(use_shell, bool):
+        raise TypeError(
+            "El parámetro 'use_shell' debe ser un valor lógico o booleano"
+            " ('bool')."
+        )
+
+    # Controles realizados por la función.
     if use_shell:
         if not isinstance(command, str):
             raise TypeError("El comando debe suministrarse como un string.")
     else:
         if not isinstance(command, list):
             raise TypeError(
-                "El comando debe suministrarse como una cadena de strings."
+                "El comando debe suministrarse como una lista de strings."
             )
 
         if not all(isinstance(item, str) for item in command):
             raise TypeError(
-                "Todas los elementos de la cadena correspondiente"
+                "Todas los elementos de la lista correspondiente"
                 " al comando deben tratarse de strings."
             )
 
@@ -107,6 +115,13 @@ def _run_command_calledprocesserror_exception_message(
     run_command_as_root() y run_command_and_get_return_code(), en
     caso de que se esté manejando la excepción subprocess.CalledProcessError.
     """
+    if not isinstance(error, subprocess.CalledProcessError):
+        raise TypeError(
+            "Se ha provisto una excepción del tipo incorrecto para procesar."
+            "\nDebe proveerse una excepción del tipo"
+            " subprocess.CalledProcessError."
+        )
+
     bg_colour("red", f"Error de ejecución del comando {error.cmd}.")
     bg_colour("red", f"Código de salida: {error.returncode}")
 
@@ -119,6 +134,13 @@ def _run_command_timeoutexpired_exception_message(
     run_command_as_root() y run_command_and_get_return_code(), en
     caso de que se esté manejando la excepción subprocess.TimeoutExpired.
     """
+    if not isinstance(error, subprocess.TimeoutExpired):
+        raise TypeError(
+            "Se ha provisto una excepción del tipo incorrecto para procesar."
+            "\nDebe proveerse una excepción del tipo"
+            " subprocess.TimeoutExpired."
+        )
+
     bg_colour(
         "red",
         f"Se esperaron {error.timeout} segundos para ejecutar"
@@ -135,6 +157,12 @@ def _run_command_filenotfounderror_exception_message(
     pipe_commands(), en caso de que se esté manejando la excepción
     FileNotFoundError.
     """
+    if not (isinstance(command, str) or isinstance(command, list)):
+        raise TypeError(
+            "El parámetro 'command' debe ser una cadena ('str') o"
+            " una lista ('list')."
+        )
+
     if isinstance(command, list):
         command_str = " ".join(command)
     else:
@@ -148,10 +176,15 @@ def _unknown_exception_message(error: Exception) -> None:
     Mensaje de error compartido para todas las funciones, en caso de
     que se esté manejando alguna excepción no contemplada previamente.
     """
+    if not isinstance(error, subprocess.TimeoutExpired):
+        raise TypeError(
+            "El parámetro 'error' debe ser una excepción ('Exception')."
+        )
+
     bg_colour(
         "red",
-        "Se produjo un error inesperado al ejecutar el comando.\n"
-        f"Error encontrado: {error}",
+        "Se produjo un error inesperado al ejecutar el comando."
+        f"\nError encontrado: {error}",
     )
 
 
@@ -344,9 +377,9 @@ def pipe_commands(first_command: list, second_command: list) -> str | None:
         # no encontrado", "permiso denegado", etc.
         bg_colour(
             "red",
-            "Se ha producido un error del SO durante la ejecución de"
-            " un programa.\n"
-            f"El error encontrado es: {error}",
+            "Se ha producido un error del SO durante la ejecución de un"
+            " programa."
+            f"\nEl error encontrado es: {error}",
         )
         return None
     except Exception as unknown_error:
