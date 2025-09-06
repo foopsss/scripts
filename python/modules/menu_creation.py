@@ -182,15 +182,6 @@ def _handle_action(menu_option: dict) -> None:
     parte del usuario en caso de ser necesario, previo
     a la ejecución del comando provisto.
     """
-    # Si el comando a ejecutar requiere que el usuario
-    # ingrese algo por pantalla, se lo pido acá.
-    # Se utiliza el mensaje definido en el campo "prompt"
-    # del diccionario almacenado en "menu_option".
-    user_input = None
-    if "prompt" in menu_option:
-        user_input = get_validated_input(menu_option["prompt"])
-        print("")
-
     # Ejecución de la opción elegida.
     if callable(menu_option["action"]):
         menu_option["action"]()
@@ -198,6 +189,15 @@ def _handle_action(menu_option: dict) -> None:
         # Trabajo con una copia del diccionario pasado
         # por parámetro para no alterar el original.
         commands_from_action = copy.deepcopy(menu_option["action"])
+
+        # Si el comando a ejecutar requiere que el usuario
+        # ingrese algo por pantalla, se lo pido acá.
+        # Se utiliza el mensaje definido en el campo "prompt"
+        # del diccionario almacenado en "menu_option".
+        user_input = None
+        if "prompt" in menu_option:
+            user_input = get_validated_input(menu_option["prompt"])
+            print("")
 
         if "#PIPE" in commands_from_action:
             piped_commands = []
