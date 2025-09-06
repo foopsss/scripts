@@ -97,7 +97,40 @@ from modules.subprocess_utils import (
 )
 
 
-# --- Funciones privadas ---
+# --- Funciones privadas para controlar errores ---
+def _check_basic_dictionary_structure(menu_data: dict) -> None:
+    title = menu_data.get("title", None)
+    options_list = menu_data.get("options", None)
+
+    # Controles de título.
+    if title is None:
+        raise KeyError(
+            "Se debe proveer una cabecera ('title') para imprimir con el menú."
+        )
+    if not isinstance(title, str):
+        raise TypeError(
+            "La cabecera ('title') debe tratarse de una cadena (string)."
+        )
+
+    # Controles de la lista de opciones.
+    if options_list is None:
+        raise KeyError(
+            "Se debe proveer una lista de opciones ('options') para ejecutar"
+            " con el menú."
+        )
+
+    if not isinstance(options_list, list):
+        raise TypeError(
+            "Las opciones ('options') deben proveerse en una lista."
+        )
+    else:
+        if len(options_list) == 0:
+            raise ValueError(
+                "La lista de opciones ('options') debe tener elementos."
+            )
+
+
+# --- Funciones privadas para construir el menú y ejecutar acciones ---
 def _draw_menu(menu_data: dict) -> None:
     """
     _draw_menu() es una función utilizada para imprimir
@@ -246,6 +279,7 @@ def run_menu(menu_data: dict) -> None:
     un formato específico, descripto en la documentación
     de la librería "menu_creation".
     """
+    _check_basic_dictionary_structure(menu_data)
     while True:
         clear_screen()
         _draw_menu(menu_data)
