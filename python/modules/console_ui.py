@@ -188,9 +188,7 @@ def draw_line(
         raise ValueError("La longitud de la línea debe ser mayor a cero.")
 
     if not isinstance(symbol, str):
-        raise TypeError(
-            "El símbolo debe tratarse de una cadena ('str')."
-        )
+        raise TypeError("El símbolo debe tratarse de una cadena ('str').")
 
     if len(symbol) != 1:
         raise ValueError(

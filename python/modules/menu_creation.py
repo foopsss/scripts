@@ -79,6 +79,16 @@ deben ejecutarse de cierta forma:
 
 # TODO: añadir controles de tipo, valores y estructura a la hora de ejecutar
 #       los contenidos del diccionario.
+#       * Considerar además si se debe tratar el tema de las etiquetas
+#         repetidas en los chequeos de estructura. SÍ se debe mencionar en la
+#         documentación que la librería filtra las etiquetas repetidas al
+#         procesar los comandos a ejecutar.
+# TODO: considerar el rearmar la lógica de ejecución de funciones para que se
+#       pueda pasar una lista de listas de funciones y sus parámetros en la
+#       llave "action".
+# TODO: considerar el rediseñar la lógica de ejecución de la llave
+#       "pre_menu_hook" para que no solo se pueda pasar una sola función, sino
+#       una lista de funciones.
 
 # Chequear luego:
 # https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function#41188411
@@ -136,9 +146,7 @@ def _check_parameter(
 
     # Controles realizados por la función.
     if param is None:
-        raise KeyError(
-            f"Se debe proveer el parámetro '{param_name}'."
-        )
+        raise KeyError(f"Se debe proveer el parámetro '{param_name}'.")
 
     if param_type == "str" and not isinstance(param, str):
         raise TypeError(
