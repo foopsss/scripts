@@ -111,6 +111,10 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
         raise TypeError(
             "La cabecera ('title') debe tratarse de una cadena (string)."
         )
+    if len(title) == 0:
+        raise ValueError(
+            "El título ('title') debe tener una longitud mayor a cero."
+        )
 
     # Controles de la lista de opciones.
     if options_list is None:
