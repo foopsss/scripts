@@ -75,8 +75,8 @@ CVE_CHECK_MENU_DATA = {
         {
             "name": "Obtener los pasos requeridos para remediar un fallo.",
             "action": [["#UINPUT", "glsa-check", "-p"]],
-            "prompt": "Ingrese la ID de un fallo reportado",
             "aesthetic_action": "clear_screen",
+            "prompt": "Ingrese la ID de un fallo reportado",
         },
         {
             "name": "SALIR.",
