@@ -79,6 +79,10 @@ deben ejecutarse de cierta forma:
 
 # TODO: añadir controles de tipo, valores y estructura a la hora de ejecutar
 #       los contenidos del diccionario.
+#       * Añadir controles para action también. Estos deberían ser: controlar
+#         que sea un diccionario (con lo que eso conlleva) o una función. El
+#         tipo diccionario se podría incorporar a _check_parameters para
+#         aprovechar su estructura, pero se debe usar callable por si es función.
 #       * Considerar además si se debe tratar el tema de las etiquetas
 #         repetidas en los chequeos de estructura. SÍ se debe mencionar en la
 #         documentación que la librería filtra las etiquetas repetidas al
@@ -115,7 +119,10 @@ from typing import Literal
 
 # --- Funciones privadas para controlar errores ---
 def _check_parameter(
-    param_name: str, param_type: Literal["str", "list"], param: str | list
+    param_name: str,
+    param_type: Literal["str", "list"],
+    param: str | list,
+    is_optional: bool = False,
 ) -> None:
     """
     _check_parameter() es una función que sirve para proveer
@@ -139,29 +146,25 @@ def _check_parameter(
             " 'list'."
         )
 
-    if not (isinstance(param, str) or isinstance(param, list)):
-        raise TypeError(
-            "El parámetro 'param' debe ser una cadena (string) o una lista."
-        )
-
     # Controles realizados por la función.
-    if param is None:
+    if not is_optional and param is None:
         raise KeyError(f"Se debe proveer el parámetro '{param_name}'.")
 
-    if param_type == "str" and not isinstance(param, str):
-        raise TypeError(
-            f"El parámetro '{param_name}' debe ser una cadena (string)."
-        )
-    elif param_type == "list" and not isinstance(param, list):
-        raise TypeError(
-            f"El parámetro '{param_name}' debe ser una lista (list)."
-        )
+    if param is not None:
+        if param_type == "str" and not isinstance(param, str):
+            raise TypeError(
+                f"El parámetro '{param_name}' debe ser una cadena (string)."
+            )
+        if param_type == "list" and not isinstance(param, list):
+            raise TypeError(
+                f"El parámetro '{param_name}' debe ser una lista (list)."
+            )
 
-    if (param_type == "str" or param_type == "list") and len(param) == 0:
-        raise ValueError(
-            f"El parámetro '{param_name}' debe tener una longitud mayor a"
-            " cero."
-        )
+        if len(param) == 0:
+            raise ValueError(
+                f"El parámetro '{param_name}' debe tener una longitud mayor a"
+                " cero."
+            )
 
 
 def _check_basic_dictionary_structure(menu_data: dict) -> None:
@@ -188,22 +191,26 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
     _check_parameter("options_list", "list", options_list)
 
 
-def _check_options_name(menu_data: dict) -> None:
+def _check_top_level_option_keys(menu_data: dict) -> None:
     """
-    _check_options_name() es una función que controla
-    que cada elemento definido en la lista de opciones
-    'options' contenga el parámetro 'name'.
-    """
-    if not isinstance(menu_data, dict):
-        raise ValueError(
-            "La estructura de datos a procesar debe ser un diccionario."
-        )
+    _check_top_level_option_keys() es una función que
+    controla que cada elemento definido en la lista de
+    opciones 'options' contenga el parámetro 'name', y
+    que los parámetros opcionales como 'prompt' o
+    'aesthetic_action' estén bien definidos en caso de
+    estar presentes.
 
+    El control de los datos definidos en la llave
+    'action' es delegado a la función _check_action().
+    """
     option_counter = 0
     for option in menu_data["options"]:
         option_counter += 1
         name = option.get("name", None)
+        aesthetic_action = option.get("aesthetic_action", None)
+        prompt = option.get("prompt", None)
 
+        # Control de la llave 'name'.
         if name is None:
             raise KeyError(
                 f"El elemento N.° {option_counter} del diccionario"
@@ -211,8 +218,30 @@ def _check_options_name(menu_data: dict) -> None:
             )
         _check_parameter("name", "str", name)
 
+        # Control de la llave 'aesthetic_action'.
+        _check_parameter(
+            param_name="aesthetic_action",
+            param_type="str",
+            param=aesthetic_action,
+            is_optional=True,
+        )
 
-# def _check_option_parameters(menu_option: dict) -> None:
+        if aesthetic_action not in [None, "clear_screen", "print_line"]:
+            raise ValueError(
+                "El parámetro 'aesthetic_action' únicamente admite los valores"
+                " 'clear_screen' y 'print_line'."
+            )
+
+        # Control de la llave 'prompt'.
+        _check_parameter(
+            param_name="prompt",
+            param_type="str",
+            param=prompt,
+            is_optional=True,
+        )
+
+
+# def _check_action(menu_option: dict) -> None:
 #     """
 #     """
 
@@ -363,7 +392,7 @@ def run_menu(menu_data: dict) -> None:
     de la librería "menu_creation".
     """
     _check_basic_dictionary_structure(menu_data)
-    _check_options_name(menu_data)
+    _check_top_level_option_keys(menu_data)
     while True:
         clear_screen()
         _draw_menu(menu_data)
