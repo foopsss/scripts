@@ -87,22 +87,18 @@ MAIN_MENU_DATA = {
         {
             "name": "Menú de opciones de actualización.",
             "action": UPDATES_MENU_DATA,
-            "aesthetic_action": "clear_screen",
         },
         {
             "name": "Menú de manejo de paquetes y repositorios del sistema.",
             "action": PACKAGE_MANAGEMENT_MENU_DATA,
-            "aesthetic_action": "clear_screen",
         },
         {
             "name": "Menú de manejo de snapshots.",
             "action": SNAPSHOT_MANAGEMENT_MENU_DATA,
-            "aesthetic_action": "clear_screen",
         },
         {
             "name": "Menú de obtención de información sobre USE flags.",
             "action": USE_FLAGS_MENU_DATA,
-            "aesthetic_action": "clear_screen",
         },
         {"name": "OPCIONES DE LIMPIEZA"},
         {

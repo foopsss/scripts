@@ -35,6 +35,9 @@ def check_internet_connection():
     if ping_exit_code != 0:
         bg_colour("red", "¡No cuenta con conexión a Internet!")
         bg_colour("yellow", "No podrá utilizar algunas opciones del menú.")
+    else:
+        bg_colour("green", "¡Cuenta con conexión a Internet!")
+        bg_colour("yellow", "Podrá utilizar todas las opciones del menú.")
 
 
 def sincronize_repositories():
@@ -125,7 +128,6 @@ UPDATES_MENU_DATA = {
             "name": "Revisar si el sistema está expuesto a fallos de\n"
             "   ciberseguridad.",
             "action": CVE_CHECK_MENU_DATA,
-            "aesthetic_action": "clear_screen",
         },
         {
             "name": "SALIR.",
