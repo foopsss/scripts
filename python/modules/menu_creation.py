@@ -224,7 +224,7 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
             f"'name' en el elemento N.° {option_counter} del parámetro"
             f" 'options' del diccionario {dict_name}",
             name,
-            str
+            str,
         )
 
         # Evaluación de la llave 'aesthetic_action'.
@@ -235,7 +235,6 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     f" {option_counter} del parámetro 'options' del"
                     f" diccionario {dict_name}, o fue definido como un objeto"
                     " de diccionario o una cadena (string)."
-
                     "\nPor lo tanto, el parámetro 'aesthetic_action' es"
                     " inválido. Por favor remuévalo."
                 )
@@ -245,7 +244,6 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     "Revise el parámetro 'aesthetic_action' en el elemento N.°"
                     f" {option_counter} del parámetro 'options' del"
                     f" diccionario {dict_name}."
-
                     "\nÚnicamente se admiten los valores 'clear_screen' y"
                     " 'print_line'."
                 )
