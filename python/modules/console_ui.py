@@ -48,7 +48,7 @@ def _background_and_foreground_colour_exception():
     excepción KeyError.
     """
     raise ValueError(
-        "El parámetro colour solo admite los valores 'red', 'green',"
+        "El parámetro 'colour' solo admite los valores 'red', 'green',"
         " 'blue', 'yellow', 'magenta' y 'cyan'."
     )
 
@@ -66,6 +66,7 @@ def get_validated_input(
     La función admite dos tipos de datos: cadenas ("str") y números
     enteros ("int").
     """
+    # Validación de parámetros de la función.
     if not isinstance(msg, str):
         raise TypeError("El parámetro 'msg' debe ser una cadena ('str').")
 
@@ -75,6 +76,7 @@ def get_validated_input(
             " un número entero ('int')."
         )
 
+    # Validaciones realizadas por la función.
     while True:
         input_str = input(f"{msg}: ")
 
@@ -114,15 +116,20 @@ def get_choice(low_lim: int, upp_lim: int) -> None:
     la función son menores a uno, se producirá una excepción
     y se mostrará un mensaje de error por pantalla.
     """
+    if not isinstance(low_lim, int) or not isinstance(upp_lim, int):
+        raise TypeError(
+            "Los parámetros 'low_lim' y 'upp_lim' deben tratarse de números"
+            " enteros ('int')."
+        )
+
     if low_lim <= 0 or upp_lim <= 0:
         raise ValueError(
-            "Ni el límite inferior ni el límite superior pueden ser"
-            " menores a uno."
+            "Los parámetros 'low_lim' y 'upp_lim' no pueden ser menores a uno."
         )
 
     if upp_lim < low_lim:
         raise ValueError(
-            "El límite superior no puede ser menor al límite inferior."
+            "El parámetro 'upp_lim' no puede ser menor que 'low_lim'."
         )
 
     while True:
@@ -184,16 +191,27 @@ def draw_line(
     una excepción y se mostrará un mensaje de error
     por pantalla.
     """
+    if not isinstance(length, int):
+        raise TypeError(
+            "El parámetro 'length' debe tratarse de un número entero ('str')."
+        )
+
     if length <= 0:
-        raise ValueError("La longitud de la línea debe ser mayor a cero.")
+        raise ValueError("El parámetro 'length' debe ser mayor a cero.")
 
     if not isinstance(symbol, str):
-        raise TypeError("El símbolo debe tratarse de una cadena ('str').")
+        raise TypeError(
+            "El parámetro 'symbol' debe tratarse de una cadena ('str')."
+        )
 
     if len(symbol) != 1:
         raise ValueError(
-            "La cadena que contiene el símbolo a imprimir debe tener"
-            " exactamente un elemento."
+            "El parámetro 'length' debe tener exactamente un elemento."
+        )
+
+    if not isinstance(print_line, bool):
+        raise TypeError(
+            "El parámetro 'print_line' debe ser un valor lógico ('bool')."
         )
 
     # Composición de la cadena a mostrar/devolver utilizando
@@ -223,6 +241,12 @@ def bg_colour(colour: str, text: str) -> None:
     excepción y se mostrará un mensaje de error por
     pantalla.
     """
+    if not isinstance(colour, str) or not isinstance(text, str):
+        raise TypeError(
+            "Los parámetros 'colour' y 'text' deben tratarse de cadenas"
+            " ('str')."
+        )
+
     try:
         background_code = _BACKGROUND_COLOURS[colour]
         print(f"\033[1;37;{background_code}m{text}\033[0m")
@@ -246,6 +270,17 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
     excepción y se mostrará un mensaje de error por
     pantalla.
     """
+    if not isinstance(colour, str) or not isinstance(text, str):
+        raise TypeError(
+            "Los parámetros 'colour' y 'text' deben tratarse de cadenas"
+            " ('str')."
+        )
+
+    if not isinstance(print_line, bool):
+        raise TypeError(
+            "El parámetro 'print_line' debe ser un valor lógico ('bool')."
+        )
+
     try:
         foreground_code = _FOREGROUND_COLOURS[colour]
         line = f"\033[1;{foreground_code}m{text}\033[0m"
@@ -274,6 +309,10 @@ def draw_coloured_line(
     mencionadas anteriormente con respecto a la longitud de
     la línea, el símbolo pasado por parámetro y el color
     pasado por parámetro.
+
+    Asimismo, también aplican los controles de tipo
+    realizados con respecto a los parámetros de dichas
+    funciones.
     """
     line_str = draw_line(length, symbol, print_line=False)
     fg_colour(colour, line_str, print_line=True)

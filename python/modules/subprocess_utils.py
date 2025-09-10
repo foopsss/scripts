@@ -83,27 +83,30 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
     o directamente a través de un método de la librería
     subprocess.
     """
-    # Controles de parámetros de la función.
+    # Validación de parámetros de la función.
     if not isinstance(use_shell, bool):
         raise TypeError(
-            "El parámetro 'use_shell' debe ser un valor lógico o booleano"
-            " ('bool')."
+            "El parámetro 'use_shell' debe ser un valor lógico ('bool')."
         )
 
-    # Controles realizados por la función.
+    # Validaciones realizadas por la función.
     if use_shell:
         if not isinstance(command, str):
-            raise TypeError("El comando debe suministrarse como un string.")
+            raise TypeError(
+                "El parámetro 'command' debe suministrarse como una cadena"
+                " ('str')."
+            )
     else:
         if not isinstance(command, list):
             raise TypeError(
-                "El comando debe suministrarse como una lista de strings."
+                "El parámetro 'command' debe suministrarse como una lista"
+                " ('list')."
             )
 
         if not all(isinstance(item, str) for item in command):
             raise TypeError(
-                "Todas los elementos de la lista correspondiente"
-                " al comando deben tratarse de strings."
+                "Todas los elementos de la lista 'command' deben tratarse de"
+                " cadenas ('str')."
             )
 
 
@@ -117,8 +120,7 @@ def _run_command_calledprocesserror_exception_message(
     """
     if not isinstance(error, subprocess.CalledProcessError):
         raise TypeError(
-            "Se ha provisto una excepción del tipo incorrecto para procesar."
-            "\nDebe proveerse una excepción del tipo"
+            "El parámetro 'error' debe ser una excepción del tipo"
             " subprocess.CalledProcessError."
         )
 
@@ -136,8 +138,7 @@ def _run_command_timeoutexpired_exception_message(
     """
     if not isinstance(error, subprocess.TimeoutExpired):
         raise TypeError(
-            "Se ha provisto una excepción del tipo incorrecto para procesar."
-            "\nDebe proveerse una excepción del tipo"
+            "El parámetro 'error' debe ser una excepción del tipo"
             " subprocess.TimeoutExpired."
         )
 
@@ -157,7 +158,7 @@ def _run_command_filenotfounderror_exception_message(
     pipe_commands(), en caso de que se esté manejando la excepción
     FileNotFoundError.
     """
-    if not (isinstance(command, str) or isinstance(command, list)):
+    if not (isinstance(command, str) and not isinstance(command, list)):
         raise TypeError(
             "El parámetro 'command' debe ser una cadena ('str') o"
             " una lista ('list')."
@@ -176,9 +177,10 @@ def _unknown_exception_message(error: Exception) -> None:
     Mensaje de error compartido para todas las funciones, en caso de
     que se esté manejando alguna excepción no contemplada previamente.
     """
-    if not isinstance(error, subprocess.TimeoutExpired):
+    if not isinstance(error, Exception):
         raise TypeError(
-            "El parámetro 'error' debe ser una excepción ('Exception')."
+            "El parámetro 'error' debe ser una excepción genérica"
+            " ('Exception')."
         )
 
     bg_colour(
@@ -204,6 +206,12 @@ def run_command(
     pero esto solo se puede hacer con el control de
     errores activado.
     """
+    if not isinstance(check_return, bool) or not isinstance(use_shell, bool):
+        raise TypeError(
+            "Los parámetros 'check_return' y 'use_shell' deben tratarse de"
+            " valores lógicos ('bool')."
+        )
+
     if not check_return and use_shell:
         raise ValueError(
             "No se puede usar la función con check_return=False y"
@@ -244,6 +252,10 @@ def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
     A diferencia de run_command(), no permite desactivar
     el control de errores.
     """
+    if not isinstance(use_shell, bool):
+        raise TypeError(
+            "El parámetro 'use_shell' debe ser un valor lógico ('bool')."
+        )
     _check_command_argument_type(command, use_shell)
 
     try:
