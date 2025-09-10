@@ -208,8 +208,8 @@ def run_command(
     """
     if not isinstance(check_return, bool) or not isinstance(use_shell, bool):
         raise TypeError(
-            "Los parámetros 'check_return' y 'use_shell' deben tratarse de"
-            " valores lógicos ('bool')."
+            "Los parámetros 'check_return' y 'use_shell' deben ser valores"
+            " lógicos ('bool')."
         )
 
     if not check_return and use_shell:
