@@ -105,7 +105,7 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
 
         if not all(isinstance(item, str) for item in command):
             raise TypeError(
-                "Todas los elementos de la lista 'command' deben tratarse de"
+                "Todos los elementos de la lista 'command' deben tratarse de"
                 " cadenas ('str')."
             )
 
