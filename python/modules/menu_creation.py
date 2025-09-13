@@ -64,6 +64,9 @@ La presencia de estos parámetros, así como la validez de sus definiciones, est
 controlada por las siguientes funciones:
 * _check_basic_dictionary_structure().
 * _check_top_level_option_keys().
+* _check_action(), que depende de:
+  * _check_action_string().
+  * _check_action_list().
 
 ### Modos especiales de ejecución ###
 De acuerdo a lo estipulado en el inciso 4.2.3, a la hora de ejecutar uno o más
@@ -206,8 +209,14 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
     'aesthetic_action' estén bien definidos en caso de
     estar presentes.
 
-    El control de los datos definidos en la llave
-    'action' es delegado a la función _check_action().
+    Nótese que esta función no incluye validación de
+    parámetros porque se espera que ya lleguen con el
+    tipo y valores correctos a la hora de llamar a
+    esta función.
+
+    Asimismo, el control de los datos definidos en el
+    parámetro 'action' es delegado a la función
+    _check_action().
     """
     dict_name = menu_data.get("dict_name", None)
     option_counter = 0
@@ -244,8 +253,8 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     "Revise el parámetro 'aesthetic_action' en el elemento N.°"
                     f" {option_counter} del parámetro 'options' del"
                     f" diccionario {dict_name}."
-                    "\nÚnicamente se admiten los valores 'clear_screen' y"
-                    " 'print_line'."
+                    "\nMotivo: únicamente se admiten los valores 'clear_screen'"
+                    " y 'print_line'."
                 )
 
         # Evaluación de la llave 'prompt'.
@@ -258,9 +267,124 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
         )
 
 
-# def _check_action(menu_option: dict) -> None:
-#     """
-#     """
+def _check_action_string(
+    action: str, option_number: int, dict_name: str
+) -> None:
+    """
+    _check_action_string() es una de las funciones
+    llamadas por _check_action() para verificar los
+    contenidos del parámetro 'action' de una opción.
+    Puntualmente, _check_action_string() se encarga
+    de los controles cuando 'action' es un string.
+
+    Nótese que esta función no incluye validación de
+    parámetros porque se espera que ya lleguen con el
+    tipo y valores correctos a la hora de llamar a
+    esta función.
+    """
+    EXIT_STRINGS = ["exit_script", "exit_menu"]
+    if action not in EXIT_STRINGS:
+        raise ValueError(
+            f"Revise el parámetro 'action' en el elemento N.° {option_number}"
+            f" del parámetro 'options' del diccionario {dict_name}."
+            "\nMotivo: el parámetro 'action' únicamente admite los valores"
+            " 'exit_script' y 'exit_menu' en caso de ser una cadena."
+        )
+
+
+def _check_action_list(
+    action: list, option_number: int, prompt_key: str | None, dict_name: str
+) -> None:
+    """
+    _check_action_list() es una de las funciones
+    llamadas por _check_action() para verificar los
+    contenidos del parámetro 'action' de una opción.
+    Puntualmente, _check_action_list() se encarga
+    de los controles cuando 'action' es una lista.
+
+    Nótese que esta función no incluye validación de
+    parámetros porque se espera que ya lleguen con el
+    tipo y valores correctos a la hora de llamar a
+    esta función.
+    """
+    # 1. Lógica para mantener la relación entre la llave "prompt"
+    #    y la etiqueta "#UINPUT".
+    # 2. Lógica para avisar sobre etiquetas repetidas.
+    ALLOWED_COMMAND_TYPES = (str, list)
+    COMMAND_TAGS = ["#ROOT", "#UINPUT"]
+    ACTION_TAGS = ["#PIPE"]
+
+    # Reviso cada elemento de la lista 'action'.
+    for item in action:
+        # Reviso los elementos para asegurarme de que
+        # sean un string o una lista.
+        if not isinstance(item, ALLOWED_COMMAND_TYPES):
+            raise TypeError(
+                "Revise el parámetro 'action' en el elemento N.°"
+                f" {option_number} del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: los elementos del parámetro 'action' únicamente"
+                " pueden ser listas de cadenas o cadenas."
+            )
+
+        # Si un elemento por fuera de un comando es un
+        # string, debe tratarse únicamente de la etiqueta
+        # "#UINPUT".
+        if isinstance(item, str) and item not in ACTION_TAGS:
+            raise ValueError(
+                "Revise el parámetro 'action' en el elemento N.°"
+                f" {option_number} del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: la única etiqueta permitida en el parámetro"
+                " 'action' por fuera de las listas con los comandos es la"
+                " etiqueta '#PIPE'."
+            )
+
+        # Si un elemento es una lista, reviso sus
+        # contenidos.
+        if isinstance(item, list):
+            # Reviso los elementos para asegurarme de que
+            # todos sus componentes sean strings, en caso
+            # de que sean listas.
+            for string in item:
+                if not isinstance(string, str):
+                    raise TypeError(
+                        "Revise el parámetro 'action' en el elemento N.°"
+                        f" {option_number} del parámetro 'options' del"
+                        f" diccionario {dict_name}."
+                        "\nMotivo: las listas con los comandos únicamente"
+                        " pueden estar compuestas por cadenas."
+                    )
+
+                # Reviso las etiquetas de los comandos para
+                # asegurarme de que solo se introduzcan
+                # etiquetas válidas.
+                if "#" in string and string not in COMMAND_TAGS:
+                    raise ValueError(
+                        "Revise el parámetro 'action' en el elemento N.°"
+                        f" {option_number} del parámetro 'options' del"
+                        f" diccionario {dict_name}."
+                        "\nMotivo: las únicas etiquetas que se pueden"
+                        f" definir para un comando son: {COMMAND_TAGS}."
+                    )
+
+
+def _check_action(
+    menu_option: dict, option_number: int, dict_name: str
+) -> None:
+    """
+    Nótese que esta función no incluye validación de
+    parámetros porque se espera que ya lleguen con el
+    tipo y valores correctos a la hora de llamar a
+    esta función.
+    """
+    action = menu_option.get("action", None)
+
+    if isinstance(action, str):
+        _check_action_string(action, option_number, dict_name)
+    elif isinstance(action, list):
+        prompt = menu_option.get("prompt", None)
+        _check_action_list(action, option_number, prompt, dict_name)
 
 
 # --- Funciones privadas para ejecutar acciones ---
@@ -431,7 +555,7 @@ def run_menu(menu_data: dict) -> None:
         # También controlo que la opción elegida por el
         # usuario esté definida correctamente.
         option = options[option_number - 1]
-        _check_action(option)
+        _check_action(option, option_number, menu_data["dict_name"])
 
         # Luego de obtener el elemento, obtengo el valor
         # de la clave "action".
