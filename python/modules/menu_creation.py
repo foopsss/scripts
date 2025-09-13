@@ -143,7 +143,7 @@ def _check_parameter(
     # Validación de parámetros de la función.
     if not isinstance(err_msg_context, str):
         raise TypeError(
-            "El parámetro 'err_msg_context' debe ser una cadena (string)."
+            "El parámetro 'err_msg_context' debe ser una cadena."
         )
     if not isinstance(expected_type, type):
         raise TypeError(
@@ -234,7 +234,7 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     "El parámetro 'action' no fue definido en el elemento N.°"
                     f" {option_counter} del parámetro 'options' del"
                     f" diccionario {dict_name}, o fue definido como un objeto"
-                    " de diccionario o una cadena (string)."
+                    " de diccionario o una cadena."
                     "\nPor lo tanto, el parámetro 'aesthetic_action' es"
                     " inválido. Por favor remuévalo."
                 )
@@ -263,7 +263,7 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
 #     """
 
 
-# --- Funciones privadas para construir el menú y ejecutar acciones ---
+# --- Funciones privadas para ejecutar acciones ---
 def _draw_menu(menu_data: dict) -> None:
     """
     _draw_menu() es una función utilizada para imprimir
@@ -429,10 +429,9 @@ def run_menu(menu_data: dict) -> None:
         # que se debe subsanar esa diferencia.
         #
         # También controlo que la opción elegida por el
-        # usuario no tenga combinaciones incorrectas de
-        # parámetros en su definición.
+        # usuario esté definida correctamente.
         option = options[option_number - 1]
-        # _check_option_parameters(option)
+        _check_action(option)
 
         # Luego de obtener el elemento, obtengo el valor
         # de la clave "action".

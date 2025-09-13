@@ -68,12 +68,12 @@ def get_validated_input(
     """
     # Validación de parámetros de la función.
     if not isinstance(msg, str):
-        raise TypeError("El parámetro 'msg' debe ser una cadena ('str').")
+        raise TypeError("El parámetro 'msg' debe ser una cadena.")
 
     if return_type not in ["str", "int"]:
         raise TypeError(
-            "El parámetro 'return_type' debe ser una cadena ('str') o"
-            " un número entero ('int')."
+            "El parámetro 'return_type' debe ser una cadena o un número"
+            " entero."
         )
 
     # Validaciones realizadas por la función.
@@ -119,7 +119,7 @@ def get_choice(low_lim: int, upp_lim: int) -> None:
     if not isinstance(low_lim, int) or not isinstance(upp_lim, int):
         raise TypeError(
             "Los parámetros 'low_lim' y 'upp_lim' deben tratarse de números"
-            " enteros ('int')."
+            " enteros."
         )
 
     if low_lim <= 0 or upp_lim <= 0:
@@ -193,7 +193,7 @@ def draw_line(
     """
     if not isinstance(length, int):
         raise TypeError(
-            "El parámetro 'length' debe tratarse de un número entero ('str')."
+            "El parámetro 'length' debe tratarse de un número entero."
         )
 
     if length <= 0:
@@ -201,7 +201,7 @@ def draw_line(
 
     if not isinstance(symbol, str):
         raise TypeError(
-            "El parámetro 'symbol' debe tratarse de una cadena ('str')."
+            "El parámetro 'symbol' debe tratarse de una cadena."
         )
 
     if len(symbol) != 1:
@@ -211,7 +211,7 @@ def draw_line(
 
     if not isinstance(print_line, bool):
         raise TypeError(
-            "El parámetro 'print_line' debe ser un valor lógico ('bool')."
+            "El parámetro 'print_line' debe ser un valor lógico."
         )
 
     # Composición de la cadena a mostrar/devolver utilizando
@@ -243,8 +243,7 @@ def bg_colour(colour: str, text: str) -> None:
     """
     if not isinstance(colour, str) or not isinstance(text, str):
         raise TypeError(
-            "Los parámetros 'colour' y 'text' deben tratarse de cadenas"
-            " ('str')."
+            "Los parámetros 'colour' y 'text' deben tratarse de cadenas."
         )
 
     try:
@@ -272,13 +271,12 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
     """
     if not isinstance(colour, str) or not isinstance(text, str):
         raise TypeError(
-            "Los parámetros 'colour' y 'text' deben tratarse de cadenas"
-            " ('str')."
+            "Los parámetros 'colour' y 'text' deben tratarse de cadenas."
         )
 
     if not isinstance(print_line, bool):
         raise TypeError(
-            "El parámetro 'print_line' debe ser un valor lógico ('bool')."
+            "El parámetro 'print_line' debe ser un valor lógico."
         )
 
     try:

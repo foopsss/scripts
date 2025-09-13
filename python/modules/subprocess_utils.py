@@ -86,27 +86,25 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
     # Validación de parámetros de la función.
     if not isinstance(use_shell, bool):
         raise TypeError(
-            "El parámetro 'use_shell' debe ser un valor lógico ('bool')."
+            "El parámetro 'use_shell' debe ser un valor lógico."
         )
 
     # Validaciones realizadas por la función.
     if use_shell:
         if not isinstance(command, str):
             raise TypeError(
-                "El parámetro 'command' debe suministrarse como una cadena"
-                " ('str')."
+                "El parámetro 'command' debe suministrarse como una cadena."
             )
     else:
         if not isinstance(command, list):
             raise TypeError(
-                "El parámetro 'command' debe suministrarse como una lista"
-                " ('list')."
+                "El parámetro 'command' debe suministrarse como una lista."
             )
 
         if not all(isinstance(item, str) for item in command):
             raise TypeError(
                 "Todos los elementos de la lista 'command' deben tratarse de"
-                " cadenas ('str')."
+                " cadenas."
             )
 
 
@@ -160,8 +158,7 @@ def _run_command_filenotfounderror_exception_message(
     """
     if not (isinstance(command, str) and not isinstance(command, list)):
         raise TypeError(
-            "El parámetro 'command' debe ser una cadena ('str') o"
-            " una lista ('list')."
+            "El parámetro 'command' debe ser una cadena o una lista."
         )
 
     if isinstance(command, list):
@@ -179,8 +176,7 @@ def _unknown_exception_message(error: Exception) -> None:
     """
     if not isinstance(error, Exception):
         raise TypeError(
-            "El parámetro 'error' debe ser una excepción genérica"
-            " ('Exception')."
+            "El parámetro 'error' debe ser una excepción genérica."
         )
 
     bg_colour(
@@ -209,7 +205,7 @@ def run_command(
     if not isinstance(check_return, bool) or not isinstance(use_shell, bool):
         raise TypeError(
             "Los parámetros 'check_return' y 'use_shell' deben ser valores"
-            " lógicos ('bool')."
+            " lógicos."
         )
 
     if not check_return and use_shell:
@@ -254,7 +250,7 @@ def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
     """
     if not isinstance(use_shell, bool):
         raise TypeError(
-            "El parámetro 'use_shell' debe ser un valor lógico ('bool')."
+            "El parámetro 'use_shell' debe ser un valor lógico."
         )
     _check_command_argument_type(command, use_shell)
 
