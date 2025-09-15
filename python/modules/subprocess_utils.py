@@ -85,9 +85,7 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
     """
     # Validación de parámetros de la función.
     if not isinstance(use_shell, bool):
-        raise TypeError(
-            "El parámetro 'use_shell' debe ser un valor lógico."
-        )
+        raise TypeError("El parámetro 'use_shell' debe ser un valor lógico.")
 
     # Validaciones realizadas por la función.
     if use_shell:
@@ -249,9 +247,7 @@ def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
     el control de errores.
     """
     if not isinstance(use_shell, bool):
-        raise TypeError(
-            "El parámetro 'use_shell' debe ser un valor lógico."
-        )
+        raise TypeError("El parámetro 'use_shell' debe ser un valor lógico.")
     _check_command_argument_type(command, use_shell)
 
     try:

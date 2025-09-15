@@ -200,9 +200,7 @@ def draw_line(
         raise ValueError("El parámetro 'length' debe ser mayor a cero.")
 
     if not isinstance(symbol, str):
-        raise TypeError(
-            "El parámetro 'symbol' debe tratarse de una cadena."
-        )
+        raise TypeError("El parámetro 'symbol' debe tratarse de una cadena.")
 
     if len(symbol) != 1:
         raise ValueError(
@@ -210,9 +208,7 @@ def draw_line(
         )
 
     if not isinstance(print_line, bool):
-        raise TypeError(
-            "El parámetro 'print_line' debe ser un valor lógico."
-        )
+        raise TypeError("El parámetro 'print_line' debe ser un valor lógico.")
 
     # Composición de la cadena a mostrar/devolver utilizando
     # multiplicación de cadenas.
@@ -275,9 +271,7 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
         )
 
     if not isinstance(print_line, bool):
-        raise TypeError(
-            "El parámetro 'print_line' debe ser un valor lógico."
-        )
+        raise TypeError("El parámetro 'print_line' debe ser un valor lógico.")
 
     try:
         foreground_code = _FOREGROUND_COLOURS[colour]
