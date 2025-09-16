@@ -96,7 +96,9 @@ deben ejecutarse de cierta forma:
 #       comandos a "piped_commands".
 # TODO: considerar el rearmar la lógica de ejecución de funciones para que se
 #       pueda pasar una lista de listas de funciones y sus parámetros en la
-#       llave "action".
+#       llave "action". Luego de eso ver como completar _check_action() para
+#       asegurarse de que "action" no contenga tipos inválidos como tuplas o
+#       enteros.
 #       * Nueva idea: usar una lista de tuplas, donde cada tupla va a tener el
 #         objeto de la función y una lista con los comandos a ejecutar.
 
