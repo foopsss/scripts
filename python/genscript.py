@@ -12,8 +12,8 @@ import shutil
 import sys
 
 from modules.console_ui import (
-    bg_colour,
     get_choice,
+    style_text,
 )
 
 from modules.subprocess_utils import (
@@ -34,12 +34,14 @@ def clean_thumbnails():
     if os.path.exists(thumbdir):
         try:
             shutil.rmtree(thumbdir)
-            bg_colour("green", "La carpeta fue borrada exitosamente.")
+            style_text("bg", "green", "La carpeta fue borrada exitosamente.")
         except OSError as error:
-            bg_colour("red", "La operación ha fallado.")
+            style_text("bg", "red", "La operación ha fallado.")
             print(f"{error}")
     else:
-        bg_colour("blue", "¡La carpeta no existe! No se ha borrado nada.")
+        style_text(
+            "bg", "blue", "¡La carpeta no existe! No se ha borrado nada."
+        )
 
 
 def read_news():
@@ -142,5 +144,7 @@ if __name__ == "__main__":
     try:
         run_menu(MAIN_MENU_DATA)
     except (KeyboardInterrupt, EOFError):
-        bg_colour("red", "\nEjecución del programa interrupida. ¡Saliendo!")
+        style_text(
+            "bg", "red", "\nEjecución del programa interrupida. ¡Saliendo!"
+        )
         sys.exit(1)

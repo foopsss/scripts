@@ -6,7 +6,7 @@
 # sys-apps/fwupd     - provee "fwupdmgr".
 
 from modules.console_ui import (
-    bg_colour,
+    style_text,
     draw_coloured_line,
 )
 
@@ -33,11 +33,15 @@ def check_internet_connection():
     )
 
     if ping_exit_code != 0:
-        bg_colour("red", "¡No cuenta con conexión a Internet!")
-        bg_colour("yellow", "No podrá utilizar algunas opciones del menú.")
+        style_text("bg", "red", "¡No cuenta con conexión a Internet!")
+        style_text(
+            "bg", "yellow", "No podrá utilizar algunas opciones del menú."
+        )
     else:
-        bg_colour("green", "¡Cuenta con conexión a Internet!")
-        bg_colour("yellow", "Podrá utilizar todas las opciones del menú.")
+        style_text("bg", "green", "¡Cuenta con conexión a Internet!")
+        style_text(
+            "bg", "yellow", "Podrá utilizar todas las opciones del menú."
+        )
 
 
 def sincronize_repositories():

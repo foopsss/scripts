@@ -40,127 +40,6 @@ _FOREGROUND_COLOURS = {
 }
 
 
-# --- Funciones privadas ---
-def _background_and_foreground_colour_exception():
-    """
-    Mensaje de error para las funciones bg_colour() y
-    fg_colour(), en caso de que se esté manejando la
-    excepción KeyError.
-    """
-    raise ValueError(
-        "El parámetro 'colour' solo admite los valores 'red', 'green',"
-        " 'blue', 'yellow', 'magenta' y 'cyan'."
-    )
-
-
-# --- Funciones públicas para recibir entradas del usuario ---
-def get_validated_input(
-    msg: str, return_type: Literal["str", "int"] = "str"
-) -> str | int:
-    """
-    get_validated_input() es un wrapper de la función input() que
-    sirve para controlar la entrada recibida por parte del usuario.
-    La idea es evitar que se permita introducir respuestas vacías o
-    que no concuerden con el tipo de dato especificado.
-
-    La función admite dos tipos de datos: cadenas ("str") y números
-    enteros ("int").
-    """
-    # Validación de parámetros de la función.
-    if not isinstance(msg, str):
-        raise TypeError("El parámetro 'msg' debe ser una cadena.")
-
-    if return_type not in ["str", "int"]:
-        raise TypeError(
-            "El parámetro 'return_type' debe ser una cadena o un número"
-            " entero."
-        )
-
-    # Validaciones realizadas por la función.
-    while True:
-        input_str = input(f"{msg}: ")
-
-        # Si el usuario no introduce nada y presiona ENTER,
-        # o si introduce caracteres que no sean números cuando
-        # se necesita recibir un número, hay que imprimir un
-        # mensaje de error y solicitar una elección correcta.
-        if input_str == "":
-            bg_colour("red", "¡Introduzca un valor!")
-            continue
-        elif return_type == "int" and not input_str.isdigit():
-            bg_colour("red", "¡Solo se pueden introducir números!")
-            continue
-        else:
-            break
-
-    if return_type == "str":
-        return input_str
-    else:
-        return int(input_str)
-
-
-def get_choice(low_lim: int, upp_lim: int) -> None:
-    """
-    get_choice() es una función encargada de recibir la
-    elección de un usuario en forma de un valor numérico
-    dentro de un rango establecido mediante los parámetros
-    low_lim (para el límite inferior) y upp_lim (para el
-    límite superior).
-
-    Esta función se apoya en los chequeos realizados
-    previamente al llamar a la función get_validated_input()
-    y luego verifica si el usuario realiza una elección que
-    se encuentra por fuera del rango permitido.
-
-    Asimismo, si los límites especificados al llamar a la
-    la función son menores a uno, se producirá una excepción
-    y se mostrará un mensaje de error por pantalla.
-    """
-    if not isinstance(low_lim, int) or not isinstance(upp_lim, int):
-        raise TypeError(
-            "Los parámetros 'low_lim' y 'upp_lim' deben tratarse de números"
-            " enteros."
-        )
-
-    if low_lim <= 0 or upp_lim <= 0:
-        raise ValueError(
-            "Los parámetros 'low_lim' y 'upp_lim' no pueden ser menores a uno."
-        )
-
-    if upp_lim < low_lim:
-        raise ValueError(
-            "El parámetro 'upp_lim' no puede ser menor que 'low_lim'."
-        )
-
-    while True:
-        choice = get_validated_input(
-            msg="Ingrese su elección",
-            return_type="int",
-        )
-
-        if choice < low_lim or choice > upp_lim:
-            # Si el usuario introduce un valor por fuera del
-            # rango aceptado, hay que imprimir un mensaje de
-            # error y luego solicitarle una elección correcta.
-            bg_colour("red", "¡Introduzca un número válido!")
-            continue
-        else:
-            # De lo contrario, se puede seguir con el programa.
-            return choice
-
-
-def press_enter() -> None:
-    """
-    press_enter() es una función que permite pausar
-    la ejecución de un programa y mostrar un mensaje
-    por pantalla para indicarle al usuario como
-    continuar.
-    """
-    print("")
-    print("Presione ENTER para continuar.", end="")
-    input()
-
-
 # --- Funciones públicas de visualización y formato ---
 def clear_screen() -> None:
     """
@@ -221,50 +100,44 @@ def draw_line(
         return line
 
 
-def bg_colour(colour: str, text: str) -> None:
+def style_text(
+    colour_type: Literal["fg", "bg"],
+    colour: str,
+    text: str,
+    print_line: bool = True,
+) -> None | str:
     """
-    bg_colour() es una función utilizada para imprimir
-    texto blanco y en negritas sobre un fondo coloreado.
+    style_text() es una función utilizada para estilizar
+    texto, permitiendo imprimirlo por pantalla o devolverlo
+    como resultado para almacenarlo en una variable o
+    parámetro. Con esta función se puede:
 
-    Permite especificar el color a utilizar con una cadena
-    (string), la cual debe tratarse de una de los colores
-    disponibles en el diccionario _BACKGROUND_COLOURS,
-    disponible en la cabecera de esta librería, y el texto
-    a imprimir por pantalla.
+    * Imprimir texto blanco en negritas con un color de
+      fondo determinado.
+    * Imprimir texto en negritas con un color determinado.
+
+    Para utilizar esta función se debe especificar el modo
+    de ejecución ("fg" para imprimir texto coloreado y "bg"
+    para imprimir texto con un fondo coloreado), el color a
+    utilizar, que se obtiene de los diccionarios
+    _BACKGROUND_COLOURS y _FOREGROUND_COLOURS en función del
+    modo de ejecución, y el texto a imprimir por pantalla.
+
+    También es posible especificar si se quiere imprimir el
+    texto por pantalla o devolverlo como resultado de la
+    ejecución de la función.
 
     En caso de que el usuario introduzca un color que no
-    está definido en el diccionario, se producirá una
-    excepción y se mostrará un mensaje de error por
-    pantalla.
+    está definido en los diccionarios utilizados por esta
+    función, se producirá una excepción y se mostrará un
+    mensaje de error por pantalla.
     """
-    if not isinstance(colour, str) or not isinstance(text, str):
-        raise TypeError(
-            "Los parámetros 'colour' y 'text' deben tratarse de cadenas."
+    if colour_type not in ["fg", "bg"]:
+        raise ValueError(
+            "El parámetro 'colour_type' únicamente admite los valores"
+            " 'fg' y 'bg'."
         )
 
-    try:
-        background_code = _BACKGROUND_COLOURS[colour]
-        print(f"\033[1;37;{background_code}m{text}\033[0m")
-    except KeyError:
-        _background_and_foreground_colour_exception()
-
-
-def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
-    """
-    fg_colour() es una función utilizada para imprimir
-    texto coloreado y en negritas.
-
-    Permite especificar el color a utilizar con una cadena
-    (string), la cual debe tratarse de una de los colores
-    disponibles en el diccionario _FOREGROUND_COLOURS,
-    disponible en la cabecera de esta librería, y el texto
-    a imprimir por pantalla o devolver como resultado.
-
-    En caso de que el usuario introduzca un color que no
-    está definido en el diccionario, se producirá una
-    excepción y se mostrará un mensaje de error por
-    pantalla.
-    """
     if not isinstance(colour, str) or not isinstance(text, str):
         raise TypeError(
             "Los parámetros 'colour' y 'text' deben tratarse de cadenas."
@@ -274,8 +147,12 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
         raise TypeError("El parámetro 'print_line' debe ser un valor lógico.")
 
     try:
-        foreground_code = _FOREGROUND_COLOURS[colour]
-        line = f"\033[1;{foreground_code}m{text}\033[0m"
+        if colour_type == "fg":
+            colour_code = _FOREGROUND_COLOURS[colour]
+            line = f"\033[1;{colour_code}m{text}\033[0m"
+        else:
+            colour_code = _BACKGROUND_COLOURS[colour]
+            line = f"\033[1;37;{colour_code}m{text}\033[0m"
 
         if print_line:
             print(line)
@@ -283,7 +160,15 @@ def fg_colour(colour: str, text: str, print_line: bool = True) -> None | str:
         else:
             return line
     except KeyError:
-        _background_and_foreground_colour_exception()
+        if colour_type == "bg":
+            valid_colours = list(_BACKGROUND_COLOURS.keys())
+        else:
+            valid_colours = list(_FOREGROUND_COLOURS.keys())
+
+        raise ValueError(
+            f"Cuando el parámetro 'colour_type' es '{colour_type}', solo se"
+            f" admiten los siguientes valores: {', '.join(valid_colours)}."
+        )
 
 
 def draw_coloured_line(
@@ -291,7 +176,7 @@ def draw_coloured_line(
 ) -> None:
     """
     draw_coloured_line() es una combinación de draw_line()
-    y fg_colour() que permite dibujar una línea de símbolos
+    y style_text() que permite dibujar una línea de símbolos
     de una longitud pasada por parámetro, permitiendo
     especificar además el símbolo a dibujar y el color a
     utilizar. Por defecto, se imprime una línea de guiones
@@ -307,4 +192,112 @@ def draw_coloured_line(
     funciones.
     """
     line_str = draw_line(length, symbol, print_line=False)
-    fg_colour(colour, line_str, print_line=True)
+    style_text("fg", colour, line_str, print_line=True)
+
+
+# --- Funciones públicas para recibir entradas del usuario ---
+def get_validated_input(
+    msg: str, return_type: Literal["str", "int"] = "str"
+) -> str | int:
+    """
+    get_validated_input() es un wrapper de la función input() que
+    sirve para controlar la entrada recibida por parte del usuario.
+    La idea es evitar que se permita introducir respuestas vacías o
+    que no concuerden con el tipo de dato especificado.
+
+    La función admite dos tipos de datos: cadenas ("str") y números
+    enteros ("int").
+    """
+    # Validación de parámetros de la función.
+    if not isinstance(msg, str):
+        raise TypeError("El parámetro 'msg' debe ser una cadena.")
+
+    if return_type not in ["str", "int"]:
+        raise TypeError(
+            "El parámetro 'return_type' debe ser una cadena o un número"
+            " entero."
+        )
+
+    # Validaciones realizadas por la función.
+    while True:
+        input_str = input(f"{msg}: ")
+
+        # Si el usuario no introduce nada y presiona ENTER,
+        # o si introduce caracteres que no sean números cuando
+        # se necesita recibir un número, hay que imprimir un
+        # mensaje de error y solicitar una elección correcta.
+        if input_str == "":
+            style_text("bg", "red", "¡Introduzca un valor!")
+            continue
+        elif return_type == "int" and not input_str.isdigit():
+            style_text("bg", "red", "¡Solo se pueden introducir números!")
+            continue
+        else:
+            break
+
+    if return_type == "str":
+        return input_str
+    else:
+        return int(input_str)
+
+
+def get_choice(low_lim: int, upp_lim: int) -> None:
+    """
+    get_choice() es una función encargada de recibir la
+    elección de un usuario en forma de un valor numérico
+    dentro de un rango establecido mediante los parámetros
+    low_lim (para el límite inferior) y upp_lim (para el
+    límite superior).
+
+    Esta función se apoya en los chequeos realizados
+    previamente al llamar a la función get_validated_input()
+    y luego verifica si el usuario realiza una elección que
+    se encuentra por fuera del rango permitido.
+
+    Asimismo, si los límites especificados al llamar a la
+    la función son menores a uno, se producirá una excepción
+    y se mostrará un mensaje de error por pantalla.
+    """
+    if not isinstance(low_lim, int) or not isinstance(upp_lim, int):
+        raise TypeError(
+            "Los parámetros 'low_lim' y 'upp_lim' deben tratarse de números"
+            " enteros."
+        )
+
+    if low_lim <= 0 or upp_lim <= 0:
+        raise ValueError(
+            "Los parámetros 'low_lim' y 'upp_lim' no pueden ser menores a uno."
+        )
+
+    if upp_lim < low_lim:
+        raise ValueError(
+            "El parámetro 'upp_lim' no puede ser menor que 'low_lim'."
+        )
+
+    while True:
+        choice = get_validated_input(
+            msg="Ingrese su elección",
+            return_type="int",
+        )
+
+        if choice < low_lim or choice > upp_lim:
+            # Si el usuario introduce un valor por fuera del
+            # rango aceptado, hay que imprimir un mensaje de
+            # error y luego solicitarle una elección correcta.
+            style_text("bg", "red", "¡Introduzca un número válido!")
+            continue
+        else:
+            # De lo contrario, se puede seguir con el programa.
+            return choice
+
+
+def press_enter() -> None:
+    """
+    press_enter() es una función que permite pausar
+    la ejecución de un programa y mostrar un mensaje
+    por pantalla para indicarle al usuario como
+    continuar.
+    """
+    print("")
+    print("Presione ENTER para continuar.", end="")
+    input()

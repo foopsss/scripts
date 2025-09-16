@@ -70,7 +70,7 @@ métodos subprocess.run() y subprocess.Popen().
 
 import subprocess
 
-from modules.console_ui import bg_colour
+from modules.console_ui import style_text
 
 
 # --- Funciones privadas ---
@@ -120,8 +120,8 @@ def _run_command_calledprocesserror_exception_message(
             " subprocess.CalledProcessError."
         )
 
-    bg_colour("red", f"Error de ejecución del comando {error.cmd}.")
-    bg_colour("red", f"Código de salida: {error.returncode}")
+    style_text("bg", "red", f"Error de ejecución del comando {error.cmd}.")
+    style_text("bg", "red", f"Código de salida: {error.returncode}")
 
 
 def _run_command_timeoutexpired_exception_message(
@@ -138,7 +138,8 @@ def _run_command_timeoutexpired_exception_message(
             " subprocess.TimeoutExpired."
         )
 
-    bg_colour(
+    style_text(
+        "bg",
         "red",
         f"Se esperaron {error.timeout} segundos para ejecutar"
         f" el comando {error.cmd}, pero no se recibió respuesta.",
@@ -164,7 +165,7 @@ def _run_command_filenotfounderror_exception_message(
     else:
         command_str = command
 
-    bg_colour("red", f"No existe el comando {command_str}.")
+    style_text("bg", "red", f"No existe el comando {command_str}.")
 
 
 def _unknown_exception_message(error: Exception) -> None:
@@ -177,7 +178,8 @@ def _unknown_exception_message(error: Exception) -> None:
             "El parámetro 'error' debe ser una excepción genérica."
         )
 
-    bg_colour(
+    style_text(
+        "bg",
         "red",
         "Se produjo un error inesperado al ejecutar el comando."
         f"\nError encontrado: {error}",
@@ -379,7 +381,8 @@ def pipe_commands(first_command: list, second_command: list) -> str | None:
     except OSError as error:
         # Manejo de errores relacionados con el SO como "archivo
         # no encontrado", "permiso denegado", etc.
-        bg_colour(
+        style_text(
+            "bg",
             "red",
             "Se ha producido un error del SO durante la ejecución de un"
             " programa."
