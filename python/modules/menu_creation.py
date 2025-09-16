@@ -113,6 +113,7 @@ from modules.console_ui import (
     get_choice,
     get_validated_input,
     press_enter,
+    style_text,
 )
 
 from modules.subprocess_utils import (
@@ -327,16 +328,13 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    # 2. Revisar si se puede corregir el comportamiento
-    #    de bg_colour cuando se lo pasa como parámetro a
-    #    warnings.warn.
+    # Analizar si vale la pena dividir esta función.
     ALLOWED_COMMAND_TYPES = (str, list)
     COMMAND_TAGS = ["#ROOT", "#UINPUT"]
     ACTION_TAGS = ["#PIPE"]
     action = menu_option.get("action", None)
     action_name = menu_option.get("name", None)
     prompt = menu_option.get("prompt", None)
-    tag_counts = collections.Counter()
 
     # Esta variable se usa para controlar si ningún
     # comando define la etiqueta "#UINPUT" en su
@@ -373,6 +371,13 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
         # Si un elemento es una lista, se deben revisar
         # sus contenidos.
         if isinstance(item, list):
+            # Contador de usos de etiquetas.
+            # La idea es utilizar el contador para verificar
+            # si algún comando incluye etiquetas repetidas.
+            # Se lo incluye acá para que se resetee con
+            # cada comando.
+            tag_counts = collections.Counter()
+
             # Revisión de los comandos para verificar
             # si alguno tiene la etiqueta "#UINPUT"
             # aún cuando el parámetro "prompt" no está
@@ -421,6 +426,29 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
                 if string in COMMAND_TAGS:
                     tag_counts[string] += 1
 
+            # Si algún comando incluye etiquetas repetidas se
+            # le debe advertir al usuario.
+            if any(count > 1 for count in tag_counts.values()):
+                repeated_tags = [
+                    tag for tag, count in tag_counts.items() if count > 1
+                ]
+
+                warnings.warn(
+                    style_text(
+                        "bg",
+                        "yellow",
+                        "\nRevise el parámetro 'action' en el elemento con el"
+                        f" nombre '{action_name}' del parámetro 'options' del"
+                        f" diccionario {dict_name}."
+                        "\nMotivo: una o más etiquetas están repetidas, a"
+                        " pesar de que solo se las debería incluir una vez."
+                        " Las etiquetas repetidas serán ignoradas."
+                        f"\nEtiquetas repetidas: {repeated_tags}.",
+                        print_line=False,
+                    ),
+                    UserWarning,
+                )
+
     # Si ningún comando incluye la etiqueta "#UINPUT",
     # aunque la opción SÍ define el parámetro 'prompt',
     # se le debe advertir al usuario.
@@ -433,22 +461,6 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
             " indicar que se le debe anexar la entrada provista por el"
             " usuario, aunque el parámetro 'prompt' está definido en el"
             " elemento."
-        )
-
-    # Si algún comando incluye etiquetas repetidas se
-    # le debe advertir al usuario.
-    if any(count > 1 for count in tag_counts.values()):
-        repeated_tags = [tag for tag, count in tag_counts.items() if count > 1]
-
-        warnings.warn(
-            "\nRevise el parámetro 'action' en el elemento con el nombre"
-            f" '{action_name}' del parámetro 'options' del diccionario"
-            f" {dict_name}."
-            "\nMotivo: una o más etiquetas están repetidas, a pesar de"
-            " que solo se las debería incluir una vez. Las etiquetas"
-            " repetidas serán ignoradas."
-            f"\nEtiquetas repetidas: {repeated_tags}.",
-            UserWarning,
         )
 
 
