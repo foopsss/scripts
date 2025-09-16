@@ -92,12 +92,13 @@ deben ejecutarse de cierta forma:
      descripto para los casos anteriores.
 """
 
+# TODO: añadir una lógica para asegurarse de que no se le pasen más de dos
+#       comandos a "piped_commands".
 # TODO: considerar el rearmar la lógica de ejecución de funciones para que se
 #       pueda pasar una lista de listas de funciones y sus parámetros en la
 #       llave "action".
-# TODO: considerar el rediseñar la lógica de ejecución de la llave
-#       "pre_menu_hook" para que no solo se pueda pasar una sola función, sino
-#       una lista de funciones.
+#       * Nueva idea: usar una lista de tuplas, donde cada tupla va a tener el
+#         objeto de la función y una lista con los comandos a ejecutar.
 
 # Chequear luego:
 # https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function#41188411
@@ -202,6 +203,7 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
     dict_name = menu_data.get("dict_name", None)
     title = menu_data.get("title", None)
     options = menu_data.get("options", None)
+    pre_menu_hook = menu_data.get("pre_menu_hook", None)
 
     _check_parameter("dict_name", dict_name, str)
     _check_parameter(f"'title' en el diccionario {dict_name}", title, str)
@@ -210,6 +212,14 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
         options,
         list,
     )
+
+    if pre_menu_hook is not None and not callable(pre_menu_hook):
+        raise TypeError(
+            "Revise el parámetro 'pre_menu_hook' en el diccionario"
+            f" {dict_name}."
+            "\nMotivo: 'pre_menu_hook' únicamente puede tratarse de"
+            " un objeto de función."
+        )
 
 
 def _check_top_level_option_keys(menu_data: dict) -> None:
@@ -328,12 +338,12 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    # Analizar si vale la pena dividir esta función.
     ALLOWED_COMMAND_TYPES = (str, list)
     COMMAND_TAGS = ["#ROOT", "#UINPUT"]
     ACTION_TAGS = ["#PIPE"]
     action = menu_option.get("action", None)
     action_name = menu_option.get("name", None)
+    aesthetic_action = menu_option.get("aesthetic_action", None)
     prompt = menu_option.get("prompt", None)
 
     # Esta variable se usa para controlar si ningún
@@ -341,6 +351,11 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
     # estructura, aún cuando el parámetro "prompt"
     # SÍ está definido.
     unused_user_input = True
+
+    # Contador de usos de etiquetas.
+    # La idea es utilizar el contador para verificar
+    # si algún comando incluye etiquetas repetidas.
+    tag_counts = collections.Counter()
 
     # Revisión de cada elemento de la lista 'action'.
     for item in action:
@@ -371,13 +386,6 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
         # Si un elemento es una lista, se deben revisar
         # sus contenidos.
         if isinstance(item, list):
-            # Contador de usos de etiquetas.
-            # La idea es utilizar el contador para verificar
-            # si algún comando incluye etiquetas repetidas.
-            # Se lo incluye acá para que se resetee con
-            # cada comando.
-            tag_counts = collections.Counter()
-
             # Revisión de los comandos para verificar
             # si alguno tiene la etiqueta "#UINPUT"
             # aún cuando el parámetro "prompt" no está
@@ -426,29 +434,6 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
                 if string in COMMAND_TAGS:
                     tag_counts[string] += 1
 
-            # Si algún comando incluye etiquetas repetidas se
-            # le debe advertir al usuario.
-            if any(count > 1 for count in tag_counts.values()):
-                repeated_tags = [
-                    tag for tag, count in tag_counts.items() if count > 1
-                ]
-
-                warnings.warn(
-                    style_text(
-                        "bg",
-                        "yellow",
-                        "\nRevise el parámetro 'action' en el elemento con el"
-                        f" nombre '{action_name}' del parámetro 'options' del"
-                        f" diccionario {dict_name}."
-                        "\nMotivo: una o más etiquetas están repetidas, a"
-                        " pesar de que solo se las debería incluir una vez."
-                        " Las etiquetas repetidas serán ignoradas."
-                        f"\nEtiquetas repetidas: {repeated_tags}.",
-                        print_line=False,
-                    ),
-                    UserWarning,
-                )
-
     # Si ningún comando incluye la etiqueta "#UINPUT",
     # aunque la opción SÍ define el parámetro 'prompt',
     # se le debe advertir al usuario.
@@ -462,6 +447,32 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
             " usuario, aunque el parámetro 'prompt' está definido en el"
             " elemento."
         )
+
+    # Si algún comando incluye etiquetas repetidas se
+    # le debe advertir al usuario.
+    if any(count > 1 for count in tag_counts.values()):
+        repeated_tags = [tag for tag, count in tag_counts.items() if count > 1]
+
+        warnings.warn(
+            style_text(
+                "bg",
+                "yellow",
+                "\nRevise el parámetro 'action' en el elemento con el"
+                f" nombre '{action_name}' del parámetro 'options' del"
+                f" diccionario {dict_name}."
+                "\nMotivo: una o más etiquetas están repetidas, a"
+                " pesar de que solo se las debería incluir una vez."
+                " Las etiquetas repetidas serán ignoradas."
+                f"\nEtiquetas repetidas: {repeated_tags}.",
+                print_line=False,
+            ),
+            UserWarning,
+        )
+
+        # Si no se pausa la ejecución del programa la
+        # advertencia no se ve.
+        if aesthetic_action == "clear_screen":
+            press_enter()
 
 
 def _check_action(menu_option: dict, dict_name: str) -> None:
@@ -500,7 +511,7 @@ def _draw_menu(menu_data: dict) -> None:
     # de opciones.
     title_length = len(menu_data["title"])
     pre_menu_hook = menu_data.get("pre_menu_hook", None)
-    if pre_menu_hook is not None and callable(pre_menu_hook):
+    if pre_menu_hook is not None:
         draw_coloured_line(title_length, "=")
         pre_menu_hook()
 
