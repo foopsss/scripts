@@ -7,78 +7,18 @@
 # sys-apps/coreutils      - provee "cat" y "wc".
 # app-admin/eselect       - provee "eselect" y sus módulos.
 
-import os
-import shutil
 import sys
 
 from modules.console_ui import (
-    get_choice,
     style_text,
 )
 
-from modules.subprocess_utils import (
-    pipe_commands,
-    run_command,
-)
-
 from modules.menu_creation import run_menu
+from genscript_tools.system_maintenance import clean_thumbnails, read_news
 from genscript_tools.package_management import PACKAGE_MANAGEMENT_MENU_DATA
 from genscript_tools.snapshots import SNAPSHOT_MANAGEMENT_MENU_DATA
 from genscript_tools.updates import UPDATES_MENU_DATA
 from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
-
-
-def clean_thumbnails():
-    thumbdir = os.environ.get("HOME") + "/.cache/thumbnails"
-
-    if os.path.exists(thumbdir):
-        try:
-            shutil.rmtree(thumbdir)
-            style_text("bg", "green", "La carpeta fue borrada exitosamente.")
-        except OSError as error:
-            style_text("bg", "red", "La operación ha fallado.")
-            print(f"{error}")
-    else:
-        style_text(
-            "bg", "blue", "¡La carpeta no existe! No se ha borrado nada."
-        )
-
-
-def read_news():
-    # Obtención del número de noticias disponibles para
-    # leer. Acá se simula el pipeline de una consola con
-    # pipe_commands y se obtiene el número total de entradas
-    # entradas de noticias disponibles para leer revisando
-    # los contenidos de la carpeta "/var/lib/gentoo/news".
-    news_folder = "/var/lib/gentoo/news"
-    news_count = 0
-
-    for file in os.listdir(news_folder):
-        if file.endswith(".read") or file.endswith(".unread"):
-            file_line_count = pipe_commands(
-                ["cat", f"/var/lib/gentoo/news/{file}"], ["wc", "-l"]
-            )
-            news_count += int(file_line_count)
-
-    # Presentación del menú de noticias disponibles
-    # para leer. Debido a que "eselect news list"
-    # devuelve 1 como código de salida aún si se lo
-    # ejecutó exitosamente, debo desactivar el control
-    # de errores para este programa.
-    run_command(
-        ["eselect", "news", "list"], check_return=False, use_shell=False
-    )
-    print("")
-
-    # Lectura del boletín de noticias deseado.
-    # Se utiliza el intérprete de consola del sistema
-    # para poder pasar la entrada de noticias por less.
-    entry = get_choice(1, news_count)
-    run_command(
-        f"eselect news read {entry} | less",
-        check_return=True,
-        use_shell=True,
-    )
 
 
 MAIN_MENU_DATA = {
