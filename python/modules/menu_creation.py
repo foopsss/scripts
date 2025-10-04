@@ -32,8 +32,18 @@ diccionario es la siguiente:
         4.2.1. Si se debe entrar a un menu, "action" debe contener una
                referencia al diccionario a pasarle como parámetro a la función
                run_menu(), sin que esta sea un string.
-        4.2.2. Si se debe ejecutar una función, "action" debe contener una
-               referencia a la función a ejecutar, sin que esta sea un string.
+        4.2.2. Si se debe ejecutar una función, "action" puede tener uno de dos
+               formatos:
+               4.2.2.1. Para ejecutar funciones sin que se deban especificar
+                        sus parámetros, "action" debe ser una lista de objetos
+                        de función. Esto implica que la función no debe tener
+                        parámetros obligatorios, de lo contrario, véase el
+                        siguiente ítem.
+               4.2.2.2. Para ejecutar funciones especificando sus parámetros,
+                        "action" debe ser una lista de tuplas, donde cada tupla
+                        debe contener un objeto de función y una lista con
+                        todos los parámetros que se le quieran pasar a la
+                        función.
         4.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
                contener una lista, la cual estará compuesta a su vez por una o
                más listas de strings. Para correr comandos con pipes o permisos
@@ -56,9 +66,8 @@ todos los demás parámetros pueden ser opcionales en el diccionario de entrada.
 Para cada elemento de la lista "options", el único parámetro que siempre es
 obligatorio es "name", aunque el parámetro "aesthetic_action" también es
 obligatorio en caso de que el parámetro "action" esté presente y se cumpla que
-"action" es una lista o un objeto de función. Por el contrario, si "action"
-tiene otro tipo, entonces "aesthetic_action" NO debería estar presente ya que
-no tendría efecto.
+"action" es una lista. Por el contrario, si "action" tiene otro tipo, entonces
+"aesthetic_action" NO debería estar presente ya que no tendría efecto.
 
 La presencia de estos parámetros, así como la validez de sus definiciones, está
 controlada por las siguientes funciones:
@@ -66,9 +75,11 @@ controlada por las siguientes funciones:
 * _check_top_level_option_keys().
 * _check_action(), que depende de:
   * _check_action_string().
-  * _check_action_list().
+  * _check_action_command_list().
+  * _check_action_simple_function_list().
+  * _check_action_tuple_call_list().
 
-### Modos especiales de ejecución ###
+### Modos especiales de ejecución de comandos ###
 De acuerdo a lo estipulado en el inciso 4.2.3, a la hora de ejecutar uno o más
 comandos, la clave "action" debe contener una lista que a su vez contenga otras
 listas de strings en las cuales deben estar definidas los comandos a ejecutar.
@@ -92,21 +103,14 @@ deben ejecutarse de cierta forma:
      descripto para los casos anteriores.
 """
 
-# TODO: añadir una lógica para asegurarse de que no se le pasen más de dos
-#       comandos a "piped_commands".
-# TODO: considerar el rearmar la lógica de ejecución de funciones para que se
-#       pueda pasar una lista de listas de funciones y sus parámetros en la
-#       llave "action". Luego de eso ver como completar _check_action() para
-#       asegurarse de que "action" no contenga tipos inválidos como tuplas o
-#       enteros.
-#       * Nueva idea: usar una lista de tuplas, donde cada tupla va a tener el
-#         objeto de la función y una lista con los comandos a ejecutar.
-
-# Chequear luego:
-# https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function#41188411
+# TODO: actualizar la documentación de la librería para explicar como ejecutar
+#       funciones y también la parte que describe el formato del parámetro
+#       "action" cuando se quiere ejecutar funciones.
+# TODO: poner más y mejores comentarios en todas las funciones.
 
 import collections
 import copy
+import inspect
 import sys
 import warnings
 
@@ -281,9 +285,7 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     " 'clear_screen' y 'print_line'."
                 )
         else:
-            if action is not None and (
-                isinstance(action, list) or callable(action)
-            ):
+            if action is not None and isinstance(action, list):
                 raise KeyError(
                     f"Revise el elemento N.° {option_counter} del parámetro"
                     f" 'options' del diccionario {dict_name}."
@@ -327,20 +329,21 @@ def _check_action_string(menu_option: dict, dict_name: str) -> None:
         )
 
 
-def _check_action_list(menu_option: dict, dict_name: str) -> None:
+def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
     """
     _check_action_list() es una de las funciones
     llamadas por _check_action() para verificar los
     contenidos del parámetro 'action' de una opción.
     Puntualmente, _check_action_list() se encarga
-    de los controles cuando 'action' es una lista.
+    de los controles cuando 'action' es una lista
+    compuesta por cadenas y otras listas, es decir,
+    cuando contiene comandos a ejecutar.
 
     Nótese que esta función no incluye validación de
     parámetros porque se espera que ya lleguen con el
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    ALLOWED_COMMAND_TYPES = (str, list)
     COMMAND_TAGS = ["#ROOT", "#UINPUT"]
     ACTION_TAGS = ["#PIPE"]
     action = menu_option.get("action", None)
@@ -354,24 +357,16 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
     # SÍ está definido.
     unused_user_input = True
 
-    # Contador de usos de etiquetas.
-    # La idea es utilizar el contador para verificar
-    # si algún comando incluye etiquetas repetidas.
-    tag_counts = collections.Counter()
+    # Lista que se usa para almacenar los comandos
+    # que tienen etiquetas repetidas, así como las
+    # etiquetas repetidas.
+    # Dicha lista se usará al final de los controles
+    # para informarle al usuario qué comandos están
+    # mal definidos, en caso de haber.
+    commands_with_repeated_tags = []
 
     # Revisión de cada elemento de la lista 'action'.
     for item in action:
-        # Revisión de los elementos para asegurarse de
-        # que sean un string o una lista.
-        if not isinstance(item, ALLOWED_COMMAND_TYPES):
-            raise TypeError(
-                "Revise el parámetro 'action' en el elemento con el nombre"
-                f" '{action_name}' del parámetro 'options' del diccionario"
-                f" {dict_name}."
-                "\nMotivo: los elementos del parámetro 'action' únicamente"
-                " pueden ser listas de cadenas o cadenas."
-            )
-
         # Si un elemento por fuera de un comando es un
         # string, debe tratarse únicamente de la etiqueta
         # "#UINPUT".
@@ -388,6 +383,11 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
         # Si un elemento es una lista, se deben revisar
         # sus contenidos.
         if isinstance(item, list):
+            # Contador de usos de etiquetas.
+            # La idea es utilizar el contador para verificar
+            # si algún comando incluye etiquetas repetidas.
+            tag_counts = collections.Counter()
+
             # Revisión de los comandos para verificar
             # si alguno tiene la etiqueta "#UINPUT"
             # aún cuando el parámetro "prompt" no está
@@ -436,6 +436,12 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
                 if string in COMMAND_TAGS:
                     tag_counts[string] += 1
 
+            # Si el comando tiene etiquetas repetidas, se lo
+            # debe almacenar en la lista definida anteriormente
+            # para almacenar aquellos que estén mal definidos.
+            if any(count > 1 for count in tag_counts.values()):
+                commands_with_repeated_tags.append(item)
+
     # Si ningún comando incluye la etiqueta "#UINPUT",
     # aunque la opción SÍ define el parámetro 'prompt',
     # se le debe advertir al usuario.
@@ -452,9 +458,7 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
 
     # Si algún comando incluye etiquetas repetidas se
     # le debe advertir al usuario.
-    if any(count > 1 for count in tag_counts.values()):
-        repeated_tags = [tag for tag, count in tag_counts.items() if count > 1]
-
+    if len(commands_with_repeated_tags) > 0:
         warnings.warn(
             style_text(
                 "bg",
@@ -462,19 +466,152 @@ def _check_action_list(menu_option: dict, dict_name: str) -> None:
                 "\nRevise el parámetro 'action' en el elemento con el"
                 f" nombre '{action_name}' del parámetro 'options' del"
                 f" diccionario {dict_name}."
-                "\nMotivo: una o más etiquetas están repetidas, a"
-                " pesar de que solo se las debería incluir una vez."
-                " Las etiquetas repetidas serán ignoradas."
-                f"\nEtiquetas repetidas: {repeated_tags}.",
+                "\nMotivo: una o más etiquetas están repetidas en uno o"
+                " varios comandos, a pesar de que solo se las debería"
+                " incluir una vez. Las etiquetas repetidas serán"
+                " ignoradas."
+                "\nA continuación, verá una lista de los comandos que"
+                " tienen etiquetas repetidas:"
+                f"\n{commands_with_repeated_tags}",
                 print_line=False,
             ),
             UserWarning,
         )
 
-        # Si no se pausa la ejecución del programa la
+        # Si no se pausa la ejecución del programa cuadndo
+        # la acción estética es limpiar la pantalla, la
         # advertencia no se ve.
         if aesthetic_action == "clear_screen":
             press_enter()
+
+
+def _count_required_and_optional_args(function: callable) -> tuple[int, int]:
+    """
+    _count_required_and_optional_args() es una función
+    utilizada para contar la cantidad de parámetros
+    obligatorios y opcionales que tiene una función, a
+    través de la inspección de su definición.
+    """
+    func_sig = inspect.signature(function)
+    required_args = 0
+    optional_args = 0
+
+    for name, param in func_sig.parameters.items():
+        if param.default is inspect.Parameter.empty:
+            required_args += 1
+        else:
+            optional_args += 1
+
+    return (required_args, optional_args)
+
+
+def _check_action_simple_function_list(
+    menu_option: dict, dict_name: str
+) -> None:
+    """
+    _check_action_simple_function_list() es una de las funciones
+    llamadas por _check_action() para verificar los contenidos
+    del parámetro 'action' de una opción. Puntualmente,
+    _check_action_simple_function_list() se encarga de los
+    controles cuando 'action' es una lista compuesta por
+    objetos de función, es decir, cuando contiene funciones
+    a ejecutar, pero sin los parámetros que hay que pasarles
+    al llamarlas, porque estas funciones no tienen parámetros.
+
+    Para controlar las llamadas de funciones cuando se necesita
+    especificar parámetros, se utilizan las verificaciones
+    definidas en la función _check_action_tuple_call_list().
+
+    Nótese que esta función no incluye validación de parámetros
+    porque se espera que ya lleguen con el tipo y valores correctos
+    a la hora de llamar a esta función.
+    """
+    action_name = menu_option.get("name", None)
+
+    for function in menu_option["action"]:
+        required_args, _ = _count_required_and_optional_args(function)
+
+        if required_args > 0:
+            raise ValueError(
+                "Revise el parámetro 'action' en el elemento con el nombre"
+                f" '{action_name}' del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: para ejecutar funciones sin parámetros, únicamente"
+                " se pueden incluir en la lista funciones que no tengan"
+                " parámetros que se deban especificar obligatoriamente."
+            )
+
+
+def _check_action_tuple_call_list(menu_option: dict, dict_name: str) -> None:
+    """
+    _check_action_tuple_call_list() es una de las funciones
+    llamadas por _check_action() para verificar los contenidos
+    del parámetro 'action' de una opción. Puntualmente,
+    _check_action_tuple_call_list() se encarga de los
+    controles cuando 'action' es una lista compuesta por
+    tuplas, es decir, cuando contiene funciones a ejecutar,
+    así como los parámetros que hay que pasarles al llamarlas.
+
+    Para controlar las llamadas de funciones cuando se
+    ejecutan sin especificar parámetros, se utilizan las
+    verificaciones definidas en la función
+    _check_action_simple_function_list().
+
+    Nótese que esta función no incluye validación de
+    parámetros porque se espera que ya lleguen con el
+    tipo y valores correctos a la hora de llamar a esta
+    función.
+    """
+    action_name = menu_option.get("name", None)
+
+    for function_tuple in menu_option["action"]:
+        tuple_len = len(function_tuple)
+
+        if tuple_len != 2:
+            raise ValueError(
+                "Revise el parámetro 'action' en el elemento con el nombre"
+                f" '{action_name}' del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: para ejecutar funciones con parámetros específicos,"
+                " el parámetro 'action' debe tratarse de una lista de tuplas"
+                " que tengan exactamente dos elementos cada una."
+            )
+
+        if not (
+            callable(function_tuple[0]) and isinstance(function_tuple[1], list)
+        ):
+            raise TypeError(
+                "Revise el parámetro 'action' en el elemento con el nombre"
+                f" '{action_name}' del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: para ejecutar funciones con parámetros específicos,"
+                " el primer elemento del parámetro 'action' debe ser un objeto"
+                " de función y el segundo elemento una lista con los"
+                " parámetros a pasarle a la función."
+            )
+
+        req_param_amount, opt_param_amount = _count_required_and_optional_args(
+            function_tuple[0]
+        )
+
+        if len(function_tuple[1]) < req_param_amount:
+            raise ValueError(
+                "Revise el parámetro 'action' en el elemento con el nombre"
+                f" '{action_name}' del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: la definición de parámetros en una de las tuplas"
+                " no contiene valores para uno o más parámetros requeridos"
+                " por la función."
+            )
+        elif len(function_tuple[1]) > req_param_amount + opt_param_amount:
+            raise ValueError(
+                "Revise el parámetro 'action' en el elemento con el nombre"
+                f" '{action_name}' del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: la definición de parámetros en una de las tuplas"
+                " contiene más parámetros que los que la función referenciada"
+                " en la tupla acepta."
+            )
 
 
 def _check_action(menu_option: dict, dict_name: str) -> None:
@@ -492,10 +629,48 @@ def _check_action(menu_option: dict, dict_name: str) -> None:
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    if isinstance(menu_option["action"], str):
+    action = menu_option["action"]
+    action_name = menu_option.get("name", None)
+
+    if isinstance(action, str):
         _check_action_string(menu_option, dict_name)
-    elif isinstance(menu_option["action"], list):
-        _check_action_list(menu_option, dict_name)
+    elif isinstance(action, list):
+        if all(isinstance(item, (str, list)) for item in action):
+            _check_action_command_list(menu_option, dict_name)
+        elif all(callable(item) for item in action):
+            _check_action_simple_function_list(menu_option, dict_name)
+        elif all(isinstance(item, tuple) for item in action):
+            _check_action_tuple_call_list(menu_option, dict_name)
+        else:
+            raise TypeError(
+                "Revise el parámetro 'action' en el elemento con el nombre"
+                f" '{action_name}' del parámetro 'options' del diccionario"
+                f" {dict_name}."
+                "\nMotivo: si el parámetro 'action' es una lista, sus"
+                " contenidos únicamente pueden ser: "
+                "\n1. Listas de cadenas, combinadas con cadenas si es"
+                " necesario."
+                "\n2. Objetos de función."
+                "\n3. Tuplas."
+            )
+    elif isinstance(action, dict):
+        # Los diccionarios son controlados por las
+        # funciones _check_basic_dictionary_structure()
+        # y _check_top_level_option_keys() llamadas al
+        # principio de la función run_menu(). No
+        # corresponde hacer nada acá.
+        pass
+    else:
+        raise TypeError(
+            "Revise el parámetro 'action' en el elemento con el nombre"
+            f" '{action_name}' del parámetro 'options' del diccionario"
+            f" {dict_name}."
+            "\nMotivo: el parámetro 'action' únicamente puede ser:"
+            "\n1. Una cadena."
+            "\n2. Una lista, cuyos contenidos únicamente pueden ser: objetos"
+            " de función, tuplas o una combinación de cadenas y otras listas."
+            "\n3. Un diccionario."
+        )
 
 
 # --- Funciones privadas para ejecutar acciones ---
@@ -570,64 +745,90 @@ def _get_command_options(menu_data: dict) -> list:
     return command_options
 
 
+def _handle_command_list(menu_option: dict) -> None:
+    """
+    _handle_command_list() es una subfunción de
+    _handle_action() que se encarga de procesar el
+    parámetro "action" en una opción del diccionario
+    de entrada cuando este es provisto como una lista
+    de comandos a ejecutar.
+
+    Se encarga de procesar los parámetros provistos
+    en la opción y de recibir una entrada de parte
+    del usuario en caso de ser necesario, previo
+    a la ejecución del comando provisto.
+    """
+    action_deepcopy = copy.deepcopy(menu_option["action"])
+    user_input = None
+
+    if "prompt" in menu_option:
+        user_input = get_validated_input(menu_option["prompt"])
+        print("")
+
+    if "#PIPE" in action_deepcopy:
+        piped_commands = []
+
+        for command in action_deepcopy:
+            if not isinstance(command, str):
+                if "#ROOT" in command:
+                    command.insert(0, "doas")
+                if "#UINPUT" in command:
+                    command.append(user_input)
+                piped_commands.append([i for i in command if "#" not in i])
+
+        result = pipe_commands(*piped_commands)
+        print(f"{result}")
+    else:
+        for command in action_deepcopy:
+            command_without_tags = []
+            requires_root = False
+
+            if "#ROOT" in command:
+                requires_root = True
+            if "#UINPUT" in command:
+                command.append(user_input)
+            command_without_tags = [i for i in command if "#" not in i]
+
+            if requires_root:
+                run_command_as_root(command_without_tags)
+            else:
+                run_command(command_without_tags)
+
+
 def _handle_action(menu_option: dict) -> None:
     """
     _handle_action() es una función utilizada para
-    ejecutar un comando provisto en un diccionario
-    de entrada, englobando toda la lógica necesaria
-    en un solo lugar, para no mezclarla con el resto
-    de la lógica de ejecución presente en run_menu().
+    ejecutar comandos o funciones provistas en un
+    diccionario de entrada. La idea es encapsular
+    casi toda la lógica de ejecución de interpretación
+    y ejecución del parámetro "action" en esta función
+    (y en sus funciones asociadas), de modo que la
+    menor cantidad de lógica de procesamiento
+    posible esté definida en run_menu().
 
-    Se encarga de procesar los parámetros provistos
-    en el diccionario y de recibir una entrada de
-    parte del usuario en caso de ser necesario, previo
-    a la ejecución del comando provisto.
+    Esta función depende de otra, llamada
+    _handle_command_list(), la cual se encarga del
+    procesamiento del parámetro "action" cuando este
+    se trata de una lista de comandos a ejecutar,
+    con el fin de no tener una sola función con
+    mucha complejidad ciclomática, debido a la gran
+    cantidad de ciclos condicionales que se utilizan
+    en el tratamiento del parámetro "action".
     """
-    # Ejecución de la opción elegida.
-    if callable(menu_option["action"]):
-        menu_option["action"]()
-    elif isinstance(menu_option["action"], list):
-        # Trabajo con una copia del diccionario pasado
-        # por parámetro para no alterar el original.
-        commands_from_action = copy.deepcopy(menu_option["action"])
-
-        # Si el comando a ejecutar requiere que el usuario
-        # ingrese algo por pantalla, se lo pido acá.
-        # Se utiliza el mensaje definido en el campo "prompt"
-        # del diccionario almacenado en "menu_option".
-        user_input = None
-        if "prompt" in menu_option:
-            user_input = get_validated_input(menu_option["prompt"])
-            print("")
-
-        if "#PIPE" in commands_from_action:
-            piped_commands = []
-
-            for command in commands_from_action:
-                if not isinstance(command, str):
-                    if "#ROOT" in command:
-                        command.insert(0, "doas")
-                    if "#UINPUT" in command:
-                        command.append(user_input)
-                    piped_commands.append([i for i in command if "#" not in i])
-
-            result = pipe_commands(*piped_commands)
-            print(f"{result}")
-        else:
-            for command in commands_from_action:
-                command_without_tags = []
-                requires_root = False
-
-                if "#ROOT" in command:
-                    requires_root = True
-                if "#UINPUT" in command:
-                    command.append(user_input)
-                command_without_tags = [i for i in command if "#" not in i]
-
-                if requires_root:
-                    run_command_as_root(command_without_tags)
-                else:
-                    run_command(command_without_tags)
+    action = menu_option.get("action", None)
+    if all(isinstance(item, (str, list)) for item in action):
+        _handle_command_list(menu_option)
+    elif all(callable(item) for item in action):
+        for function in action:
+            function()
+    elif all(isinstance(item, tuple) for item in action):
+        for func_tuple in action:
+            func = func_tuple[0]
+            try:
+                func_param = func_tuple[1]
+                func(*func_param)
+            except IndexError:
+                func()
 
 
 # --- Funciones públicas ---

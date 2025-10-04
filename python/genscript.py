@@ -53,12 +53,12 @@ MAIN_MENU_DATA = {
         },
         {
             "name": "Limpiar versiones antiguas del kernel.",
-            "action": [["#ROOT", "eclean-kernel", "-A", "-d", "-n 2"]],
+            "action": [["#ROOT", "eclean-kernel", "-A", "-d", "-n 3"]],
             "aesthetic_action": "print_line",
         },
         {
             "name": "Limpiar miniaturas de Nautilus.",
-            "action": clean_thumbnails,
+            "action": [clean_thumbnails],
             "aesthetic_action": "print_line",
         },
         {"name": "MISCELÁNEA"},
@@ -69,7 +69,7 @@ MAIN_MENU_DATA = {
         },
         {
             "name": "Leer el boletín de noticias de Gentoo.",
-            "action": read_news,
+            "action": [read_news],
             "aesthetic_action": "clear_screen",
         },
         {

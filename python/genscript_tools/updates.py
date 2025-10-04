@@ -59,16 +59,6 @@ def sincronize_repositories():
     run_command_as_root(["emerge", "-fuDN", "@world"])
 
 
-def update_firmware():
-    # Las dos últimas opciones se ejecutan con "check_return=False"
-    # porque fwupdmgr devuelve códigos de salida distintos de cero
-    # aún cuando no hubo errores de ejecución pero tampoco hay
-    # actualizaciones disponibles.
-    run_command(["fwupdmgr", "refresh", "--force"])
-    run_command(["fwupdmgr", "get-updates"], check_return=False)
-    run_command(["fwupdmgr", "update"], check_return=False)
-
-
 CVE_CHECK_MENU_DATA = {
     "dict_name": "CVE_CHECK_MENU_DATA",
     "title": "Apartado para controlar posibles fallos de seguridad",
@@ -101,7 +91,7 @@ UPDATES_MENU_DATA = {
         {"name": "PAQUETES/REPOSITORIOS"},
         {
             "name": "Sincronizar repositorios.",
-            "action": sincronize_repositories,
+            "action": [sincronize_repositories],
             "aesthetic_action": "clear_screen",
         },
         {
@@ -119,7 +109,29 @@ UPDATES_MENU_DATA = {
         },
         {
             "name": "Actualizar el firmware del dispositivo.",
-            "action": update_firmware,
+            "action": [
+                # Las dos últimas opciones se ejecutan con "check_return=False"
+                # porque fwupdmgr devuelve códigos de salida distintos de cero
+                # aún cuando no hubo errores de ejecución pero tampoco hay
+                # actualizaciones disponibles.
+                (run_command, [["fwupdmgr", "refresh", "--force"]]),
+                (
+                    run_command,
+                    [
+                        ["fwupdmgr", "get-updates"],
+                        check_return := False,
+                        use_shell := False,
+                    ],
+                ),
+                (
+                    run_command,
+                    [
+                        ["fwupdmgr", "update"],
+                        check_return := False,
+                        use_shell := False,
+                    ],
+                ),
+            ],
             "aesthetic_action": "clear_screen",
         },
         {"name": "MISCELÁNEA"},
