@@ -100,17 +100,17 @@ SNAPSHOT_MANAGEMENT_MENU_DATA = {
         {
             "name": "Obtener el listado de snapshots existentes actualmente\n"
             "   para los subvolúmenes del sistema.",
-            "action": get_snapshots_list,
+            "action": [get_snapshots_list],
             "aesthetic_action": "clear_screen",
         },
         {
             "name": "Crear una snapshot del sistema.",
-            "action": create_system_snapshot_with_prompt,
+            "action": [create_system_snapshot_with_prompt],
             "aesthetic_action": "print_line",
         },
         {
             "name": "Eliminar una snapshot del sistema.",
-            "action": delete_system_snapshot,
+            "action": [delete_system_snapshot],
             "aesthetic_action": "clear_screen",
         },
         {"name": "MISCELÁNEA"},
