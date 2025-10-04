@@ -9,10 +9,7 @@
 
 import sys
 
-from modules.console_ui import (
-    style_text,
-)
-
+from modules.console_ui import style_text
 from modules.menu_creation import run_menu
 from genscript_tools.system_maintenance import clean_thumbnails, read_news
 from genscript_tools.package_management import PACKAGE_MANAGEMENT_MENU_DATA

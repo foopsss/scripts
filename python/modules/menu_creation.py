@@ -103,9 +103,6 @@ deben ejecutarse de cierta forma:
      descripto para los casos anteriores.
 """
 
-# TODO: actualizar la documentación de la librería para explicar como ejecutar
-#       funciones y también la parte que describe el formato del parámetro
-#       "action" cuando se quiere ejecutar funciones.
 # TODO: poner más y mejores comentarios en todas las funciones.
 
 import collections

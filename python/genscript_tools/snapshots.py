@@ -9,9 +9,7 @@ from modules.console_ui import (
     get_validated_input,
 )
 
-from modules.subprocess_utils import (
-    run_command,
-)
+from modules.subprocess_utils import run_command
 
 
 def get_snapshots_list():
