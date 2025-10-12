@@ -51,12 +51,28 @@ def sincronize_repositories():
     draw_coloured_line(len(title1_str), "=")
     create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
+    print("")
 
     title2_str = "Descarga de código fuente y paquetes"
     draw_coloured_line(len(title2_str), "=")
     print(title2_str)
     draw_coloured_line(len(title2_str), "=")
     run_command_as_root(["emerge", "-fuDN", "@world"])
+
+
+def update_flatpak_apps():
+    title1_str = "Remoción de paquetes innecesarios"
+    draw_coloured_line(len(title1_str), "=")
+    print(title1_str)
+    draw_coloured_line(len(title1_str), "=")
+    run_command(["flatpak", "uninstall", "--unused", "-y"])
+    print("")
+
+    title2_str = "Actualización de paquetes"
+    draw_coloured_line(len(title2_str), "=")
+    print(title2_str)
+    draw_coloured_line(len(title2_str), "=")
+    run_command(["flatpak", "update", "-y"])
 
 
 CVE_CHECK_MENU_DATA = {
@@ -101,10 +117,7 @@ UPDATES_MENU_DATA = {
         },
         {
             "name": "Actualizar las aplicaciones de Flatpak.",
-            "action": [
-                ["flatpak", "uninstall", "--unused", "-y"],
-                ["flatpak", "update", "-y"],
-            ],
+            "action": [update_flatpak_apps],
             "aesthetic_action": "clear_screen",
         },
         {
