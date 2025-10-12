@@ -103,8 +103,6 @@ deben ejecutarse de cierta forma:
      descripto para los casos anteriores.
 """
 
-# TODO: poner más y mejores comentarios en todas las funciones.
-
 import collections
 import copy
 import inspect
@@ -161,7 +159,6 @@ def _check_parameter(
     estos tipos, de manera que no se repita la escritura de
     la lógica de control.
     """
-    # Validación de parámetros de la función.
     if not isinstance(err_msg_context, str):
         raise TypeError("El parámetro 'err_msg_context' debe ser una cadena.")
     if not isinstance(expected_type, type):
@@ -170,10 +167,11 @@ def _check_parameter(
             " tipo (type)."
         )
 
-    # Validaciones realizadas por la función.
+    # Control de existencia de parámetros.
     if not is_optional and parameter is None:
         raise KeyError(f"Se debe proveer el parámetro {err_msg_context}.")
 
+    # Control de tipo de parámetros.
     if parameter is not None:
         if not isinstance(parameter, expected_type):
             raise TypeError(
@@ -181,6 +179,7 @@ def _check_parameter(
                 f" {expected_type.__name__}."
             )
 
+        # Control de longitud de parámetros.
         if isinstance(parameter, (str, list)) and len(parameter) == 0:
             raise ValueError(
                 f"El parámetro {err_msg_context} debe tener una longitud mayor"
@@ -208,14 +207,20 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
     options = menu_data.get("options", None)
     pre_menu_hook = menu_data.get("pre_menu_hook", None)
 
+    # Control del parámetro "dict_name".
     _check_parameter("dict_name", dict_name, str)
+
+    # Control del parámetro "title".
     _check_parameter(f"'title' en el diccionario {dict_name}", title, str)
+
+    # Control del parámetro "options".
     _check_parameter(
         f"'options' en el diccionario {dict_name}",
         options,
         list,
     )
 
+    # Control del parámetro "pre_menu_hook".
     if pre_menu_hook is not None and not callable(pre_menu_hook):
         raise TypeError(
             "Revise el parámetro 'pre_menu_hook' en el diccionario"
@@ -246,6 +251,8 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
     dict_name = menu_data.get("dict_name", None)
     option_counter = 0
 
+    # Iteración sobre los elementos del parámetro
+    # "options".
     for option in menu_data["options"]:
         option_counter += 1
         name = option.get("name", None)
@@ -263,6 +270,9 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
 
         # Evaluación de la llave 'aesthetic_action'.
         if aesthetic_action is not None:
+            # Si la llave es definida cuando no hay acciones o
+            # cuando la acción no precisa de una acción estética
+            # que la acompañe, avisar al usuario.
             if action is None or isinstance(action, (dict, str)):
                 raise ValueError(
                     "El parámetro 'action' no fue definido en el elemento N.°"
@@ -273,6 +283,7 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     " inválido. Por favor remuévalo."
                 )
 
+            # Si la llave no tiene un valor válido, avisar al usuario.
             if aesthetic_action not in ["clear_screen", "print_line"]:
                 raise ValueError(
                     "Revise el parámetro 'aesthetic_action' en el elemento N.°"
@@ -282,6 +293,8 @@ def _check_top_level_option_keys(menu_data: dict) -> None:
                     " 'clear_screen' y 'print_line'."
                 )
         else:
+            # Si la llave no está definida cuando debería
+            # estarlo, avisar al usuario.
             if action is not None and isinstance(action, list):
                 raise KeyError(
                     f"Revise el elemento N.° {option_counter} del parámetro"
@@ -316,6 +329,9 @@ def _check_action_string(menu_option: dict, dict_name: str) -> None:
     action = menu_option.get("action", None)
     action_name = menu_option.get("name", None)
 
+    # Verificación del parámetro para asegurarse de
+    # que únicamente contiene uno de los valores
+    # permitidos.
     if action not in EXIT_STRINGS:
         raise ValueError(
             "Revise el parámetro 'action' en el elemento con el nombre"
@@ -366,7 +382,7 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
     for item in action:
         # Si un elemento por fuera de un comando es un
         # string, debe tratarse únicamente de la etiqueta
-        # "#UINPUT".
+        # "#PIPE".
         if isinstance(item, str) and item not in ACTION_TAGS:
             raise ValueError(
                 "Revise el parámetro 'action' en el elemento con el nombre"
@@ -482,12 +498,14 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
             press_enter()
 
 
-def _count_required_and_optional_args(function: callable) -> tuple[int, int]:
+def _count_required_and_optional_function_args(
+    function: callable,
+) -> tuple[int, int]:
     """
-    _count_required_and_optional_args() es una función
-    utilizada para contar la cantidad de parámetros
-    obligatorios y opcionales que tiene una función, a
-    través de la inspección de su definición.
+    _count_required_and_optional_function_args() es
+    una función utilizada para contar la cantidad de
+    parámetros obligatorios y opcionales que tiene una
+    función, a través de la inspección de su definición.
     """
     func_sig = inspect.signature(function)
     required_args = 0
@@ -526,8 +544,12 @@ def _check_action_simple_function_list(
     action_name = menu_option.get("name", None)
 
     for function in menu_option["action"]:
-        required_args, _ = _count_required_and_optional_args(function)
+        required_args, _ = _count_required_and_optional_function_args(function)
 
+        # Si la cantidad de parámetros obligatorios es
+        # mayor a cero, la función debería proveerse en
+        # una tupla junto con la lista de parámetros a
+        # pasarle. Por lo tanto, avisar al usuario.
         if required_args > 0:
             raise ValueError(
                 "Revise el parámetro 'action' en el elemento con el nombre"
@@ -561,9 +583,13 @@ def _check_action_tuple_call_list(menu_option: dict, dict_name: str) -> None:
     """
     action_name = menu_option.get("name", None)
 
+    # Revisión de cada elemento de la lista 'action'.
     for function_tuple in menu_option["action"]:
         tuple_len = len(function_tuple)
 
+        # Si una tupla no tiene exactamente un objeto
+        # de función y una lista con parámetros a
+        # pasarle a la función, avisar al usuario.
         if tuple_len != 2:
             raise ValueError(
                 "Revise el parámetro 'action' en el elemento con el nombre"
@@ -587,8 +613,16 @@ def _check_action_tuple_call_list(menu_option: dict, dict_name: str) -> None:
                 " parámetros a pasarle a la función."
             )
 
-        req_param_amount, opt_param_amount = _count_required_and_optional_args(
-            function_tuple[0]
+        # Evaluación de la cantidad de parámetros provistos
+        # para la función. Pueden darse dos escenarios:
+        # 1. La cantidad de parámetros provistos es insuficiente,
+        #    debido a que no se proveen valores para uno o más
+        #    parámetros obligatorios.
+        # 2. La cantidad de parámetros provistos es exagerada,
+        #    debido a que se proveen más valores de los que
+        #    admite la función.
+        req_param_amount, opt_param_amount = (
+            _count_required_and_optional_function_args(function_tuple[0])
         )
 
         if len(function_tuple[1]) < req_param_amount:
@@ -680,33 +714,36 @@ def _draw_menu(menu_data: dict) -> None:
     y cualquier posible encabezado de sección a mostrar
     para dividir las opciones disponibles en apartados.
     """
-    # Ejecución de cualquier posible cosa requerida
-    # previo a la impresión del encabezado y el menú
-    # de opciones.
+    # Ejecución del parámetro "pre_menu_hook", en
+    # caso de que esté definido.
     title_length = len(menu_data["title"])
     pre_menu_hook = menu_data.get("pre_menu_hook", None)
     if pre_menu_hook is not None:
         draw_coloured_line(title_length, "=")
         pre_menu_hook()
 
-    # Impresión del encabezado de la sección.
+    # Impresión del menú de opciones.
     draw_coloured_line(title_length, "=")
     print(menu_data["title"])
     draw_coloured_line(title_length, "=")
 
-    # Impresión del listado de opciones.
     option_number = 1
     for item in menu_data["options"]:
         if "action" not in item:
+            # El elemento a imprimir es un encabezado
+            # de sección.
             print(f"\n{item["name"]}")
             draw_coloured_line(len(item["name"]))
         else:
+            # El elemento a imprimir es una opción
+            # del menú.
             print(f"{option_number}. {item["name"]}")
             option_number += 1
 
     # Esta línea en blanco se deja para que el
-    # listado de opciones no colisione con el pedido
-    # de elección al usuario, provisto por get_choice().
+    # listado de opciones no colisione con el
+    # pedido de elección al usuario, realizado
+    # por get_choice().
     print("")
 
 
@@ -733,10 +770,10 @@ def _get_command_options(menu_data: dict) -> list:
     # del diccionario de entrada.
     for item in menu_data["options"]:
         if "action" in item:
-            # Si un ítem de la lista "opciones" contenida
-            # dentro del diccionario de entrada tiene una
-            # llave "action" definida, entonces lo añado
-            # a la lista de salida.
+            # Si un ítem de la lista "options" contenida
+            # dentro del diccionario de entrada tiene un
+            # parámetro "action" definido, entonces se lo
+            # añade a la lista de salida.
             command_options.append(item)
 
     return command_options
@@ -755,6 +792,11 @@ def _handle_command_list(menu_option: dict) -> None:
     del usuario en caso de ser necesario, previo
     a la ejecución del comando provisto.
     """
+    # Se realiza una copia "profunda" del parámetro
+    # "action" para no alterar la versión definida
+    # en el diccionario. Esto podría pasar, por
+    # ejemplo, cuando a un comando se le debe anexar
+    # una entrada provista por el usuario.
     action_deepcopy = copy.deepcopy(menu_option["action"])
     user_input = None
 
@@ -762,9 +804,19 @@ def _handle_command_list(menu_option: dict) -> None:
         user_input = get_validated_input(menu_option["prompt"])
         print("")
 
+    # Se analiza si los comandos deben ejecutarse a
+    # través de un pipe o no.
     if "#PIPE" in action_deepcopy:
+        # Lista para almacenar los comandos
+        # a ejecutar.
         piped_commands = []
 
+        # Se inspecciona cada comando para anexarle
+        # cualquier cosa que pueda llegar a ser
+        # necesaria, según las etiquetas que tenga.
+        # Luego se limpia el comando para remover
+        # las etiquetas, de manera que se lo pueda
+        # ejecutar sin problemas.
         for command in action_deepcopy:
             if not isinstance(command, str):
                 if "#ROOT" in command:
@@ -773,19 +825,31 @@ def _handle_command_list(menu_option: dict) -> None:
                     command.append(user_input)
                 piped_commands.append([i for i in command if "#" not in i])
 
+        # Ejecución de los comandos y resguardo de
+        # la salida producida por este.
         result = pipe_commands(*piped_commands)
         print(f"{result}")
     else:
         for command in action_deepcopy:
+            # Lista para almacenar cada comando
+            # a ejecutar.
             command_without_tags = []
             requires_root = False
 
+            # Se inspecciona el comando para determinar
+            # si se lo debe ejecutar con permisos de
+            # superusuario o se le debe anexar alguna
+            # entrada provista por el usuario.
+            # Luego se lo limpia para remover cualquier
+            # etiqueta que pueda tener, de manera que
+            # se lo pueda ejecutar sin problemas.
             if "#ROOT" in command:
                 requires_root = True
             if "#UINPUT" in command:
                 command.append(user_input)
             command_without_tags = [i for i in command if "#" not in i]
 
+            # Ejecución del comando.
             if requires_root:
                 run_command_as_root(command_without_tags)
             else:
@@ -813,19 +877,22 @@ def _handle_action(menu_option: dict) -> None:
     en el tratamiento del parámetro "action".
     """
     action = menu_option.get("action", None)
+
     if all(isinstance(item, (str, list)) for item in action):
+        # Tratamiento de listas de comandos.
         _handle_command_list(menu_option)
     elif all(callable(item) for item in action):
+        # Tratamiento de listas de funciones.
         for function in action:
             function()
     elif all(isinstance(item, tuple) for item in action):
+        # Tratamiento de listas de tuplas con
+        # objetos de función y listas de
+        # parámetros.
         for func_tuple in action:
-            func = func_tuple[0]
-            try:
-                func_param = func_tuple[1]
-                func(*func_param)
-            except IndexError:
-                func()
+            function = func_tuple[0]
+            function_params = func_tuple[1]
+            function(*function_params)
 
 
 # --- Funciones públicas ---
@@ -841,37 +908,35 @@ def run_menu(menu_data: dict) -> None:
     un formato específico, descripto en la documentación
     de la librería "menu_creation".
     """
+    # Control de estructura del diccionario
+    # de entrada.
     _check_basic_dictionary_structure(menu_data)
     _check_top_level_option_keys(menu_data)
+
+    # Ciclo principal para imprimir el menú,
+    # recibir una elección y ejecutarla.
     while True:
+        # Impresión por pantalla del menú.
         clear_screen()
         _draw_menu(menu_data)
 
-        # Obtengo la elección del usuario.
+        # Determinación de la opción elegida
+        # por el usuario.
         options = _get_command_options(menu_data)
         option_number = get_choice(1, len(options))
-
-        # Obtengo el elemento de la lista "options" del
-        # diccionario de entrada que corresponde a la
-        # operación que se quiere realizar, el cual es
-        # un diccionario también.
-        #
-        # Los números de índice de la listas empiezan a
-        # contarse desde el 0, mientras que yo en los
-        # menús acostumbro a empezar desde el 1, por lo
-        # que se debe subsanar esa diferencia.
-        #
-        # También controlo que la opción elegida por el
-        # usuario esté definida correctamente.
         option = options[option_number - 1]
+
+        # Control de formato de la acción elegida
+        # por el usuario.
         _check_action(option, menu_data["dict_name"])
 
-        # Luego de obtener el elemento, obtengo el valor
-        # de la clave "action".
+        # En primera instancia, se controla si el
+        # usuario desea salir o dirigirse a otro
+        # menú de un script.
+        # En caso de que no se desee hacer ninguna
+        # de estas cosas, se prosigue con las
+        # opciones de ejecución definidas abajo.
         action = option["action"]
-
-        # En primera instancia, controlo si el usuario
-        # desea salir o dirigirse a otro menú.
         if isinstance(action, dict):
             run_menu(action)
             continue
@@ -880,21 +945,16 @@ def run_menu(menu_data: dict) -> None:
         elif isinstance(action, str) and action == "exit_script":
             sys.exit(0)
 
-        # Por motivos estéticos, si utilizo alguna de las
-        # opciones que se ejecutan justo debajo del menú,
-        # imprimo un separador.
-        #
-        # Si utilizo alguna opción que requiera limpiar
-        # la pantalla, hago eso.
+        # Ejecución de la acción estética definida
+        # en la opción elegida por el usuario, así
+        # como de la acción principal.
         if option["aesthetic_action"] == "clear_screen":
             clear_screen()
         elif option["aesthetic_action"] == "print_line":
             draw_coloured_line(len(menu_data["title"]))
-
-        # Si la elección del usuario no es salir del script,
-        # ir o salir de un menú, ejecuto la acción elegida.
         _handle_action(option)
 
-        # Luego de ejecutar la acción elegida, pauso el script.
-        if action != "exit_menu":
-            press_enter()
+        # Se pausa la ejecución del script tras
+        # ejecutar una opción para ver la salida
+        # que produce por pantalla.
+        press_enter()

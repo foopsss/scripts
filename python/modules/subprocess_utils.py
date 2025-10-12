@@ -83,11 +83,9 @@ def _check_command_argument_type(command: list | str, use_shell: bool) -> None:
     o directamente a través de un método de la librería
     subprocess.
     """
-    # Validación de parámetros de la función.
     if not isinstance(use_shell, bool):
         raise TypeError("El parámetro 'use_shell' debe ser un valor lógico.")
 
-    # Validaciones realizadas por la función.
     if use_shell:
         if not isinstance(command, str):
             raise TypeError(

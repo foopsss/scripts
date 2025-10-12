@@ -12,7 +12,7 @@ import subprocess
 
 from typing import Literal
 
-# Diccionarios a utilizar en las funciones encargadas de colorear contenidos.
+# --- Diccionarios a utilizar en la función que colorea contenido ---
 _BACKGROUND_COLOURS = {
     # Reglas de uso de los colores:
     # * El rojo se usa para mensajes de error.
@@ -208,7 +208,6 @@ def get_validated_input(
     La función admite dos tipos de datos: cadenas ("str") y números
     enteros ("int").
     """
-    # Validación de parámetros de la función.
     if not isinstance(msg, str):
         raise TypeError("El parámetro 'msg' debe ser una cadena.")
 
@@ -218,7 +217,6 @@ def get_validated_input(
             " entero."
         )
 
-    # Validaciones realizadas por la función.
     while True:
         input_str = input(f"{msg}: ")
 
