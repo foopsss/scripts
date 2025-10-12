@@ -4,8 +4,8 @@
 ========================
 DOCUMENTACIÓN DEL MÓDULO
 ========================
-Este módulo contiene funciones relacionadas a la ejecución de scripts y
-programas.
+Este módulo contiene una serie de funciones relacionadas a la ejecución de
+scripts y programas.
 """
 
 import sys
