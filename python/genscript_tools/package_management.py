@@ -38,6 +38,12 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
             "prompt": "Nombre del paquete",
         },
         {
+            "name": "Instalar un paquete temporalmente.",
+            "action": [["#ROOT", "#UINPUT", "emerge", "-1"]],
+            "aesthetic_action": "clear_screen",
+            "prompt": "Nombre del paquete",
+        },
+        {
             "name": "Añadir un paquete a @world.",
             "action": [["#ROOT", "#UINPUT", "emerge", "-n"]],
             "aesthetic_action": "print_line",
