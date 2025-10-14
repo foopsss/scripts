@@ -18,6 +18,7 @@ def get_snapshots_list():
     print(title1_str)
     draw_coloured_line(len(title1_str), "=")
     run_command(["snapper", "-c", "root", "list"])
+    print()
 
     title2_str = "Snapshots del volumen @/home"
     draw_coloured_line(len(title2_str), "=")
