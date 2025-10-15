@@ -196,12 +196,11 @@ def _check_basic_dictionary_structure(menu_data: dict) -> None:
     no realiza un control de las opciones definidas
     en el diccionario, aspecto que es delegado a las
     siguientes funciones de la sección.
-    """
-    if not isinstance(menu_data, dict):
-        raise ValueError(
-            "La estructura de datos a procesar debe ser un diccionario."
-        )
 
+    Nótese que esta función no valida el parámetro
+    recibido porque se espera que ya llegue con el
+    tipo correcto a la hora de llamar a esta función.
+    """
     dict_name = menu_data.get("dict_name", None)
     title = menu_data.get("title", None)
     options = menu_data.get("options", None)
@@ -908,6 +907,11 @@ def run_menu(menu_data: dict) -> None:
     un formato específico, descripto en la documentación
     de la librería "menu_creation".
     """
+    if not isinstance(menu_data, dict):
+        raise ValueError(
+            "La estructura de datos a procesar debe ser un diccionario."
+        )
+
     # Control de estructura del diccionario
     # de entrada.
     _check_basic_dictionary_structure(menu_data)
