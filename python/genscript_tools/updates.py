@@ -19,15 +19,21 @@ from modules.subprocess_utils import (
 from genscript_tools.snapshots import create_system_snapshot
 
 
-def check_internet_connection():
-    # Este chequeo de conexión es relativamente "barato"
-    # en cuanto al tiempo que cuesta realizarlo, por lo
-    # que me siento cómodo realizándolo cada vez que se
-    # muestra el menú principal de actualizaciones.
-    #
-    # Yo al menos no observo una diferencia notable en
-    # el tiempo que tarda el menú en mostrarse por
-    # pantalla.
+def check_internet_connection() -> None:
+    """
+    check_internet_connection() es un chequeo de conexión
+    que consiste en realizar un ping a Google y se ejecuta
+    al pasarle el objeto de esta función a un diccionario
+    a través del parámetro "pre_menu_hook".
+
+    En función del código de salida que devuelva esta
+    operación, se decide si mostrar un mensaje de éxito
+    o un mensaje de error.
+
+    Debido a que es relativamente "barato" en cuanto al
+    tiempo que cuesta realizarlo se lo hace de esta
+    manera.
+    """
     ping_exit_code = run_command_and_get_return_code(
         ["ping", "-c", "1", "www.google.com"]
     )
@@ -44,7 +50,14 @@ def check_internet_connection():
         )
 
 
-def sincronize_repositories():
+def sincronize_repositories() -> None:
+    """
+    sincronize_repositories() es una función utilizada
+    para crear una snapshot del sistema, sincronizar
+    los repositorios y descargar automáticamente el
+    código fuente o binario precompilado de los
+    paquetes que se deban actualizar.
+    """
     title1_str = "Sincronización de repositorios"
     draw_coloured_line(len(title1_str), "=")
     print(title1_str)
@@ -60,7 +73,12 @@ def sincronize_repositories():
     run_command_as_root(["emerge", "-fuDN", "@world"])
 
 
-def update_flatpak_apps():
+def update_flatpak_apps() -> None:
+    """
+    update_flatpak_apps() es una función utilizada
+    para remover runtimes innecesarios y actualizar
+    paquetes de Flatpak.
+    """
     title1_str = "Remoción de paquetes innecesarios"
     draw_coloured_line(len(title1_str), "=")
     print(title1_str)

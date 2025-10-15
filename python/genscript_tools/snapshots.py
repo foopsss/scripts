@@ -12,7 +12,12 @@ from modules.console_ui import (
 from modules.subprocess_utils import run_command
 
 
-def get_snapshots_list():
+def get_snapshots_list() -> None:
+    """
+    get_snapshots_list() es una función utilizada
+    para obtener un listado de snapshots de cada
+    subvolumen de BTRFS del sistema.
+    """
     title1_str = "Snapshots del volumen @/"
     draw_coloured_line(len(title1_str), "=")
     print(title1_str)
@@ -27,7 +32,16 @@ def get_snapshots_list():
     run_command(["snapper", "-c", "home", "list"])
 
 
-def create_system_snapshot(snapshot_description: str):
+def create_system_snapshot(snapshot_description: str) -> None:
+    """
+    create_system_snapshot() es una función
+    utilizada para limpiar snapshots innecesarias
+    y luego crear una snapshot del sistema.
+
+    Debe recibir como parámetro una cadena que
+    contenga una descripción de la snapshot
+    que se va a crear.
+    """
     if not isinstance(snapshot_description, str):
         raise ValueError("La descripción de la snapshot debe ser un string.")
 
@@ -64,14 +78,28 @@ def create_system_snapshot(snapshot_description: str):
     )
 
 
-def create_system_snapshot_with_prompt():
+def create_system_snapshot_with_prompt() -> None:
+    """
+    create_system_snapshot_with_prompt() es una
+    función que sirve para crear una snapshot
+    del sistema tras pedirle al usuario que
+    introduzca una descripción para dicha
+    snapshot.
+    """
     snapshot_str = get_validated_input(
         "Introduzca una descripción para la snapshot"
     )
     create_system_snapshot(snapshot_str)
 
 
-def delete_system_snapshot():
+def delete_system_snapshot() -> None:
+    """
+    delete_system_snapshot() es una función
+    utilizada para borrar snapshots del sistema.
+    Le muestra al usuario un listado de snapshots
+    disponibles y le pide que especifique cuál
+    desea borrar.
+    """
     get_snapshots_list()
     print("")
 
