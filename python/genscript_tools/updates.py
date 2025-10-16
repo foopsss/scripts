@@ -70,7 +70,7 @@ def sincronize_repositories() -> None:
     draw_coloured_line(len(title2_str), "=")
     print(title2_str)
     draw_coloured_line(len(title2_str), "=")
-    run_command_as_root(["emerge", "-fuDN", "@world"])
+    run_command_as_root(["emerge", "-fuDN", "--ask=n", "@world"])
 
 
 def update_flatpak_apps() -> None:

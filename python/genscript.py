@@ -2,8 +2,6 @@
 
 # TODO: discutir con Gemini la idea de dividir líneas largas de alguna manera
 #       inteligente, a la hora de mostrar opciones por pantalla.
-# TODO: añadir en updates.py un parámetro para descargar los distfiles
-#       automáticamente al actualizar los repositorios.
 # TODO: ver si se puede hacer que la lógica de las funciones
 #       get_snapshots_list(), create_system_snapshot() y
 #       delete_system_snapshot() sea independiente de los volúmenes, de manera
