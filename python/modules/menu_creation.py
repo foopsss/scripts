@@ -94,6 +94,10 @@ deben ejecutarse de cierta forma:
 * En caso de que a un comando se le deba anexar una entrada introducida por el
   usuario, en caso de haberla, se le debe incluir el string "#UINPUT" a la
   lista que lo define, antes de los strings pertenecientes al comando.
+  ** Para los comandos que permiten recibir múltiples entradas separadas por
+     espacios es posible incluir la etiqueta "#SPLIT-INPUT" junto a "#UINPUT",
+     para que la entrada sea dividida y procesada correctamente por el
+     intérprete de comandos.
 * En caso de que dos comandos deban ejecutarse con pipes, el primer elemento de
   la lista contenida por la clave "action" debe ser el string "#PIPE", seguido
   de las listas con las definiciones de comandos.
@@ -356,7 +360,7 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    COMMAND_TAGS = ["#ROOT", "#UINPUT"]
+    COMMAND_TAGS = ["#ROOT", "#UINPUT", "#SPLIT-INPUT"]
     ACTION_TAGS = ["#PIPE"]
     action = menu_option.get("action", None)
     action_name = menu_option.get("name", None)
@@ -365,9 +369,15 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
 
     # Esta variable se usa para controlar si ningún
     # comando define la etiqueta "#UINPUT" en su
-    # estructura, aún cuando el parámetro "prompt"
-    # SÍ está definido.
-    unused_user_input = True
+    # estructura, aún cuando debería estar presente
+    # en algún comando.
+    uinput_tag_undefined_globally = True
+
+    # Estas variables se usan para controlar la
+    # presencia de la etiqueta #SPLIT-INPUT, la
+    # cual debería estar presente únicamente si
+    # está presente la etiqueta #UINPUT.
+    split_input_tag_defined_somewhere = False
 
     # Lista que se usa para almacenar los comandos
     # que tienen etiquetas repetidas, así como las
@@ -406,7 +416,7 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
             # definido, por lo que no se le puede pedir
             # al usuario que provea una entrada.
             if "#UINPUT" in item:
-                unused_user_input = False
+                uinput_tag_undefined_globally = False
                 if prompt is None:
                     raise KeyError(
                         "Revise el parámetro 'action' en el elemento con el"
@@ -417,6 +427,15 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
                         " no está definido en el elemento el parámetro"
                         " 'prompt' para pedirle una entrada al usuario."
                     )
+
+            # Revisión de los comandos para verificar
+            # si alguno tiene la etiqueta "#SPLIT-INPUT".
+            # Esto será importante luego para saber si
+            # algún comando tiene dicha etiqueta, pero
+            # no tiene definida también la etiqueta
+            # "#UINPUT."
+            if "#SPLIT-INPUT" in item:
+                split_input_tag_defined_somewhere = True
 
             for string in item:
                 # Revisión de los elementos para verificar que
@@ -457,7 +476,7 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
     # Si ningún comando incluye la etiqueta "#UINPUT",
     # aunque la opción SÍ define el parámetro 'prompt',
     # se le debe advertir al usuario.
-    if prompt is not None and unused_user_input:
+    if prompt is not None and uinput_tag_undefined_globally:
         raise ValueError(
             "Revise el parámetro 'action' en el elemento con el nombre"
             f" '{action_name}' del parámetro 'options' del diccionario"
@@ -466,6 +485,21 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
             " indicar que se le debe anexar la entrada provista por el"
             " usuario, aunque el parámetro 'prompt' está definido en el"
             " elemento."
+        )
+
+    # Si ningún comando incluye la etiqueta "#UINPUT"
+    # aún cuando alguno sí incluye la etiqueta
+    # "#SPLIT-INPUT", se le debe avisar al usuario.
+    if split_input_tag_defined_somewhere and uinput_tag_undefined_globally:
+        raise ValueError(
+            "Revise el parámetro 'action' en el elemento con el nombre"
+            f" '{action_name}' del parámetro 'options' del diccionario"
+            f" {dict_name}."
+            "\nMotivo: ningún comando incluye la etiqueta '#UINPUT' para"
+            " indicar que se le debe anexar la entrada provista por el"
+            " usuario, aunque uno o más de uno de ellos definen la etiqueta"
+            " #SPLIT-INPUT para indicar que la entrada debe ser dividida"
+            " en partes."
         )
 
     # Si algún comando incluye etiquetas repetidas se
@@ -821,7 +855,11 @@ def _handle_command_list(menu_option: dict) -> None:
                 if "#ROOT" in command:
                     command.insert(0, "doas")
                 if "#UINPUT" in command:
-                    command.append(user_input)
+                    if "#SPLIT-INPUT" in command:
+                        user_input = user_input.split()
+                        command = command + user_input
+                    else:
+                        command.append(user_input)
                 piped_commands.append([i for i in command if "#" not in i])
 
         # Ejecución de los comandos y resguardo de
@@ -845,7 +883,12 @@ def _handle_command_list(menu_option: dict) -> None:
             if "#ROOT" in command:
                 requires_root = True
             if "#UINPUT" in command:
-                command.append(user_input)
+                if "#SPLIT-INPUT" in command:
+                    user_input = user_input.split()
+                    command = command + user_input
+                else:
+                    command.append(user_input)
+
             command_without_tags = [i for i in command if "#" not in i]
 
             # Ejecución del comando.

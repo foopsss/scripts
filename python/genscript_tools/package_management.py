@@ -33,25 +33,25 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {"name": "PAQUETES"},
         {
             "name": "Instalar un paquete.",
-            "action": [["#ROOT", "#UINPUT", "emerge"]],
+            "action": [["#ROOT", "#UINPUT", "#SPLIT-INPUT", "emerge"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
         {
             "name": "Instalar un paquete temporalmente.",
-            "action": [["#ROOT", "#UINPUT", "emerge", "-1"]],
+            "action": [["#ROOT", "#UINPUT", "#SPLIT-INPUT", "emerge", "-1"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
         {
             "name": "Añadir un paquete a @world.",
-            "action": [["#ROOT", "#UINPUT", "emerge", "-n"]],
+            "action": [["#ROOT", "#UINPUT", "#SPLIT-INPUT", "emerge", "-n"]],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del paquete",
         },
         {
             "name": "Remover un paquete de @world.",
-            "action": [["#ROOT", "#UINPUT", "emerge", "-W"]],
+            "action": [["#ROOT", "#UINPUT", "#SPLIT-INPUT", "emerge", "-W"]],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del paquete",
         },
@@ -63,7 +63,7 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {
             "name": "Obtener una lista de paquetes que dependen de un paquete"
             "\n   determinado.",
-            "action": [["#UINPUT", "equery", "d"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "equery", "d"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
@@ -92,7 +92,7 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         },
         {
             "name": "Obtener el tiempo de instalación de un paquete.",
-            "action": [["#UINPUT", "genlop", "-t"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "genlop", "-t"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
@@ -110,13 +110,13 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {"name": "FLATPAK"},
         {
             "name": "Instalar una aplicación de Flatpak.",
-            "action": [["#UINPUT", "flatpak", "install"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "flatpak", "install"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
         {
             "name": "Remover una aplicación de Flatpak.",
-            "action": [["#UINPUT", "flatpak", "remove"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "flatpak", "remove"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },

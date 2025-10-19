@@ -10,21 +10,21 @@ USE_FLAGS_MENU_DATA = {
     "options": [
         {
             "name": "Obtener información sobre una USE flag específica.",
-            "action": [["#UINPUT", "euse", "-i"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "euse", "-i"]],
             "aesthetic_action": "clear_screen",
             "prompt": "USE flag",
         },
         {
             "name": "Obtener una lista de USE flags disponibles para un\n"
             "   paquete específico.",
-            "action": [["#UINPUT", "equery", "u"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "equery", "u"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
         {
             "name": "Obtener una lista de paquetes que tienen una USE\n"
             "   flag específica.",
-            "action": [["#UINPUT", "equery", "h"]],
+            "action": [["#UINPUT", "#SPLIT-INPUT", "equery", "h"]],
             "aesthetic_action": "clear_screen",
             "prompt": "USE flag",
         },
