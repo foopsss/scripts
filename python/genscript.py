@@ -16,6 +16,8 @@
 #          parámetro "env" de subprocess.run(), por lo que probablemente
 #          corresponda aniadir una llave extra al parámetro "action", junto con
 #          los chequeos que correspondan, como verificar
+# TODO: pensar en añadir un control de errores para la parte que implica buscar
+#       carpeta en read_news().
 # TODO: ver una manera de arreglar el uso hardcodeado de doas.
 
 from modules.menu_creation import run_menu
