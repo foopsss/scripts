@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: generalizar el tratamiento de excepciones en las funciones para correr
-#       comandos.
 # TODO: ver si se puede hacer que la lógica de las funciones
 #       get_snapshots_list(), create_system_snapshot() y
 #       delete_system_snapshot() sea independiente de los volúmenes, de manera
@@ -15,7 +13,7 @@
 #       ** Para esto se le deben pasar las variables de entorno modificadas al
 #          parámetro "env" de subprocess.run(), por lo que probablemente
 #          corresponda aniadir una llave extra al parámetro "action", junto con
-#          los chequeos que correspondan, como verificar
+#          los chequeos que correspondan.
 # TODO: pensar en añadir un control de errores para la parte que implica buscar
 #       carpeta en read_news().
 # TODO: ver una manera de arreglar el uso hardcodeado de doas.
