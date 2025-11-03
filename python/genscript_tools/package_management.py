@@ -70,9 +70,7 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {
             "name": "Buscar un paquete en la lista de paquetes instalados.",
             "action": [
-                "#PIPE",
-                ["qlist", "-IRv"],
-                ["#UINPUT", "grep"],
+                ["#UINPUT", "qlist", "-IRv"],
             ],
             "aesthetic_action": "print_line",
             "prompt": "Nombre del paquete",
