@@ -125,7 +125,7 @@ def _run_commands_exception_handler(
     @functools.wraps(func)
     def inner_exception_handling(*args: Any, **kwargs: Any) -> Any | None:
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except subprocess.CalledProcessError as exec_error:
             # Si el comando no logra ejecutarse correctamente por algún
             # motivo, se manejará este error.
