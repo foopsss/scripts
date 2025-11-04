@@ -12,8 +12,12 @@
 #       variable de entorno "EIX_LIMIT=0".
 #       ** Para esto se le deben pasar las variables de entorno modificadas al
 #          parámetro "env" de subprocess.run(), por lo que probablemente
-#          corresponda aniadir una llave extra al parámetro "action", junto con
-#          los chequeos que correspondan.
+#          corresponda aniadir una llave extra al diccionario, junto con los
+#          chequeos que correspondan.
+#       ** La llave podría tomar como parámetro una lista de tuplas, donde el
+#          primer elemento es el número de comando al que se le debe anexar la
+#          variable de entorno, mientras que el segundo elemento es un string
+#          con la variable de entorno en sí.
 # TODO: pensar en añadir un control de errores para la parte que implica buscar
 #       carpeta en read_news().
 # TODO: ver una manera de arreglar el uso hardcodeado de doas.
