@@ -187,8 +187,11 @@ def _run_commands_exception_handler(
 # --- Funciones públicas ---
 @_run_commands_exception_handler
 def run_command(
-    command: list | str, check_return: bool = True, use_shell: bool = False
-) -> None:
+    command: list | str,
+    check_return: bool = True,
+    use_shell: bool = False,
+    return_output: bool = False,
+) -> None | subprocess.CompletedProcess:
     """
     run_command() es un wrapper de subprocess.run para
     ejecutar programas externos. Permite deshabilitar
@@ -201,10 +204,14 @@ def run_command(
     pero esto solo se puede hacer con el control de
     errores activado.
     """
-    if not isinstance(check_return, bool) or not isinstance(use_shell, bool):
+    if (
+        not isinstance(check_return, bool)
+        or not isinstance(use_shell, bool)
+        or not isinstance(return_output, bool)
+    ):
         raise TypeError(
-            "Los parámetros 'check_return' y 'use_shell' deben ser valores"
-            " lógicos."
+            "Los parámetros 'check_return', 'use_shell' y 'return_output'"
+            " deben ser valores lógicos."
         )
 
     if not check_return and use_shell:
@@ -214,11 +221,24 @@ def run_command(
         )
 
     _check_command_argument_type(command, use_shell)
-    subprocess.run(command, check=check_return, shell=use_shell)
+    result = subprocess.run(
+        command,
+        check=check_return,
+        shell=use_shell,
+        capture_output=return_output,
+        text=return_output,
+    )
+
+    if return_output:
+        return result
 
 
 @_run_commands_exception_handler
-def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
+def run_command_as_root(
+    command: list | str,
+    use_shell: bool = False,
+    return_output: bool = False,
+) -> None | subprocess.CompletedProcess:
     """
     run_command_as_root() es un wrapper de subprocess.run
     que sirve para ejecutar comandos externos con permisos
@@ -229,15 +249,29 @@ def run_command_as_root(command: list | str, use_shell: bool = False) -> None:
     A diferencia de run_command(), no permite desactivar
     el control de errores.
     """
-    if not isinstance(use_shell, bool):
-        raise TypeError("El parámetro 'use_shell' debe ser un valor lógico.")
+    if not isinstance(use_shell, bool) or not isinstance(return_output, bool):
+        raise TypeError(
+            "Los parámetros 'use_shell' y 'return_output' deben ser valores"
+            " lógicos."
+        )
 
     _check_command_argument_type(command, use_shell)
 
     if use_shell:
-        subprocess.run(f"doas {command}", check=True, shell=True)
+        command_to_run = f"doas {command}"
     else:
-        subprocess.run(["doas"] + command, check=True, shell=False)
+        command_to_run = ["doas"] + command
+
+    result = subprocess.run(
+        command_to_run,
+        check=True,
+        shell=use_shell,
+        capture_output=return_output,
+        text=return_output,
+    )
+
+    if return_output:
+        return result
 
 
 @_run_commands_exception_handler
