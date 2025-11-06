@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: ver si se puede hacer que la lógica de las funciones
-#       get_snapshots_list(), create_system_snapshot() y
-#       delete_system_snapshot() sea independiente de los volúmenes, de manera
-#       que se pueda realizar las snapshots independiente del esquema de
-#       subvolúmenes, iterando sobre una lista de subvolúmenes o algo así.
 # TODO: discutir con Gemini la idea de dividir líneas largas de alguna manera
 #       inteligente, a la hora de mostrar opciones por pantalla.
 # TODO: ver como pasarle variables de entorno a los comandos sin que fallen.
@@ -18,9 +13,10 @@
 #          primer elemento es el número de comando al que se le debe anexar la
 #          variable de entorno, mientras que el segundo elemento es un string
 #          con la variable de entorno en sí.
-# TODO: pensar en añadir un control de errores para la parte que implica buscar
-#       carpeta en read_news().
 # TODO: ver una manera de arreglar el uso hardcodeado de doas.
+# TODO: revisar los tipos de datos indicados en los retornos de las
+#       definiciones para especificar aún mejor qué es lo que sucede. Ejemplo:
+#       list[str].
 
 from modules.menu_creation import run_menu
 from modules.program_tools import execute_with_interrupt_handler
