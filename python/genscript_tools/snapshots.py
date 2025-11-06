@@ -4,32 +4,94 @@
 # sys-fs/btrfs-progs - provee "btrfs".
 # app-backup/snapper - provee "snapper".
 
+import functools
+import json
+import sys
+
 from modules.console_ui import (
     draw_coloured_line,
     get_validated_input,
+    style_text,
 )
 
 from modules.subprocess_utils import run_command
+
+
+@functools.cache
+def _get_snapper_config_list() -> list[tuple[str, str]]:
+    """
+    _get_snapper_config_list() es una función
+    utilizada para determinar cuáles son los
+    subvolúmenes de BTRFS configurados para
+    que se les realice snapshots con Snapper.
+
+    Esta función devuelve una lista de tuplas,
+    cada una de las cuales contiene una
+    configuración de Snapper y el subvolumen
+    a la que está asociada.
+    """
+    snapper_raw_output = run_command(
+        ["snapper", "--machine-readable", "json", "list-configs"],
+        return_output=True,
+    )
+
+    try:
+        # Si el comando funcionó correctamente,
+        # se puede tratar de obtener la lista de
+        # configuraciones existentes a partir de
+        # la salida provista por Snapper.
+        snapper_json_output = json.loads(snapper_raw_output.stdout)
+        config_list = []
+
+        for element in snapper_json_output["configs"]:
+            config_subvolume_tuple = (
+                element.get("config", None),
+                element.get("subvolume", None),
+            )
+            config_list.append(config_subvolume_tuple)
+
+        return config_list
+    except json.JSONDecodeError as json_error:
+        # Si no se puede procesar el JSON obtenido
+        # correctamente, es mejor salir de inmediato.
+        style_text(
+            "bg",
+            "red",
+            "No se pudo obtener la lista de configuraciones de Snapper."
+            f" Hubo un error al procesar la variable '{json_error.doc}'."
+            "\nEl procesamiento empezó a fallar en la posición"
+            f" {json_error.pos}, línea {json_error.lineno} y columna"
+            f" {json_error.colno}.",
+        )
+        sys.exit(1)
 
 
 def get_snapshots_list() -> None:
     """
     get_snapshots_list() es una función utilizada
     para obtener un listado de snapshots de cada
-    subvolumen de BTRFS del sistema.
+    subvolumen de BTRFS del sistema que tiene
+    una configuración de Snapper asociada.
     """
-    title1_str = "Snapshots del volumen @/"
-    draw_coloured_line(len(title1_str), "=")
-    print(title1_str)
-    draw_coloured_line(len(title1_str), "=")
-    run_command(["snapper", "-c", "root", "list"])
-    print()
+    config_list = _get_snapper_config_list()
 
-    title2_str = "Snapshots del volumen @/home"
-    draw_coloured_line(len(title2_str), "=")
-    print(title2_str)
-    draw_coloured_line(len(title2_str), "=")
-    run_command(["snapper", "-c", "home", "list"])
+    # Se precisa conocer cuál es el último de
+    # la lista por motivos estéticos.
+    last_config_in_list = config_list[-1][0]
+
+    for config, subvolume in config_list:
+        title_str = f"Snapshots del subvolumen '{subvolume}'"
+        draw_coloured_line(len(title_str), "=")
+        print(title_str)
+        draw_coloured_line(len(title_str), "=")
+        run_command(["snapper", "-c", f"{config}", "list"])
+
+        # Si todavía no se está trabajando con
+        # el último elemento de la lista de
+        # configuraciones, corresponde imprimir
+        # un separador para separar cada listado.
+        if not (config == last_config_in_list):
+            print("")
 
 
 def create_system_snapshot(snapshot_description: str) -> None:
@@ -45,37 +107,24 @@ def create_system_snapshot(snapshot_description: str) -> None:
     if not isinstance(snapshot_description, str):
         raise ValueError("La descripción de la snapshot debe ser un string.")
 
-    # Limpieza de snapshots innecesarias.
-    run_command(["snapper", "-c", "root", "cleanup", "number"])
-    run_command(["snapper", "-c", "home", "cleanup", "number"])
+    config_list = _get_snapper_config_list()
+    for config, _ in config_list:
+        # Limpieza de snapshots innecesarias.
+        run_command(["snapper", "-c", f"{config}", "cleanup", "number"])
 
-    # Snapshot del volumen @.
-    run_command(
-        [
-            "snapper",
-            "-c",
-            "root",
-            "create",
-            "-c",
-            "number",
-            "--description",
-            f"{snapshot_description}",
-        ],
-    )
-
-    # Snapshot del volumen @home.
-    run_command(
-        [
-            "snapper",
-            "-c",
-            "home",
-            "create",
-            "-c",
-            "number",
-            "--description",
-            f"{snapshot_description}",
-        ],
-    )
+        # Creación de snapshot.
+        run_command(
+            [
+                "snapper",
+                "-c",
+                f"{config}",
+                "create",
+                "-c",
+                "number",
+                "--description",
+                f"{snapshot_description}",
+            ],
+        )
 
 
 def create_system_snapshot_with_prompt() -> None:
@@ -100,6 +149,7 @@ def delete_system_snapshot() -> None:
     disponibles y le pide que especifique cuál
     desea borrar.
     """
+    config_list = _get_snapper_config_list()
     get_snapshots_list()
     print("")
 
@@ -107,8 +157,10 @@ def delete_system_snapshot() -> None:
         "Introduzca el número de snapshot a borrar",
     )
 
-    run_command(["snapper", "-c", "root", "delete", f"{snapshot_number}"])
-    run_command(["snapper", "-c", "home", "delete", f"{snapshot_number}"])
+    for config, _ in config_list:
+        run_command(
+            ["snapper", "-c", f"{config}", "delete", f"{snapshot_number}"]
+        )
 
 
 SNAPSHOT_MANAGEMENT_MENU_DATA = {
