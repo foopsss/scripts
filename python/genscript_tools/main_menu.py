@@ -9,6 +9,7 @@
 
 import os
 import shutil
+import sys
 import threading
 
 from modules.console_ui import (
@@ -63,25 +64,38 @@ def _get_news_count(result_container: list) -> None:
     debe ser devuelto al hilo principal a través del parámetro
     "result_container" que toma como entrada.
     """
-    # Obtención del número de noticias disponibles para
-    # leer. Acá se simula el pipeline de una consola con
-    # pipe_commands y se obtiene el número total de entradas
-    # entradas de noticias disponibles para leer revisando
-    # los contenidos de la carpeta "/var/lib/gentoo/news".
-    news_folder = "/var/lib/gentoo/news"
-    news_count = 0
+    try:
+        # Obtención del número de noticias disponibles para
+        # leer. Acá se simula el pipeline de una consola con
+        # pipe_commands y se obtiene el número total de entradas
+        # entradas de noticias disponibles para leer revisando
+        # los contenidos de la carpeta "/var/lib/gentoo/news".
+        news_folder = "/var/lib/gentoo/news"
+        news_count = 0
 
-    for file in os.listdir(news_folder):
-        if file.endswith((".read", ".unread")):
-            file_line_count = pipe_commands(
-                ["cat", f"/var/lib/gentoo/news/{file}"], ["wc", "-l"]
-            )
-            news_count += int(file_line_count)
+        for file in os.listdir(news_folder):
+            if file.endswith((".read", ".unread")):
+                file_line_count = pipe_commands(
+                    ["cat", f"/var/lib/gentoo/news/{file}"], ["wc", "-l"]
+                )
+                news_count += int(file_line_count)
 
-    # Guardo el resultado del recuento en la lista de
-    # entrada, para que el hilo principal pueda acceder
-    # al número.
-    result_container.append(news_count)
+        # Guardo el resultado del recuento en la lista de
+        # entrada, para que el hilo principal pueda acceder
+        # al número.
+        result_container.append(news_count)
+    except OSError as os_error:
+        # Si no se puede obtener el número de noticias
+        # correctamente, es mejor salir de inmediato.
+        style_text(
+            "bg",
+            "red",
+            "Se produjo un error del sistema al procesar la carpeta"
+            f" '{news_folder}' y no se pudo obtener la cantidad de"
+            " entradas de noticias de Gentoo disponibles para leer."
+            f"\nEl error encontrado es: {os_error}.",
+        )
+        sys.exit(1)
 
 
 def read_news():
