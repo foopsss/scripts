@@ -135,7 +135,7 @@ def _run_commands_exception_handler(
                 f"Error de ejecución del comando {exec_error.cmd}.",
             )
             style_text(
-                "bg", "red", f"Código de salida: {exec_error.returncode}"
+                "bg", "red", f"Código de salida: {exec_error.returncode}."
             )
             return None
         except subprocess.TimeoutExpired as timeout_error:
@@ -167,7 +167,7 @@ def _run_commands_exception_handler(
                 "red",
                 "Se ha producido un error del SO durante la ejecución de un"
                 " programa."
-                f"\nEl error encontrado es: {os_error}",
+                f"\nEl error encontrado es: {os_error}.",
             )
             return None
         except Exception as unknown_error:
@@ -177,7 +177,7 @@ def _run_commands_exception_handler(
                 "bg",
                 "red",
                 "Se produjo un error inesperado al ejecutar el comando."
-                f"\nError encontrado: {unknown_error}",
+                f"\nError encontrado: {unknown_error}.",
             )
             return None
 
