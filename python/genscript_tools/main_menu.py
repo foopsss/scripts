@@ -28,7 +28,7 @@ from genscript_tools.updates import UPDATES_MENU_DATA
 from genscript_tools.use_flags import USE_FLAGS_MENU_DATA
 
 
-def clean_thumbnails():
+def clean_thumbnails() -> None:
     """
     clean_thumbnails() es una función que sirve para borrar
     las miniaturas del sistema, localizadas en la carpeta
@@ -98,7 +98,7 @@ def _get_news_count(result_container: list) -> None:
         sys.exit(1)
 
 
-def read_news():
+def read_news() -> None:
     """
     read_news() es una función que se utiliza para
     mostrarle al usuario el listado de entradas de

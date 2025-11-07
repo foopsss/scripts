@@ -75,8 +75,9 @@ def get_snapshots_list() -> None:
     """
     config_list = _get_snapper_config_list()
 
-    # Se precisa conocer cuál es el último de
-    # la lista por motivos estéticos.
+    # Se precisa conocer cuál es el último
+    # elemento de la lista por motivos
+    # estéticos.
     last_config_in_list = config_list[-1][0]
 
     for config, subvolume in config_list:

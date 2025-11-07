@@ -239,7 +239,7 @@ def get_validated_input(
         return int(input_str)
 
 
-def get_choice(low_lim: int, upp_lim: int) -> None:
+def get_choice(low_lim: int, upp_lim: int) -> int:
     """
     get_choice() es una función encargada de recibir la
     elección de un usuario en forma de un valor numérico

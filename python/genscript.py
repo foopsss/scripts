@@ -14,9 +14,9 @@
 #          variable de entorno, mientras que el segundo elemento es un string
 #          con la variable de entorno en sí.
 # TODO: ver una manera de arreglar el uso hardcodeado de doas.
-# TODO: revisar los tipos de datos indicados en los retornos de las
-#       definiciones para especificar aún mejor qué es lo que sucede. Ejemplo:
-#       list[str].
+# TODO: mejores type hints para menu_creation.py. Usar lo de TypedDict y crear
+#       un subpaquete para todas las cosas que tienen que ver con la creación
+#       de menús.
 
 from modules.menu_creation import run_menu
 from modules.program_tools import execute_with_interrupt_handler
