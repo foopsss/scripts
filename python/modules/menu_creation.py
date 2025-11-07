@@ -329,8 +329,8 @@ def _check_action_string(menu_option: dict, dict_name: str) -> None:
     esta función.
     """
     EXIT_STRINGS = ["exit_script", "exit_menu"]
-    action = menu_option.get("action", None)
-    action_name = menu_option.get("name", None)
+    action = menu_option["action"]
+    action_name = menu_option["name"]
 
     # Verificación del parámetro para asegurarse de
     # que únicamente contiene uno de los valores
@@ -362,9 +362,9 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
     """
     COMMAND_TAGS = ["#ROOT", "#UINPUT", "#SPLIT-INPUT"]
     ACTION_TAGS = ["#PIPE"]
-    action = menu_option.get("action", None)
-    action_name = menu_option.get("name", None)
-    aesthetic_action = menu_option.get("aesthetic_action", None)
+    action = menu_option["action"]
+    action_name = menu_option[("name"]
+    aesthetic_action = menu_option["aesthetic_action"]
     prompt = menu_option.get("prompt", None)
 
     # Esta variable se usa para controlar si ningún
@@ -574,7 +574,7 @@ def _check_action_simple_function_list(
     porque se espera que ya lleguen con el tipo y valores correctos
     a la hora de llamar a esta función.
     """
-    action_name = menu_option.get("name", None)
+    action_name = menu_option["name"]
 
     for function in menu_option["action"]:
         required_args, _ = _count_required_and_optional_function_args(function)
@@ -614,7 +614,7 @@ def _check_action_tuple_call_list(menu_option: dict, dict_name: str) -> None:
     tipo y valores correctos a la hora de llamar a esta
     función.
     """
-    action_name = menu_option.get("name", None)
+    action_name = menu_option["name"]
 
     # Revisión de cada elemento de la lista 'action'.
     for function_tuple in menu_option["action"]:
@@ -694,7 +694,7 @@ def _check_action(menu_option: dict, dict_name: str) -> None:
     esta función.
     """
     action = menu_option["action"]
-    action_name = menu_option.get("name", None)
+    action_name = menu_option["name"]
 
     if isinstance(action, str):
         _check_action_string(menu_option, dict_name)
@@ -918,7 +918,7 @@ def _handle_action(menu_option: dict) -> None:
     cantidad de ciclos condicionales que se utilizan
     en el tratamiento del parámetro "action".
     """
-    action = menu_option.get("action", None)
+    action = menu_option.get("action")
 
     if all(isinstance(item, (str, list)) for item in action):
         # Tratamiento de listas de comandos.
