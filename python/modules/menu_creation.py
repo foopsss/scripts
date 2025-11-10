@@ -363,7 +363,7 @@ def _check_action_command_list(menu_option: dict, dict_name: str) -> None:
     COMMAND_TAGS = ["#ROOT", "#UINPUT", "#SPLIT-INPUT"]
     ACTION_TAGS = ["#PIPE"]
     action = menu_option["action"]
-    action_name = menu_option[("name"]
+    action_name = menu_option["name"]
     aesthetic_action = menu_option["aesthetic_action"]
     prompt = menu_option.get("prompt", None)
 
