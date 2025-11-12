@@ -18,7 +18,7 @@
 #       un subpaquete para todas las cosas que tienen que ver con la creación
 #       de menús.
 
-from modules.menu_creation import run_menu
+from modules.menu.creation import run_menu
 from modules.program_tools import execute_with_interrupt_handler
 from genscript_tools.main_menu import MAIN_MENU_DATA
 
