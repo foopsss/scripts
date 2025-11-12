@@ -15,7 +15,9 @@ from typing import NoReturn
 from modules.console_ui import style_text
 
 
-def execute_with_interrupt_handler(function: callable, *args, **kwargs) -> NoReturn:
+def execute_with_interrupt_handler(
+    function: callable, *args, **kwargs
+) -> NoReturn:
     """
     execute_with_interrupt_handler() es una función
     encargada de ejecutar funciones y salir de manera
