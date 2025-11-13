@@ -74,6 +74,7 @@ import subprocess
 from typing import Any, Callable
 
 from modules.console_ui import style_text
+from modules.program_tools import get_privilege_escalation_command
 
 
 # --- Funciones privadas ---
@@ -256,11 +257,12 @@ def run_command_as_root(
         )
 
     _check_command_argument_type(command, use_shell)
+    root_cmd = get_privilege_escalation_command()
 
     if use_shell:
-        command_to_run = f"doas {command}"
+        command_to_run = f"{root_cmd} {command}"
     else:
-        command_to_run = ["doas"] + command
+        command_to_run = [f"{root_cmd}"] + command
 
     result = subprocess.run(
         command_to_run,

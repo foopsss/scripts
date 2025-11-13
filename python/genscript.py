@@ -13,7 +13,6 @@
 #          primer elemento es el número de comando al que se le debe anexar la
 #          variable de entorno, mientras que el segundo elemento es un string
 #          con la variable de entorno en sí.
-# TODO: ver una manera de arreglar el uso hardcodeado de doas.
 # TODO: mejores type hints para menu_creation.py. Usar lo de TypedDict y crear
 #       un subpaquete para todas las cosas que tienen que ver con la creación
 #       de menús.
