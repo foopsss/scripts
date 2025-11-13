@@ -50,7 +50,7 @@ def execute_with_interrupt_handler(
 
 
 @functools.cache
-def get_privilege_escalation_command() -> str:
+def get_privilege_elevation_command() -> str:
     """
     get_privilege_escalation_command() es una función
     que sirve para verificar si el sistema en el que

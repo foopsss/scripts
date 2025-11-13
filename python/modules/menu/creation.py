@@ -131,7 +131,7 @@ from modules.menu.validation import (
     _check_action,
 )
 
-from modules.program_tools import get_privilege_escalation_command
+from modules.program_tools import get_privilege_elevation_command
 
 
 # --- Funciones privadas ---
@@ -270,7 +270,7 @@ def _handle_command_list(menu_option: dict) -> None:
         for command in action_deepcopy:
             if not isinstance(command, str):
                 if "#ROOT" in command:
-                    root_cmd = get_privilege_escalation_command()
+                    root_cmd = get_privilege_elevation_command()
                     command.insert(0, f"{root_cmd}")
                 if "#UINPUT" in command:
                     if "#SPLIT-INPUT" in command:
