@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: discutir con Gemini la idea de dividir líneas largas de alguna manera
-#       inteligente, a la hora de mostrar opciones por pantalla.
 # TODO: ver como pasarle variables de entorno a los comandos sin que fallen.
 #       Uno de los comandos a modificar es "eix --installed-with-use" con la
 #       variable de entorno "EIX_LIMIT=0".
