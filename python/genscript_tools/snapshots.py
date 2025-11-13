@@ -178,8 +178,8 @@ SNAPSHOT_MANAGEMENT_MENU_DATA = {
         },
         {"name": "MANEJO DE SNAPSHOTS"},
         {
-            "name": "Obtener el listado de snapshots existentes actualmente\n"
-            "   para los subvolúmenes del sistema.",
+            "name": "Obtener el listado de snapshots existentes actualmente"
+            " para los subvolúmenes del sistema.",
             "action": [get_snapshots_list],
             "aesthetic_action": "clear_screen",
         },

@@ -109,6 +109,7 @@ deben ejecutarse de cierta forma:
 
 import copy
 import sys
+import textwrap
 
 from modules.console_ui import (
     clear_screen,
@@ -151,12 +152,14 @@ def _draw_menu(menu_data: dict) -> None:
         draw_coloured_line(title_length, "=")
         pre_menu_hook()
 
-    # Impresión del menú de opciones.
+    # Impresión del título del menú.
     draw_coloured_line(title_length, "=")
     print(menu_data["title"])
     draw_coloured_line(title_length, "=")
 
+    # Impresión del menú de opciones.
     option_number = 1
+
     for item in menu_data["options"]:
         if "action" not in item:
             # El elemento a imprimir es un encabezado
@@ -166,7 +169,25 @@ def _draw_menu(menu_data: dict) -> None:
         else:
             # El elemento a imprimir es una opción
             # del menú.
-            print(f"{option_number}. {item["name"]}")
+            prefix_len = len(f"{option_number}. ")
+            prefix_str = " " * prefix_len
+
+            # Como detalle estético, se busca que la
+            # longitud de las descripciones de las
+            # opciones no sobrepasen la longitud del
+            # título. Para ello, se dividen las líneas
+            # y se las guarda en una lista, respecto
+            # de la cual se debe iterar.
+            wrapped_lines = textwrap.wrap(
+                text=item["name"],
+                width=(title_length - prefix_len),
+                initial_indent=f"{option_number}. ",
+                subsequent_indent=prefix_str,
+            )
+
+            for line in wrapped_lines:
+                print(line)
+
             option_number += 1
 
     # Esta línea en blanco se deja para que el

@@ -98,8 +98,8 @@ CVE_CHECK_MENU_DATA = {
     "title": "Apartado para controlar posibles fallos de seguridad",
     "options": [
         {
-            "name": "Controlar si el sistema está afectado por alguno de\n"
-            "   los fallos publicados.",
+            "name": "Controlar si el sistema está afectado por alguno de"
+            " los fallos publicados.",
             "action": [["glsa-check", "-t", "all"]],
             "aesthetic_action": "clear_screen",
         },
@@ -172,8 +172,8 @@ UPDATES_MENU_DATA = {
             "aesthetic_action": "clear_screen",
         },
         {
-            "name": "Revisar si el sistema está expuesto a fallos de\n"
-            "   ciberseguridad.",
+            "name": "Revisar si el sistema está expuesto a fallos de"
+            " ciberseguridad.",
             "action": CVE_CHECK_MENU_DATA,
         },
         {

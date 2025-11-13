@@ -15,22 +15,22 @@ USE_FLAGS_MENU_DATA = {
             "prompt": "USE flag",
         },
         {
-            "name": "Obtener una lista de USE flags disponibles para un\n"
-            "   paquete específico.",
+            "name": "Obtener una lista de USE flags disponibles para un"
+            " paquete específico.",
             "action": [["#UINPUT", "#SPLIT-INPUT", "equery", "u"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
         {
-            "name": "Obtener una lista de paquetes que tienen una USE\n"
-            "   flag específica.",
+            "name": "Obtener una lista de paquetes que tienen una USE"
+            " flag específica.",
             "action": [["#UINPUT", "#SPLIT-INPUT", "equery", "h"]],
             "aesthetic_action": "clear_screen",
             "prompt": "USE flag",
         },
         {
-            "name": "Obtener una lista de paquetes compilados con una\n"
-            "   USE flag específica.",
+            "name": "Obtener una lista de paquetes compilados con una"
+            " USE flag específica.",
             "action": [["#UINPUT", "eix", "--installed-with-use"]],
             "aesthetic_action": "clear_screen",
             "prompt": "USE flag",

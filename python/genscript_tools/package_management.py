@@ -62,7 +62,7 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         },
         {
             "name": "Obtener una lista de paquetes que dependen de un paquete"
-            "\n   determinado.",
+            " determinado.",
             "action": [["#UINPUT", "#SPLIT-INPUT", "equery", "d"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
