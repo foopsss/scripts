@@ -180,7 +180,7 @@ def _draw_menu(menu_data: dict) -> None:
             # de la cual se debe iterar.
             wrapped_lines = textwrap.wrap(
                 text=item["name"],
-                width=(title_length - prefix_len),
+                width=title_length,
                 initial_indent=f"{option_number}. ",
                 subsequent_indent=prefix_str,
             )
