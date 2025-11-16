@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
+#!/usr/bin/env python3
+#!/usr/bin/env python3
+#!/usr/bin/env python3
+#!/usr/bin/env python3
+#!/usr/bin/env python3
 
 # Paquetes usados en este módulo:
 # app-portage/gentoolkit - provee "euse" y "equery".
