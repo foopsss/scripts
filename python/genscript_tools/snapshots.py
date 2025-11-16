@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
+#75bc57c46992cd850d57e2547d368c1d436e9be8
 
 # Paquetes usados en este módulo:
 # sys-fs/btrfs-progs - provee "btrfs".
