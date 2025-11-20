@@ -6,12 +6,8 @@
 # sys-apps/fwupd     - provee "fwupdmgr".
 
 from modules.console_ui import (
-    bg_colour,
-    clear_screen,
+    style_text,
     draw_coloured_line,
-    get_choice,
-    get_validated_input,
-    press_enter,
 )
 
 from modules.subprocess_utils import (
@@ -23,154 +19,166 @@ from modules.subprocess_utils import (
 from genscript_tools.snapshots import create_system_snapshot
 
 
-def check_internet_connection():
-    # Este chequeo de conexión es relativamente "barato"
-    # en cuanto al tiempo que cuesta realizarlo, por lo
-    # que me siento cómodo realizándolo cada vez que se
-    # muestra el menú principal de actualizaciones.
-    #
-    # Yo al menos no observo una diferencia notable en
-    # el tiempo que tarda el menú en mostrarse por
-    # pantalla.
+def check_internet_connection() -> None:
+    """
+    check_internet_connection() es un chequeo de conexión
+    que consiste en realizar un ping a Google y se ejecuta
+    al pasarle el objeto de esta función a un diccionario
+    a través del parámetro "pre_menu_hook".
+
+    En función del código de salida que devuelva esta
+    operación, se decide si mostrar un mensaje de éxito
+    o un mensaje de error.
+
+    Debido a que es relativamente "barato" en cuanto al
+    tiempo que cuesta realizarlo se lo hace de esta
+    manera.
+    """
     ping_exit_code = run_command_and_get_return_code(
         ["ping", "-c", "1", "www.google.com"]
     )
 
     if ping_exit_code != 0:
-        draw_coloured_line(48, "=")
-        bg_colour("red", "¡No cuenta con conexión a Internet!")
-        bg_colour("yellow", "No podrá utilizar algunas opciones del menú.")
+        style_text("bg", "red", "¡No cuenta con conexión a Internet!")
+        style_text(
+            "bg", "yellow", "No podrá utilizar algunas opciones del menú."
+        )
+    else:
+        style_text("bg", "green", "¡Cuenta con conexión a Internet!")
+        style_text(
+            "bg", "yellow", "Podrá utilizar todas las opciones del menú."
+        )
 
 
-def draw_updates_menu():
-    draw_coloured_line(48, "=")
-    print("Apartado para actualizar el software del sistema")
-    draw_coloured_line(48, "=")
-    print("")
-    print("PAQUETES/REPOSITORIOS")
-    draw_coloured_line(21)
-    print("1. Sincronizar repositorios.")
-    print("2. Actualizar el sistema.")
-    print("3. Actualizar las aplicaciones de Flatpak.")
-    print("4. Actualizar el firmware del dispositivo.")
-    print("")
-    print("MISCELÁNEA")
-    draw_coloured_line(10)
-    print("5. Pretender que se va a realizar una actualización.")
-    print("6. Revisar si el sistema está expuesto a fallos de")
-    print("   ciberseguridad.")
-    print("7. SALIR.")
-    print("")
-
-
-def sincronize_repositories():
+def sincronize_repositories() -> None:
+    """
+    sincronize_repositories() es una función utilizada
+    para crear una snapshot del sistema, sincronizar
+    los repositorios y descargar automáticamente el
+    código fuente o binario precompilado de los
+    paquetes que se deban actualizar.
+    """
     title1_str = "Sincronización de repositorios"
     draw_coloured_line(len(title1_str), "=")
     print(title1_str)
     draw_coloured_line(len(title1_str), "=")
     create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
+    print("")
 
     title2_str = "Descarga de código fuente y paquetes"
     draw_coloured_line(len(title2_str), "=")
     print(title2_str)
     draw_coloured_line(len(title2_str), "=")
-    run_command_as_root(["emerge", "-fuDN", "@world"])
+    run_command_as_root(["emerge", "-fuDN", "--ask=n", "@world"])
 
 
-def update_flatpak_apps():
-    title1_str = "Remoción de runtimes viejos"
+def update_flatpak_apps() -> None:
+    """
+    update_flatpak_apps() es una función utilizada
+    para remover runtimes innecesarios y actualizar
+    paquetes de Flatpak.
+    """
+    title1_str = "Remoción de paquetes innecesarios"
     draw_coloured_line(len(title1_str), "=")
     print(title1_str)
     draw_coloured_line(len(title1_str), "=")
     run_command(["flatpak", "uninstall", "--unused", "-y"])
+    print("")
 
-    title2_str = "Actualización de Flatpaks"
+    title2_str = "Actualización de paquetes"
     draw_coloured_line(len(title2_str), "=")
     print(title2_str)
     draw_coloured_line(len(title2_str), "=")
     run_command(["flatpak", "update", "-y"])
 
 
-def update_firmware():
-    # Las dos últimas opciones se ejecutan con "check_return=False"
-    # porque fwupdmgr devuelve códigos de salida distintos de cero
-    # aún cuando no hubo errores de ejecución pero tampoco hay
-    # actualizaciones disponibles.
-    run_command(["fwupdmgr", "refresh", "--force"])
-    run_command(["fwupdmgr", "get-updates"], check_return=False)
-    run_command(["fwupdmgr", "update"], check_return=False)
+CVE_CHECK_MENU_DATA = {
+    "dict_name": "CVE_CHECK_MENU_DATA",
+    "title": "Apartado para controlar posibles fallos de seguridad",
+    "options": [
+        {
+            "name": "Controlar si el sistema está afectado por alguno de"
+            " los fallos publicados.",
+            "action": [["glsa-check", "-t", "all"]],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Obtener los pasos requeridos para remediar un fallo.",
+            "action": [["#UINPUT", "#SPLIT-INPUT", "glsa-check", "-p"]],
+            "aesthetic_action": "clear_screen",
+            "prompt": "Ingrese la ID de un fallo reportado",
+        },
+        {
+            "name": "SALIR.",
+            "action": "exit_menu",
+        },
+    ],
+}
 
 
-def cve_check_menu():
-    while True:
-        clear_screen()
-        draw_coloured_line(56, "=")
-        print("Apartado para verificar si el sistema está expuesto a un")
-        print("un fallo de seguridad")
-        draw_coloured_line(56, "=")
-        print("1. Controlar si el sistema está afectado por alguno de")
-        print("   los fallos publicados.")
-        print("2. Obtener los pasos requeridos para remediar un fallo.")
-        print("3. SALIR.")
-        print("")
-        choice = get_choice(1, 3)
-
-        # Por motivos estéticos, si utilizo alguna de las
-        # opciones que se ejecutan justo debajo del menú,
-        # imprimo un separador.
-        if choice < 3:
-            draw_coloured_line(59)
-
-        match choice:
-            case 1:
-                run_command(["glsa-check", "-t", "all"])
-            case 2:
-                cve_id = get_validated_input(
-                    "Ingrese la ID de un fallo reportado"
-                )
-                print("")
-                run_command(["glsa-check", "-p", f"{cve_id}"])
-            case 3:
-                break
-
-        # Esta llamada a press_enter() pausa la ejecución en
-        # cualquier caso, a excepción de cuando se elige salir
-        # del menú.
-        press_enter()
-
-
-def updates_menu():
-    while True:
-        clear_screen()
-        check_internet_connection()
-        draw_updates_menu()
-        choice = get_choice(1, 7)
-
-        # Antes de ejecutar las opciones, conviene limpiar
-        # la pantalla. De lo contrario, se genera un caos
-        # visual tremendo.
-        if choice < 7:
-            clear_screen()
-
-        match choice:
-            case 1:
-                sincronize_repositories()
-            case 2:
-                run_command_as_root(["emerge", "-uDN", "@world"])
-            case 3:
-                update_flatpak_apps()
-            case 4:
-                update_firmware()
-            case 5:
-                run_command(["emerge", "-puDN", "@world"])
-            case 6:
-                cve_check_menu()
-            case 7:
-                break
-
-        # Esta llamada a press_enter() pausa la ejecución en
-        # cualquier caso, a excepción de cuando se elige salir
-        # del menú o se entra a otro apartado del módulo.
-        if choice < 6:
-            press_enter()
+UPDATES_MENU_DATA = {
+    "dict_name": "UPDATES_MENU_DATA",
+    "title": "Apartado para actualizar el software del sistema",
+    "pre_menu_hook": check_internet_connection,
+    "options": [
+        {"name": "PAQUETES/REPOSITORIOS"},
+        {
+            "name": "Sincronizar repositorios.",
+            "action": [sincronize_repositories],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Actualizar el sistema.",
+            "action": [["#ROOT", "emerge", "-uDN", "@world"]],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Actualizar las aplicaciones de Flatpak.",
+            "action": [update_flatpak_apps],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Actualizar el firmware del dispositivo.",
+            "action": [
+                # Las dos últimas opciones se ejecutan con "check_return=False"
+                # porque fwupdmgr devuelve códigos de salida distintos de cero
+                # aún cuando no hubo errores de ejecución pero tampoco hay
+                # actualizaciones disponibles.
+                (run_command, [["fwupdmgr", "refresh", "--force"]]),
+                (
+                    run_command,
+                    [
+                        ["fwupdmgr", "get-updates"],
+                        check_return := False,
+                        use_shell := False,
+                    ],
+                ),
+                (
+                    run_command,
+                    [
+                        ["fwupdmgr", "update"],
+                        check_return := False,
+                        use_shell := False,
+                    ],
+                ),
+            ],
+            "aesthetic_action": "clear_screen",
+        },
+        {"name": "MISCELÁNEA"},
+        {
+            "name": "Pretender que se va a realizar una actualización.",
+            "action": [["emerge", "-puDN", "@world"]],
+            "aesthetic_action": "clear_screen",
+        },
+        {
+            "name": "Revisar si el sistema está expuesto a fallos de"
+            " ciberseguridad.",
+            "action": CVE_CHECK_MENU_DATA,
+        },
+        {
+            "name": "SALIR.",
+            "action": "exit_menu",
+        },
+    ],
+}
