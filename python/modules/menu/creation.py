@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: ver donde usar keyword arguments.
-
 """
 ========================
 DOCUMENTACIÓN DEL MÓDULO
