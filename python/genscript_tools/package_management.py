@@ -133,7 +133,7 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {"name": "MISCELÁNEA"},
         {
             "name": "SALIR.",
-            "action": "exit_menu",
+            "action": "exit",
         },
     ],
 }

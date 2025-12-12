@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# TODO: ver donde usar keyword arguments.
+
 """
 ========================
 DOCUMENTACIÓN DEL MÓDULO
@@ -20,45 +22,50 @@ diccionario es la siguiente:
    la estructura de datos. Posteriormente se utiliza para poder otorgar
    mensajes de error informativos.
 2. "title": debe contener el texto a mostrar en el encabezado.
-3. "pre_menu_hook": debe contener una referencia a una función a ejecutar, que
-   servirá para llevar a cabo tareas necesarias previo a la impresión por
-   pantalla del encabezado de menú y las opciones.
-4. "options": una lista que debe contener los títulos de los apartados y las
+3. "on_start": debe contener funciones a ejecutar por única vez previo a la
+   ejecución de un script. Debe tratarse de una lista de objetos de función
+   a ejecutar. Véase la sección «Ejecución de acciones arbitrarias en momentos
+   específicos» para más información.
+4. "on_draw": debe contener funciones a ejecutar de manera persistente previo
+   a la impresión del menú de opciones de un script. Debe tratarse de una lista
+   de objetos de función a ejecutar. Véase la sección «Ejecución de acciones
+   arbitrarias en momentos específicos» para más información.
+5. "on_exit": debe contener funciones a ejecutar por única vez luego de que
+   finalice la ejecución de un script. Debe tratarse de una lista de objetos
+   de función a ejecutar. Véase la sección «Ejecución de acciones arbitrarias
+   en momentos específicos» para más información.
+6. "options": una lista que debe contener los títulos de los apartados y las
    opciones a ejecutar. Cada elemento de esta lista es un diccionario que
    puede tener los siguientes parámetros:
-   4.1. "name": el texto a mostrar en el encabezado u opción del menú.
-   4.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
+   6.1. "name": el texto a mostrar en el encabezado u opción del menú.
+   6.2. "action": la acción a realizar. Su tipo de dato depende de la acción a
         realizar:
-        4.2.1. Si se debe entrar a un menu, "action" debe contener una
+        6.2.1. Si se debe entrar a un menu, "action" debe contener una
                referencia al diccionario a pasarle como parámetro a la función
                run_menu(), sin que esta sea una cadena.
-        4.2.2. Si se debe ejecutar una función, "action" puede tener uno de dos
+        6.2.2. Si se debe ejecutar una función, "action" puede tener uno de dos
                formatos:
-               4.2.2.1. Para ejecutar funciones sin que se deban especificar
+               6.2.2.1. Para ejecutar funciones sin que se deban especificar
                         sus parámetros, "action" debe ser una lista de objetos
                         de función. Esto implica que la función no debe tener
                         parámetros obligatorios, de lo contrario, véase el
                         siguiente ítem.
-               4.2.2.2. Para ejecutar funciones especificando sus parámetros,
+               6.2.2.2. Para ejecutar funciones especificando sus parámetros,
                         "action" debe ser una lista de tuplas, donde cada tupla
                         debe contener un objeto de función y una lista con
                         todos los parámetros que se le quieran pasar a la
                         función.
-        4.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
+        6.2.3. Si se deben ejecutar uno o varios comandos, "action" debe
                contener una lista, la cual estará compuesta a su vez por una o
                más listas de cadenas. Para correr comandos con pipes o permisos
                de superusuario, véase la sección «Modos especiales de
                ejecución».
-        4.2.4. Si se desea salir de un menú de opciones para volver a otro menú
-               anterior, "action" deberá contener la cadena 'exit_menu'.
-        4.2.5. Si se desea salir del script, "action" deberá contener la cadena
-               'exit_script'.
-        4.2.6. Si se desea mostrar un título de apartado, "action" debe estar
-               ausente o contener el valor None.
-   4.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
+        6.2.4. Si se desea salir de un menú de opciones, "action" deberá
+               contener la cadena 'exit'.
+   6.3. "aesthetic_action": la acción estética a ejecutar antes de la acción
         principal. Puede contener los valores 'print_line' o 'clear_screen'.
-   4.4. "prompt": el mensaje para solicitar una entrada del usuario.
-   4.5. "env_vars": variables de entorno para modificar el comportamiento de un
+   6.4. "prompt": el mensaje para solicitar una entrada del usuario.
+   6.5. "env_vars": variables de entorno para modificar el comportamiento de un
         comando. Véase la sección «Aplicación de variables de entorno a
         comandos» para obtener instrucciones de uso concretas.
 
@@ -81,6 +88,24 @@ controlada por las siguientes funciones:
 Estas funciones están disponibles en el módulo "validation" de este paquete,
 el cual contiene toda la lógica relacionada a la validación de elementos de un
 diccionario.
+
+### Ejecución de acciones arbitrarias en momentos específicos ###
+De acuerdo a lo visto en la explicación de los parámetros aceptados para un
+diccionario de entrada, es posible definir los campos "on_start", "on_draw" y
+"on_exit" para ejecutar acciones arbitrarias en distintos puntos de la
+ejecución de un script.
+
+Sin embargo, debe considerarse que esta librería esta construida de manera tal
+que las acciones definidas en "on_start" y "on_exit" no generarán ninguna
+salida que se pueda ver por pantalla, ya que dichos parámetros están pensados
+para definir acciones de preparación o limpieza que no requieran interacción
+de ningún tipo por parte del usuario. Asimismo, dichas acciones se ejecutan por
+única vez al iniciar y finalizar la ejecución de un script, y no se repiten de
+manera persistente cada vez que se entra o sale de un menú.
+
+Por el contrario, si lo que se desea es mostrar alertas persistenes de algún
+tipo, entonces se debe usar el parámetro "on_draw", el cual permite imprimir
+cabeceras personalizadas por arriba de la cabecera principal de un menú.
 
 ### Modos especiales de ejecución de comandos ###
 De acuerdo a lo estipulado en el inciso 4.2.3, a la hora de ejecutar uno o más
@@ -144,9 +169,9 @@ Ejemplo:
 ]
 """
 
+import contextlib
 import copy
 import os
-import sys
 import textwrap
 
 from modules.console_ui import (
@@ -154,7 +179,6 @@ from modules.console_ui import (
     draw_coloured_line,
     get_choice,
     get_validated_input,
-    press_enter,
 )
 
 from modules.subprocess_utils import (
@@ -171,9 +195,29 @@ from modules.menu.validation import (
 
 from modules.menu.types import MenuDictionary, OptionDictionary
 from modules.program_tools import get_privilege_elevation_command
+from typing import Callable
 
 
 # --- Funciones privadas ---
+def _execute_external_hooks(hook_list: list[Callable]) -> None:
+    """
+    _execute_external_hooks() es una función utilizada
+    para ejecutar las funciones definidas en los
+    parámetros "on_start" y "on_exit", que permiten
+    realizar acciones arbitrarias antes y luego de la
+    presentación de un menú de opciones.
+    """
+    # La idea es que los hooks ejecutados en
+    # "on_start" y "on_exit" sean únicamente
+    # acciones de apoyo que no requieran
+    # mostrar información por pantalla, así
+    # que se descarta cualquier posible salida
+    # producida por estos.
+    with contextlib.redirect_stdout(None):
+        for hook in hook_list:
+            hook()
+
+
 def _draw_menu(menu_data: MenuDictionary) -> None:
     """
     _draw_menu() es una función utilizada para imprimir
@@ -183,18 +227,20 @@ def _draw_menu(menu_data: MenuDictionary) -> None:
     y cualquier posible encabezado de sección a mostrar
     para dividir las opciones disponibles en apartados.
     """
-    # Ejecución del parámetro "pre_menu_hook", en
-    # caso de que esté definido.
     title_length = len(menu_data["title"])
-    pre_menu_hook = menu_data.get("pre_menu_hook", None)
-    if pre_menu_hook is not None:
-        draw_coloured_line(title_length, "=")
-        pre_menu_hook()
+
+    # Ejecución de hooks definidos en el parámetro
+    # "on_draw", si los hubiera.
+    on_draw_hooks = menu_data.get("on_draw", None)
+    if on_draw_hooks is not None:
+        for hook in on_draw_hooks:
+            draw_coloured_line(length=title_length, symbol="=")
+            hook()
 
     # Impresión del título del menú.
-    draw_coloured_line(title_length, "=")
+    draw_coloured_line(length=title_length, symbol="=")
     print(menu_data["title"])
-    draw_coloured_line(title_length, "=")
+    draw_coloured_line(length=title_length, symbol="=")
 
     # Impresión del menú de opciones.
     option_number = 1
@@ -291,7 +337,7 @@ def _handle_sequential_command_list(menu_option: OptionDictionary) -> None:
     user_input = None
 
     if "prompt" in menu_option:
-        user_input = get_validated_input(menu_option["prompt"])
+        user_input = get_validated_input(msg=menu_option["prompt"])
         print("")
 
     if "env_vars" in menu_option:
@@ -363,7 +409,7 @@ def _handle_piped_command_list(menu_option: OptionDictionary) -> None:
     user_input = None
 
     if "prompt" in menu_option:
-        user_input = get_validated_input(menu_option["prompt"])
+        user_input = get_validated_input(msg=menu_option["prompt"])
         print("")
 
     # Lista para almacenar los comandos
@@ -459,48 +505,82 @@ def run_menu(menu_data: MenuDictionary) -> None:
     _check_basic_dictionary_structure(menu_data)
     _check_top_level_option_keys(menu_data)
 
-    # Ciclo principal para imprimir el menú,
-    # recibir una elección y ejecutarla.
-    while True:
-        # Impresión por pantalla del menú.
-        clear_screen()
-        _draw_menu(menu_data)
+    # Limpieza de pantalla y ejecución de posibles
+    # acciones previo a la impresión del menú de
+    # opciones.
+    on_start_hooks = menu_data.get("on_start", None)
+    if on_start_hooks is not None:
+        _execute_external_hooks(on_start_hooks)
 
-        # Determinación de la opción elegida
-        # por el usuario.
-        options = _get_command_options(menu_data)
-        option_number = get_choice(1, len(options))
-        option = options[option_number - 1]
-
-        # Control de formato de la acción elegida
-        # por el usuario.
-        _check_action(option, menu_data["dict_name"])
-
-        # En primera instancia, se controla si el
-        # usuario desea salir o dirigirse a otro
-        # menú de un script.
-        # En caso de que no se desee hacer ninguna
-        # de estas cosas, se prosigue con las
-        # opciones de ejecución definidas abajo.
-        action = option["action"]
-        if isinstance(action, dict):
-            run_menu(action)
-            continue
-        elif isinstance(action, str) and action == "exit_menu":
-            break
-        elif isinstance(action, str) and action == "exit_script":
-            sys.exit(0)
-
-        # Ejecución de la acción estética definida
-        # en la opción elegida por el usuario, así
-        # como de la acción principal.
-        if option["aesthetic_action"] == "clear_screen":
+    try:
+        # Ciclo principal para imprimir el menú,
+        # recibir una elección y ejecutarla.
+        while True:
+            # Impresión por pantalla del menú.
             clear_screen()
-        elif option["aesthetic_action"] == "print_line":
-            draw_coloured_line(len(menu_data["title"]))
-        _handle_action(option)
+            _draw_menu(menu_data)
 
-        # Se pausa la ejecución del script tras
-        # ejecutar una opción para ver la salida
-        # que produce por pantalla.
-        press_enter()
+            # Determinación de la opción elegida
+            # por el usuario.
+            options = _get_command_options(menu_data)
+            option_number = get_choice(1, len(options))
+            option = options[option_number - 1]
+
+            # Control de formato de la acción elegida
+            # por el usuario.
+            _check_action(menu_option=option, dict_name=menu_data["dict_name"])
+
+            # En primera instancia, se controla si el
+            # usuario desea salir o dirigirse a otro
+            # menú de un script.
+            # En caso de que no se desee hacer ninguna
+            # de estas cosas, se prosigue con las
+            # opciones de ejecución definidas abajo.
+            action = option["action"]
+            if isinstance(action, dict):
+                run_menu(action)
+                continue
+            elif isinstance(action, str):
+                break
+
+            # Ejecución de la acción estética definida
+            # en la opción elegida por el usuario.
+            if option["aesthetic_action"] == "clear_screen":
+                clear_screen()
+            else:
+                draw_coloured_line(len(menu_data["title"]))
+
+            # Ejecución de la acción principal elegida
+            # por el usuario.
+            while True:
+                _handle_action(option)
+
+                # Luego de ejecutar la acción por primera
+                # vez, se imprime el separador y se le
+                # consulta al usuario si desea volver a
+                # repetir la acción.
+                draw_coloured_line(len(menu_data["title"]))
+                user_choice = None
+
+                while user_choice not in ["S", "N"]:
+                    user_choice = get_validated_input(
+                        "¿Desea volver a ejecutar la opción? [S/N]"
+                    )
+
+                if user_choice == "N":
+                    break
+                else:
+                    # Para las siguientes ejecuciones de una
+                    # acción se limpia la pantalla, con la
+                    # finalidad de que no se vayan apilando
+                    # todas las salidas mostradas por pantalla
+                    # por cada iteración.
+                    clear_screen()
+    finally:
+        # Tras finalizar la ejecución del script,
+        # se ejecutan las acciones de finalización
+        # definidas en el diccionario de entrada, si
+        # las hubiera.
+        on_exit_hooks = menu_data.get("on_exit", None)
+        if on_exit_hooks is not None:
+            _execute_external_hooks(on_exit_hooks)

@@ -20,15 +20,12 @@ from typing import (
     TypedDict,
     NotRequired,
     Required,
-    Never,
 )
 
 
 # --- Tipos de dato de las diferentes clases de acciones ejecutables ---
 SequentialCommandList = list[list[str]]
-
 PipedCommandList = list[str | list[str]]
-
 FunctionList = list[Callable[..., Any]]
 
 CustomParametersFunctionList = list[
@@ -47,12 +44,14 @@ CustomParametersFunctionList = list[
 PossibleActionParameterTypes = Union[
     # Esta unión representa que el valor
     # del parámetro "action" podría tener
-    # una lista en cualquiera de los
-    # formatos indicados a continuación.
-    SequentialCommandList,
-    PipedCommandList,
+    # uno de los formatos indicados a
+    # continuación.
+    dict,
     FunctionList,
     CustomParametersFunctionList,
+    SequentialCommandList,
+    PipedCommandList,
+    str,
 ]
 
 # --- Tipo de dato de las tuplas que contienen variables de entorno ---
@@ -85,5 +84,7 @@ class OptionDictionary(TypedDict, total=False):
 class MenuDictionary(TypedDict, total=False):
     dict_name: Required[str]
     title: Required[str]
-    pre_menu_hook: NotRequired[Callable[..., Any]]
+    on_start: NotRequired[list[Callable]]
+    on_draw: NotRequired[list[Callable]]
+    on_exit: NotRequired[list[Callable]]
     options: Required[list[OptionDictionary]]

@@ -31,7 +31,7 @@ def _get_snapper_config_list() -> list[tuple[str, str]]:
     a la que está asociada.
     """
     snapper_raw_output = run_command(
-        ["snapper", "--machine-readable", "json", "list-configs"],
+        command=["snapper", "--machine-readable", "json", "list-configs"],
         return_output=True,
     )
 
@@ -55,9 +55,9 @@ def _get_snapper_config_list() -> list[tuple[str, str]]:
         # Si no se puede procesar el JSON obtenido
         # correctamente, es mejor salir de inmediato.
         style_text(
-            "bg",
-            "red",
-            "No se pudo obtener la lista de configuraciones de Snapper."
+            colour_type="bg",
+            colour="red",
+            text="No se pudo obtener la lista de configuraciones de Snapper."
             f" Hubo un error al procesar la variable '{json_error.doc}'."
             "\nEl procesamiento empezó a fallar en la posición"
             f" {json_error.pos}, línea {json_error.lineno} y columna"
@@ -82,9 +82,10 @@ def get_snapshots_list() -> None:
 
     for config, subvolume in config_list:
         title_str = f"Snapshots del subvolumen '{subvolume}'"
-        draw_coloured_line(len(title_str), "=")
+        title_str_length = len(title_str)
+        draw_coloured_line(length=title_str_length, symbol="=")
         print(title_str)
-        draw_coloured_line(len(title_str), "=")
+        draw_coloured_line(length=title_str_length, symbol="=")
         run_command(["snapper", "-c", f"{config}", "list"])
 
         # Si todavía no se está trabajando con
@@ -196,7 +197,7 @@ SNAPSHOT_MANAGEMENT_MENU_DATA = {
         {"name": "MISCELÁNEA"},
         {
             "name": "SALIR.",
-            "action": "exit_menu",
+            "action": "exit",
         },
     ],
 }

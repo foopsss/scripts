@@ -40,7 +40,7 @@ USE_FLAGS_MENU_DATA = {
         },
         {
             "name": "SALIR.",
-            "action": "exit_menu",
+            "action": "exit",
         },
     ],
 }

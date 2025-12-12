@@ -12,13 +12,13 @@ import functools
 import shutil
 import sys
 
-from typing import NoReturn
+from typing import Callable, NoReturn
 
 from modules.console_ui import style_text
 
 
 def execute_with_interrupt_handler(
-    function: callable, *args, **kwargs
+    function: Callable, *args, **kwargs
 ) -> NoReturn:
     """
     execute_with_interrupt_handler() es una función
@@ -42,9 +42,10 @@ def execute_with_interrupt_handler(
         # Se devuelve el número 1 como código
         # de salida.
         style_text(
-            "bg",
-            "red",
-            "\nEjecución del programa interrupida manualmente. \n¡Saliendo!",
+            colour_type="bg",
+            colour="red",
+            text="\nEjecución del programa interrupida manualmente."
+            "\n¡Saliendo!",
         )
         sys.exit(1)
 

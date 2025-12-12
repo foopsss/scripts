@@ -187,6 +187,47 @@ def _check_env_vars_parameter_structure(
                 raise TypeError(error_msg)
 
 
+def _check_hook_parameter_structure(
+    hook: list[Callable],
+    hook_name: str,
+    dict_name: str,
+) -> None:
+    """
+    _check_hook_parameter_structure() es una
+    función utilizada para verificar que los
+    parámetros "on_start", "on_draw" y
+    "on_exit" tengan el formato correcto en
+    caso de ser definidos en un diccionario
+    de menú.
+
+    Esta función no valida el parámetro
+    "dict_name" porque se espera que ya llegue
+    con el valor correcto.
+    """
+    if not isinstance(hook_name, str):
+        raise TypeError("El parámetro 'hook_name' debe ser una cadena.")
+
+    error_msg = (
+        f"El parámetro '{hook_name}' fue definido con el formato incorrecto en"
+        f" el diccionario {dict_name}."
+        "\nDebería tratarse de una lista de objetos de función a ejecutar."
+    )
+
+    # Si "hook" no es una lista,
+    # se aborta inmediatamente.
+    if not isinstance(hook, list):
+        raise TypeError(error_msg)
+
+    # Si "hook" es una lista, se
+    # deben revisar sus contenidos.
+    for item in hook:
+        # Si alguno de los elementos de
+        # la lista no es un objeto de
+        # función, se aborta inmediatamente.
+        if not callable(item):
+            raise TypeError(error_msg)
+
+
 # --- Funciones privadas para realizar controles estructurales ---
 def _check_dictionary_keys(
     dictionary: dict[Any, Any], dictionary_type: Literal["main", "option"]
@@ -216,7 +257,9 @@ def _check_dictionary_keys(
     ADMITTED_MAIN_DICTIONARY_KEYS = [
         "dict_name",
         "title",
-        "pre_menu_hook",
+        "on_start",
+        "on_draw",
+        "on_exit",
         "options",
     ]
 
@@ -261,32 +304,51 @@ def _check_basic_dictionary_structure(menu_data: MenuDictionary) -> None:
     recibido porque se espera que ya llegue con el
     tipo correcto a la hora de llamar a esta función.
     """
-    _check_dictionary_keys(menu_data, "main")
+    # Control de formato de las llaves del diccionario.
+    _check_dictionary_keys(dictionary=menu_data, dictionary_type="main")
+
     dict_name = menu_data.get("dict_name", None)
     title = menu_data.get("title", None)
     options = menu_data.get("options", None)
-    pre_menu_hook = menu_data.get("pre_menu_hook", None)
+    on_start = menu_data.get("on_start", None)
+    on_draw = menu_data.get("on_draw", None)
+    on_exit = menu_data.get("on_exit", None)
 
     # Control del parámetro "dict_name".
-    _check_parameter("dict_name", dict_name, str)
+    _check_parameter(
+        err_msg_context="dict_name", parameter=dict_name, expected_type=str
+    )
 
     # Control del parámetro "title".
-    _check_parameter(f"'title' en el diccionario {dict_name}", title, str)
+    _check_parameter(
+        err_msg_context=f"'title' en el diccionario {dict_name}",
+        parameter=title,
+        expected_type=str,
+    )
 
     # Control del parámetro "options".
     _check_parameter(
-        f"'options' en el diccionario {dict_name}",
-        options,
-        list,
+        err_msg_context=f"'options' en el diccionario {dict_name}",
+        parameter=options,
+        expected_type=list,
     )
 
-    # Control del parámetro "pre_menu_hook".
-    if pre_menu_hook is not None and not callable(pre_menu_hook):
-        raise TypeError(
-            "Revise el parámetro 'pre_menu_hook' en el diccionario"
-            f" {dict_name}."
-            "\nMotivo: 'pre_menu_hook' únicamente puede tratarse de"
-            " un objeto de función."
+    # Control del parámetro "on_start".
+    if on_start is not None:
+        _check_hook_parameter_structure(
+            hook=on_start, hook_name="on_start", dict_name=dict_name
+        )
+
+    # Control del parámetro "on_draw".
+    if on_draw is not None:
+        _check_hook_parameter_structure(
+            hook=on_draw, hook_name="on_draw", dict_name=dict_name
+        )
+
+    # Control del parámetro "on_exit".
+    if on_exit is not None:
+        _check_hook_parameter_structure(
+            hook=on_exit, hook_name="on_exit", dict_name=dict_name
         )
 
 
@@ -314,7 +376,9 @@ def _check_top_level_option_keys(menu_data: MenuDictionary) -> None:
     # Iteración sobre los elementos del parámetro
     # "options".
     for option in menu_data["options"]:
-        _check_dictionary_keys(option, "option")
+        # Control de formato de las llaves del diccionario de opción.
+        _check_dictionary_keys(dictionary=option, dictionary_type="option")
+
         option_counter += 1
         name = option.get("name", None)
         action = option.get("action", None)
@@ -324,10 +388,10 @@ def _check_top_level_option_keys(menu_data: MenuDictionary) -> None:
 
         # Evaluación de la llave 'name'.
         _check_parameter(
-            f"'name' en el elemento N.° {option_counter} del parámetro"
-            f" 'options' del diccionario {dict_name}",
-            name,
-            str,
+            err_msg_context=f"'name' en el elemento N.° {option_counter} del"
+            f" parámetro 'options' del diccionario {dict_name}",
+            parameter=name,
+            expected_type=str,
         )
 
         # Evaluación de la llave 'aesthetic_action'.
@@ -366,10 +430,10 @@ def _check_top_level_option_keys(menu_data: MenuDictionary) -> None:
 
         # Evaluación de la llave 'prompt'.
         _check_parameter(
-            f"'prompt' en el elemento N.° {option_counter} del parámetro"
-            f" 'options' del diccionario {dict_name}",
-            prompt,
-            str,
+            err_msg_context=f"'prompt' en el elemento N.° {option_counter} del"
+            f" parámetro 'options' del diccionario {dict_name}",
+            parameter=prompt,
+            expected_type=str,
             is_optional=True,
         )
 
@@ -378,7 +442,9 @@ def _check_top_level_option_keys(menu_data: MenuDictionary) -> None:
             # Si la llave no tiene el formato correcto,
             # avisar al usuario.
             _check_env_vars_parameter_structure(
-                env_vars, option_counter, dict_name
+                env_vars=env_vars,
+                option_number=option_counter,
+                dict_name=dict_name,
             )
 
             # Si la llave no está definida cuando debería
@@ -409,20 +475,19 @@ def _check_action_string(
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    EXIT_STRINGS = ["exit_script", "exit_menu"]
     action = menu_option["action"]
     action_name = menu_option["name"]
 
     # Verificación del parámetro para asegurarse de
     # que únicamente contiene uno de los valores
     # permitidos.
-    if action not in EXIT_STRINGS:
+    if action != "exit":
         raise ValueError(
             "Revise el parámetro 'action' en el elemento con el nombre"
             f" '{action_name}' del parámetro 'options' del diccionario"
             f" {dict_name}."
-            "\nMotivo: el parámetro 'action' únicamente admite los valores"
-            " 'exit_script' y 'exit_menu' en caso de ser una cadena."
+            "\nMotivo: el parámetro 'action' únicamente admite el valor"
+            " 'exit' en caso de ser una cadena."
         )
 
 
@@ -590,9 +655,9 @@ def _check_action_command_list(
     if len(commands_with_repeated_tags) > 0:
         warnings.warn(
             style_text(
-                "bg",
-                "yellow",
-                "\nRevise el parámetro 'action' en el elemento con el"
+                colour_type="bg",
+                colour="yellow",
+                text="\nRevise el parámetro 'action' en el elemento con el"
                 f" nombre '{action_name}' del parámetro 'options' del"
                 f" diccionario {dict_name}."
                 "\nMotivo: una o más etiquetas están repetidas en uno o"
@@ -782,14 +847,20 @@ def _check_action(menu_option: OptionDictionary, dict_name: str) -> None:
     action_name = menu_option["name"]
 
     if isinstance(action, str):
-        _check_action_string(menu_option, dict_name)
+        _check_action_string(menu_option=menu_option, dict_name=dict_name)
     elif isinstance(action, list):
         if all(isinstance(item, (str, list)) for item in action):
-            _check_action_command_list(menu_option, dict_name)
+            _check_action_command_list(
+                menu_option=menu_option, dict_name=dict_name
+            )
         elif all(callable(item) for item in action):
-            _check_action_simple_function_list(menu_option, dict_name)
+            _check_action_simple_function_list(
+                menu_option=menu_option, dict_name=dict_name
+            )
         elif all(isinstance(item, tuple) for item in action):
-            _check_action_tuple_call_list(menu_option, dict_name)
+            _check_action_tuple_call_list(
+                menu_option=menu_option, dict_name=dict_name
+            )
         else:
             raise TypeError(
                 "Revise el parámetro 'action' en el elemento con el nombre"

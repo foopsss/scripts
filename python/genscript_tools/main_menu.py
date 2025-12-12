@@ -39,13 +39,21 @@ def clean_thumbnails() -> None:
     if os.path.exists(thumbdir):
         try:
             shutil.rmtree(thumbdir)
-            style_text("bg", "green", "La carpeta fue borrada exitosamente.")
+            style_text(
+                colour_type="bg",
+                colour="green",
+                text="La carpeta fue borrada exitosamente.",
+            )
         except OSError as error:
-            style_text("bg", "red", "La operación ha fallado.")
+            style_text(
+                colour_type="bg", colour="red", text="La operación ha fallado."
+            )
             print(f"{error}")
     else:
         style_text(
-            "bg", "blue", "¡La carpeta no existe! No se ha borrado nada."
+            colour_type="bg",
+            colour="blue",
+            text="¡La carpeta no existe! No se ha borrado nada.",
         )
 
 
@@ -88,9 +96,9 @@ def _get_news_count(result_container: list) -> None:
         # Si no se puede obtener el número de noticias
         # correctamente, es mejor salir de inmediato.
         style_text(
-            "bg",
-            "red",
-            "Se produjo un error del sistema al procesar la carpeta"
+            colour_type="bg",
+            colour="red",
+            text="Se produjo un error del sistema al procesar la carpeta"
             f" '{news_folder}' y no se pudo obtener la cantidad de"
             " entradas de noticias de Gentoo disponibles para leer."
             f"\nEl error encontrado es: {os_error}.",
@@ -117,8 +125,7 @@ def read_news() -> None:
     # mismo tiempo.
     result_container = []
     count_thread = threading.Thread(
-        target=_get_news_count,
-        args=[result_container],
+        target=_get_news_count, args=[result_container]
     )
     count_thread.start()
 
@@ -128,7 +135,9 @@ def read_news() -> None:
     # ejecutó exitosamente, debo desactivar el control
     # de errores para este programa.
     run_command(
-        ["eselect", "news", "list"], check_return=False, use_shell=False
+        command=["eselect", "news", "list"],
+        check_return=False,
+        use_shell=False,
     )
     print("")
 
@@ -143,7 +152,7 @@ def read_news() -> None:
     # para poder pasar la entrada de noticias por less.
     entry = get_choice(1, news_count)
     run_command(
-        f"eselect news read {entry} | less",
+        command=f"eselect news read {entry} | less",
         check_return=True,
         use_shell=True,
     )
@@ -202,7 +211,7 @@ MAIN_MENU_DATA = {
         },
         {
             "name": "SALIR.",
-            "action": "exit_script",
+            "action": "exit",
         },
     ],
 }

@@ -191,8 +191,8 @@ def draw_coloured_line(
     realizados con respecto a los parámetros de dichas
     funciones.
     """
-    line_str = draw_line(length, symbol, print_line=False)
-    style_text("fg", colour, line_str, print_line=True)
+    line_str = draw_line(length=length, symbol=symbol, print_line=False)
+    style_text(colour_type="fg", colour=colour, text=line_str, print_line=True)
 
 
 # --- Funciones públicas para recibir entradas del usuario ---
@@ -225,10 +225,16 @@ def get_validated_input(
         # se necesita recibir un número, hay que imprimir un
         # mensaje de error y solicitar una elección correcta.
         if input_str == "":
-            style_text("bg", "red", "¡Introduzca un valor!")
+            style_text(
+                colour_type="bg", colour="red", text="¡Introduzca un valor!"
+            )
             continue
         elif return_type == "int" and not input_str.isdigit():
-            style_text("bg", "red", "¡Solo se pueden introducir números!")
+            style_text(
+                colour_type="bg",
+                colour="red",
+                text="¡Solo se pueden introducir números!",
+            )
             continue
         else:
             break
@@ -274,15 +280,18 @@ def get_choice(low_lim: int, upp_lim: int) -> int:
 
     while True:
         choice = get_validated_input(
-            msg="Ingrese su elección",
-            return_type="int",
+            msg="Ingrese su elección", return_type="int"
         )
 
         if choice < low_lim or choice > upp_lim:
             # Si el usuario introduce un valor por fuera del
             # rango aceptado, hay que imprimir un mensaje de
             # error y luego solicitarle una elección correcta.
-            style_text("bg", "red", "¡Introduzca un número válido!")
+            style_text(
+                colour_type="bg",
+                colour="red",
+                text="¡Introduzca un número válido!",
+            )
             continue
         else:
             # De lo contrario, se puede seguir con el programa.

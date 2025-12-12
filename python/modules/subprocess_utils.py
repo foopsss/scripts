@@ -137,22 +137,20 @@ def _run_commands_exception_handler(
             # Si el comando no logra ejecutarse correctamente por algún
             # motivo, se manejará este error.
             style_text(
-                "bg",
-                "red",
-                f"Error de ejecución del comando {exec_error.cmd}.",
-            )
-            style_text(
-                "bg", "red", f"Código de salida: {exec_error.returncode}."
+                colour_type="bg",
+                colour="red",
+                text=f"Error de ejecución del comando {exec_error.cmd}."
+                f"\nCódigo de salida: {exec_error.returncode}.",
             )
             return None
         except subprocess.TimeoutExpired as timeout_error:
             # Si el comando no logra ejecutarse aún después de esperar
             # una determinada cantidad de tiempo, se manejará este error.
             style_text(
-                "bg",
-                "red",
-                f"Se esperaron {timeout_error.timeout} segundos para ejecutar"
-                f" el comando {timeout_error.cmd}, pero no se recibió"
+                colour_type="bg",
+                colour="red",
+                text=f"Se esperaron {timeout_error.timeout} segundos para"
+                f" ejecutar el comando {timeout_error.cmd}, pero no se recibió"
                 " respuesta.",
             )
             return None
@@ -161,19 +159,19 @@ def _run_commands_exception_handler(
             # programa que no está instalado, invocado incorrectamente,
             # o cualquier otra razón, se manejará este error.
             style_text(
-                "bg",
-                "red",
-                f"No existe el comando '{filenotfound_error.filename}'.",
+                colour_type="bg",
+                colour="red",
+                text=f"No existe el comando '{filenotfound_error.filename}'.",
             )
             return None
         except OSError as os_error:
             # Manejo de errores relacionados con el SO como "archivo
             # no encontrado", "permiso denegado", etc.
             style_text(
-                "bg",
-                "red",
-                "Se ha producido un error del SO durante la ejecución de un"
-                " programa."
+                colour_type="bg",
+                colour="red",
+                text="Se ha producido un error del SO durante la ejecución de"
+                " un programa."
                 f"\nEl error encontrado es: {os_error}.",
             )
             return None
@@ -181,9 +179,9 @@ def _run_commands_exception_handler(
             # Cualquier otro error que no se haya podido manejar
             # anteriormente se tratará acá.
             style_text(
-                "bg",
-                "red",
-                "Se produjo un error inesperado al ejecutar el comando."
+                colour_type="bg",
+                colour="red",
+                text="Se produjo un error inesperado al ejecutar el comando."
                 f"\nError encontrado: {unknown_error}.",
             )
             return None
@@ -229,9 +227,9 @@ def run_command(
             " con use_shell=True. No es seguro."
         )
 
-    _check_command_argument_type(command, use_shell)
+    _check_command_argument_type(command=command, use_shell=use_shell)
     result = subprocess.run(
-        command,
+        args=command,
         check=check_return,
         shell=use_shell,
         capture_output=return_output,
@@ -265,7 +263,7 @@ def run_command_as_root(
             " lógicos."
         )
 
-    _check_command_argument_type(command, use_shell)
+    _check_command_argument_type(command=command, use_shell=use_shell)
     root_cmd = get_privilege_elevation_command()
 
     if use_shell:
@@ -274,7 +272,7 @@ def run_command_as_root(
         command_to_run = [f"{root_cmd}"] + command
 
     result = subprocess.run(
-        command_to_run,
+        args=command_to_run,
         check=True,
         shell=use_shell,
         capture_output=return_output,
@@ -298,8 +296,8 @@ def run_command_and_get_return_code(command: list[str]) -> int | None:
     de salida de la función. Tampoco se muestra por pantalla la salida
     estándar o el error estándar del comando externo ejecutado.
     """
-    _check_command_argument_type(command, use_shell=False)
-    result = subprocess.run(command, check=False, capture_output=True)
+    _check_command_argument_type(command=command, use_shell=False)
+    result = subprocess.run(args=command, check=False, capture_output=True)
     return result.returncode
 
 
@@ -316,17 +314,17 @@ def pipe_commands(
     Recibe como entrada dos listas con los programas
     a ejecutar.
     """
-    _check_command_argument_type(first_command, use_shell=False)
-    _check_command_argument_type(second_command, use_shell=False)
+    _check_command_argument_type(command=first_command, use_shell=False)
+    _check_command_argument_type(command=second_command, use_shell=False)
 
     with subprocess.Popen(
-        first_command,
+        args=first_command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     ) as first_process:
         with subprocess.Popen(
-            second_command,
+            args=second_command,
             stdin=first_process.stdout,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

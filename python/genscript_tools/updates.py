@@ -39,14 +39,26 @@ def check_internet_connection() -> None:
     )
 
     if ping_exit_code != 0:
-        style_text("bg", "red", "¡No cuenta con conexión a Internet!")
         style_text(
-            "bg", "yellow", "No podrá utilizar algunas opciones del menú."
+            colour_type="bg",
+            colour="red",
+            text="¡No cuenta con conexión a Internet!",
+        )
+        style_text(
+            colour_type="bg",
+            colour="yellow",
+            text="No podrá utilizar algunas opciones del menú.",
         )
     else:
-        style_text("bg", "green", "¡Cuenta con conexión a Internet!")
         style_text(
-            "bg", "yellow", "Podrá utilizar todas las opciones del menú."
+            colour_type="bg",
+            colour="green",
+            text="¡Cuenta con conexión a Internet!",
+        )
+        style_text(
+            colour_type="bg",
+            colour="yellow",
+            text="Podrá utilizar todas las opciones del menú.",
         )
 
 
@@ -59,17 +71,19 @@ def sincronize_repositories() -> None:
     paquetes que se deban actualizar.
     """
     title1_str = "Sincronización de repositorios"
-    draw_coloured_line(len(title1_str), "=")
+    title1_str_length = len(title1_str)
+    draw_coloured_line(title1_str_length, "=")
     print(title1_str)
-    draw_coloured_line(len(title1_str), "=")
+    draw_coloured_line(title1_str_length, "=")
     create_system_snapshot("Snapshot previa a una actualización del sistema")
     run_command_as_root(["emaint", "-a", "sync"])
     print("")
 
     title2_str = "Descarga de código fuente y paquetes"
-    draw_coloured_line(len(title2_str), "=")
+    title2_str_length = len(title2_str)
+    draw_coloured_line(title2_str_length, "=")
     print(title2_str)
-    draw_coloured_line(len(title2_str), "=")
+    draw_coloured_line(title2_str_length, "=")
     run_command_as_root(["emerge", "-fuDN", "--ask=n", "@world"])
 
 
@@ -80,16 +94,18 @@ def update_flatpak_apps() -> None:
     paquetes de Flatpak.
     """
     title1_str = "Remoción de paquetes innecesarios"
-    draw_coloured_line(len(title1_str), "=")
+    title1_str_length = len(title1_str)
+    draw_coloured_line(title1_str_length, "=")
     print(title1_str)
-    draw_coloured_line(len(title1_str), "=")
+    draw_coloured_line(title1_str_length, "=")
     run_command(["flatpak", "uninstall", "--unused", "-y"])
     print("")
 
     title2_str = "Actualización de paquetes"
-    draw_coloured_line(len(title2_str), "=")
+    title2_str_length = len(title2_str)
+    draw_coloured_line(title2_str_length, "=")
     print(title2_str)
-    draw_coloured_line(len(title2_str), "=")
+    draw_coloured_line(title2_str_length, "=")
     run_command(["flatpak", "update", "-y"])
 
 
@@ -111,7 +127,7 @@ CVE_CHECK_MENU_DATA = {
         },
         {
             "name": "SALIR.",
-            "action": "exit_menu",
+            "action": "exit",
         },
     ],
 }
@@ -120,7 +136,7 @@ CVE_CHECK_MENU_DATA = {
 UPDATES_MENU_DATA = {
     "dict_name": "UPDATES_MENU_DATA",
     "title": "Apartado para actualizar el software del sistema",
-    "pre_menu_hook": check_internet_connection,
+    "on_draw": [check_internet_connection],
     "options": [
         {"name": "PAQUETES/REPOSITORIOS"},
         {
@@ -178,7 +194,7 @@ UPDATES_MENU_DATA = {
         },
         {
             "name": "SALIR.",
-            "action": "exit_menu",
+            "action": "exit",
         },
     ],
 }
