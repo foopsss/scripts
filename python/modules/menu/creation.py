@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# TODO: ver una manera de hacer que la letra introducida por el usuario cuando
+#       se le ofrece repetir sea consumida automáticamente, sin que el usuario
+#       presione ENTER.
+#       ** Link: https://stackoverflow.com/a/67939368
+
 """
 ========================
 DOCUMENTACIÓN DEL MÓDULO
@@ -209,8 +214,14 @@ def _execute_external_hooks(hook_list: list[Callable]) -> None:
     # "on_start" y "on_exit" sean únicamente
     # acciones de apoyo que no requieran
     # mostrar información por pantalla, así
-    # que se descarta cualquier posible salida
-    # producida por estos.
+    # que se trata de descartar todas las
+    # posibles salidas producidas por estos.
+    #
+    # Sin embargo, las salidas producidas por
+    # un comando ejecutado con run_command
+    # deben ser capturadas a mano y descartadas
+    # con dicha función, porque redirect_stdout
+    # no permite descartarlas.
     with contextlib.redirect_stdout(None):
         for hook in hook_list:
             hook()
