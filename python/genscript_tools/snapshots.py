@@ -32,7 +32,7 @@ def _get_snapper_config_list() -> list[tuple[str, str]]:
     """
     snapper_raw_output = run_command(
         command=["snapper", "--machine-readable", "json", "list-configs"],
-        return_output=True,
+        capture_output=True,
     )
 
     try:

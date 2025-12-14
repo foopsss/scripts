@@ -196,7 +196,7 @@ def run_command(
     command: list[str] | str,
     check_return: bool = True,
     use_shell: bool = False,
-    return_output: bool = False,
+    capture_output: bool = False,
     custom_env: dict = None,
 ) -> None | subprocess.CompletedProcess:
     """
@@ -214,10 +214,10 @@ def run_command(
     if (
         not isinstance(check_return, bool)
         or not isinstance(use_shell, bool)
-        or not isinstance(return_output, bool)
+        or not isinstance(capture_output, bool)
     ):
         raise TypeError(
-            "Los parámetros 'check_return', 'use_shell' y 'return_output'"
+            "Los parámetros 'check_return', 'use_shell' y 'capture_output'"
             " deben ser valores lógicos."
         )
 
@@ -232,12 +232,12 @@ def run_command(
         args=command,
         check=check_return,
         shell=use_shell,
-        capture_output=return_output,
-        text=return_output,
+        capture_output=capture_output,
+        text=capture_output,
         env=custom_env,
     )
 
-    if return_output:
+    if capture_output:
         return result
 
 
@@ -245,7 +245,7 @@ def run_command(
 def run_command_as_root(
     command: list[str] | str,
     use_shell: bool = False,
-    return_output: bool = False,
+    capture_output: bool = False,
 ) -> None | subprocess.CompletedProcess:
     """
     run_command_as_root() es un wrapper de subprocess.run
@@ -257,9 +257,9 @@ def run_command_as_root(
     A diferencia de run_command(), no permite desactivar
     el control de errores.
     """
-    if not isinstance(use_shell, bool) or not isinstance(return_output, bool):
+    if not isinstance(use_shell, bool) or not isinstance(capture_output, bool):
         raise TypeError(
-            "Los parámetros 'use_shell' y 'return_output' deben ser valores"
+            "Los parámetros 'use_shell' y 'capture_output' deben ser valores"
             " lógicos."
         )
 
@@ -275,11 +275,11 @@ def run_command_as_root(
         args=command_to_run,
         check=True,
         shell=use_shell,
-        capture_output=return_output,
-        text=return_output,
+        capture_output=capture_output,
+        text=capture_output,
     )
 
-    if return_output:
+    if capture_output:
         return result
 
 
