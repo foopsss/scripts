@@ -284,24 +284,6 @@ def run_command_as_root(
 
 
 @_run_commands_exception_handler
-def run_command_and_get_return_code(command: list[str]) -> int | None:
-    """
-    run_command_and_get_return_code() es un wrapper de subprocess.run()
-    que sirve para ejecutar comandos externos y almacenar el código de
-    salida de estos.
-
-    A diferencia de las otras funciones, el control de errores está
-    desactivado para que no se produzca una excepción del tipo
-    subprocess.CalledProcessError, devolviendo directamente el código
-    de salida de la función. Tampoco se muestra por pantalla la salida
-    estándar o el error estándar del comando externo ejecutado.
-    """
-    _check_command_argument_type(command=command, use_shell=False)
-    result = subprocess.run(args=command, check=False, capture_output=True)
-    return result.returncode
-
-
-@_run_commands_exception_handler
 def pipe_commands(
     first_command: list[str], second_command: list[str]
 ) -> str | None:

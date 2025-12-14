@@ -5,17 +5,8 @@
 # sys-apps/flatpak   - provee "flatpak".
 # sys-apps/fwupd     - provee "fwupdmgr".
 
-from modules.console_ui import (
-    style_text,
-    draw_coloured_line,
-)
-
-from modules.subprocess_utils import (
-    run_command,
-    run_command_and_get_return_code,
-    run_command_as_root,
-)
-
+from modules.console_ui import style_text, draw_coloured_line
+from modules.subprocess_utils import run_command, run_command_as_root
 from genscript_tools.snapshots import create_system_snapshot
 
 
@@ -34,11 +25,11 @@ def check_internet_connection() -> None:
     tiempo que cuesta realizarlo se lo hace de esta
     manera.
     """
-    ping_exit_code = run_command_and_get_return_code(
-        ["ping", "-c", "1", "www.google.com"]
+    ping = run_command(
+        command=["ping", "-c", "1", "www.google.com"], capture_output=True
     )
 
-    if ping_exit_code != 0:
+    if ping.returncode != 0:
         style_text(
             colour_type="bg",
             colour="red",
