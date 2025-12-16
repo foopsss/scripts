@@ -30,17 +30,27 @@ def _get_snapper_config_list() -> list[tuple[str, str]]:
     configuración de Snapper y el subvolumen
     a la que está asociada.
     """
+    # Acá no se debe olvidar que, por defecto, una
+    # invocación a run_commmand devuelve como resultado
+    # un objeto de tipo subprocess.CompletedProcess en
+    # caso de que se haya ejecutado correctamente la
+    # operación y se quiera almacenar el resultado.
+    #
+    # Por lo tanto, para acceder a la salida emitida
+    # por un comando ejecutado con run_command se debe
+    # utilizar el método "stdout" para acceder a dicha
+    # salida.
     snapper_raw_output = run_command(
         command=["snapper", "--machine-readable", "json", "list-configs"],
         capture_output=True,
-    )
+    ).stdout
 
     try:
         # Si el comando funcionó correctamente,
         # se puede tratar de obtener la lista de
         # configuraciones existentes a partir de
         # la salida provista por Snapper.
-        snapper_json_output = json.loads(snapper_raw_output.stdout)
+        snapper_json_output = json.loads(snapper_raw_output)
         config_list = []
 
         for element in snapper_json_output["configs"]:
