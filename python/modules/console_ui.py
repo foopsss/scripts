@@ -9,6 +9,14 @@ de los scripts y el control de entradas recibidas por parte del usuario.
 """
 
 import subprocess
+import os
+
+if os.name == "nt":
+    import msvcrt
+elif os.name == "posix":
+    import termios
+    import tty
+    import sys
 
 from typing import Literal
 
@@ -296,6 +304,90 @@ def get_choice(low_lim: int, upp_lim: int) -> int:
         else:
             # De lo contrario, se puede seguir con el programa.
             return choice
+
+
+def get_char() -> str:
+    """
+    get_char() es una función que permite obtener el
+    carácter correspondiente a la tecla presionada
+    por un usuario en un momento dado. Está implementada
+    tanto para Windows como para derivados de Unix
+    que cumplan con el estándar POSIX.
+
+    NOTA: esta función altera el funcionamiento de
+    atajos como CTRL + C o CTRL + D que, si bien son
+    reconocidos como atajos para abortar la ejecución
+    de un programa, no provocarán que se genere una
+    excepción, solo que se aborte la ejecución de
+    dicho programa.
+
+    NOTA2: esta función recibe únicamente un byte, el
+    cual se considera como un carácter a los efectos
+    de la implementación. Si se desea atrapar caracteres
+    con secuencias de escape que requieran más de un
+    byte (F1, F2, etc), esta función no podrá ser
+    utilizada.
+    """
+    if os.name == "nt":
+        # Las librerías de Windows ya proveen una
+        # manera de realizar esto fácilmente.
+        ch = msvcrt.getch().decode(encoding="utf-8", errors="ignore")
+    elif os.name == "posix":
+        # Se obtiene el descriptor de archivo del stream
+        # correspondiente a la entrada estándar de la
+        # terminal, con el fin de poder identificarla
+        # unívocamente.
+        fd = sys.stdin.fileno()
+        # Se obtienen las características/configuración
+        # de la salida estándar previo a su modificación.
+        # Para ello, se utiliza el descriptor de archivo
+        # obtenido previamente.
+        old_settings = termios.tcgetattr(fd)
+
+        try:
+            # Se pone el descriptor de archivo de la salida
+            # estándar en modo "raw" o crudo, con la finalidad
+            # de tomar el control del manejo de entradas o
+            # inputs de la entrada estándar de la terminal.
+            #
+            # Esto desactiva, entre otras cosas, la impresión
+            # por pantalla automática de los caracteres
+            # introducidos por el usuario, ya que ahora es
+            # el programa el encargado de interpretar la
+            # entrada recibida.
+            tty.setraw(fd)
+            # Se lee el primer carácter de la entrada
+            # introducida por el usuario, que debería tener
+            # un tamaño de un byte.
+            ch = sys.stdin.read(1)
+        finally:
+            # Tras recibir el carácter (termios.TCSADRAIN), se
+            # restauran los atributos originales de la salida
+            # estándar de la terminal.
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+    # Si el usuario presiona CTRL + C, CTRL + D o
+    # CTRL + Z, se aborta forzosamente la ejecución
+    # del programa, tal y como sucedería en un
+    # contexto de ejecución normal.
+    if ord(ch) in [3, 4, 26]:
+        style_text(
+            colour_type="bg",
+            colour="red",
+            text="\nEjecución del programa interrupida manualmente."
+            "\n¡Saliendo!",
+        )
+
+        # 130 es el código de salida utilizado por
+        # la excepción KeyboardInterrupt cuando se
+        # presiona CTRL + C. Se lo utiliza acá de
+        # manera general ya que la idea cuando se
+        # utiliza cualquiera de esas combinaciones
+        # de teclas es salir forzosamente de forma
+        # inmediata.
+        sys.exit(130)
+
+    return ch
 
 
 def press_enter() -> None:

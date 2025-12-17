@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: ver una manera de hacer que la letra introducida por el usuario cuando
-#       se le ofrece repetir sea consumida automáticamente, sin que el usuario
-#       presione ENTER.
-#       ** Link: https://stackoverflow.com/a/67939368
-
 """
 ========================
 DOCUMENTACIÓN DEL MÓDULO
@@ -180,6 +175,7 @@ import textwrap
 from modules.console_ui import (
     clear_screen,
     draw_coloured_line,
+    get_char,
     get_choice,
     get_validated_input,
 )
@@ -571,10 +567,12 @@ def run_menu(menu_data: MenuDictionary) -> None:
                 draw_coloured_line(len(menu_data["title"]))
                 user_choice = None
 
-                while user_choice not in ["S", "N"]:
-                    user_choice = get_validated_input(
-                        "¿Desea volver a ejecutar la opción? [S/N]"
-                    )
+                while user_choice not in ["S", "s", "N", "n"]:
+                    print("¿Desea volver a ejecutar la opción?")
+                    print("Presione 'S' o 's' para indicar que sí.")
+                    print("Presione 'N' o 'n' para indicar que no.")
+                    user_choice = get_char()
+                    print("")
 
                 if user_choice == "N":
                     break
