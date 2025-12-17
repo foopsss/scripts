@@ -7,6 +7,11 @@
 # sys-apps/coreutils      - provee "cat" y "wc".
 # app-admin/eselect       - provee "eselect" y sus módulos.
 
+# NOTA: las operaciones con archivos en este módulo no utilizan la librería
+# "pathlib" porque ya se realizan de manera bastante simple con las librerías
+# importadas actualmente y no hay ningún beneficio tangible que se pueda
+# obtener al usar "pathlib".
+
 import os
 import shutil
 import sys
