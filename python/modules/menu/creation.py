@@ -574,7 +574,7 @@ def run_menu(menu_data: MenuDictionary) -> None:
                     user_choice = get_char()
                     print("")
 
-                if user_choice == "N":
+                if user_choice in ["N", "n"]:
                     break
                 else:
                     # Para las siguientes ejecuciones de una
