@@ -6,6 +6,8 @@
 # app-portage/gentoolkit    - provee "equery".
 # app-portage/portage-utils - provee "qlist".
 # app-portage/genlop        - provee "genlop".
+# sys-apps/coreutils        - provee "cat".
+# sys-apps/grep             - provee "grep".
 # app-admin/perl-cleaner    - provee "perl-cleaner"
 # app-admin/emacs-updater   - provee "emacs-updater"
 # sys-apps/flatpak          - provee "flatpak".
@@ -95,6 +97,16 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
             "action": [["#UINPUT", "#SPLIT-INPUT", "genlop", "-t"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
+        },
+        {
+            "name": "Buscar un paquete/categoría en el conjunto @world.",
+            "action": [
+                "#PIPE",
+                ["cat", "/var/lib/portage/world"],
+                ["#UINPUT", "grep"],
+            ],
+            "aesthetic_action": "print_line",
+            "prompt": "Palabra/frase clave a buscar",
         },
         {"name": "RECONSTRUCCIÓN DE PAQUETES POR ACTUALIZACIÓN"},
         {
