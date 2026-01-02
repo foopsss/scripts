@@ -583,6 +583,14 @@ def run_menu(menu_data: MenuDictionary) -> None:
                     # todas las salidas mostradas por pantalla
                     # por cada iteración.
                     clear_screen()
+
+                    # Luego se imprime una cabecera para recordarle
+                    # al usuario cual es la opción que se está
+                    # repitiendo, por las dudas.
+                    draw_coloured_line(len(menu_data["title"]))
+                    print("Opción a repetir: ")
+                    print(f'{option["name"]}')
+                    draw_coloured_line(len(menu_data["title"]))
     finally:
         # Tras finalizar la ejecución del script,
         # se ejecutan las acciones de finalización
