@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Paquetes usados en este módulo:
+# net-misc/iputils   - provee "ping".
 # sys-apps/portage   - provee "emerge", "emaint" y "glsa-check".
 # sys-apps/flatpak   - provee "flatpak".
 # sys-apps/fwupd     - provee "fwupdmgr".
@@ -26,10 +27,16 @@ def check_internet_connection() -> None:
     manera.
     """
     ping = run_command(
-        command=["ping", "-c", "1", "www.google.com"], capture_output=True
+        command=["ping", "-c", "1", "www.google.com"],
+        # No se desea controlar si se produce un error porque
+        # se muestra un mensaje de error en la cabecera del
+        # apartado si se obtiene un código de salida distinto
+        # de 0.
+        check_return=False,
+        capture_output=True,
     )
 
-    if ping.returncode != 0:
+    if ping is None or ping.returncode != 0:
         style_text(
             colour_type="bg",
             colour="red",
