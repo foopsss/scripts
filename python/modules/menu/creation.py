@@ -567,12 +567,14 @@ def run_menu(menu_data: MenuDictionary) -> None:
                 draw_coloured_line(len(menu_data["title"]))
                 user_choice = None
 
+                print("¿Desea volver a ejecutar la opción?")
+                print("Presione 'S' o 's' para indicar que sí.")
+                print("Presione 'N' o 'n' para indicar que no.")
+
+                # Mientras el usuario no introduzca un carácter
+                # valido, solo se "consume" lo que introduce.
                 while user_choice not in ["S", "s", "N", "n"]:
-                    print("¿Desea volver a ejecutar la opción?")
-                    print("Presione 'S' o 's' para indicar que sí.")
-                    print("Presione 'N' o 'n' para indicar que no.")
                     user_choice = get_char()
-                    print("")
 
                 if user_choice in ["N", "n"]:
                     break
