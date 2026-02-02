@@ -92,21 +92,30 @@ def _check_command_argument_type(
     if not isinstance(use_shell, bool):
         raise TypeError("El parámetro 'use_shell' debe ser un valor lógico.")
 
-    if use_shell:
-        if not isinstance(command, str):
-            raise TypeError(
-                "El parámetro 'command' debe suministrarse como una cadena."
-            )
+    if not isinstance(command, (list, str)):
+        raise TypeError(
+            "El parámetro 'command' debe ser una cadena o una lista."
+        )
+
+    if len(command) == 0:
+        raise ValueError("El parámetro 'command' no debe ser nulo.")
+
+    if use_shell and not isinstance(command, str):
+        raise TypeError(
+            "El parámetro 'command' debe suministrarse como una cadena"
+            " si el parámetro 'use_shell' es verdadero."
+        )
     else:
         if not isinstance(command, list):
             raise TypeError(
-                "El parámetro 'command' debe suministrarse como una lista."
+                "El parámetro 'command' debe suministrarse como una lista"
+                " si el parámetro 'use_shell' es falso."
             )
 
         if not all(isinstance(item, str) for item in command):
             raise TypeError(
                 "Todos los elementos de la lista 'command' deben tratarse de"
-                " cadenas."
+                " cadenas si el parámetro 'use_shell' es falso."
             )
 
 

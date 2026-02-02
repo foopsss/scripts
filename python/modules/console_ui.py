@@ -20,7 +20,7 @@ elif os.name == "posix":
 
 from typing import Literal
 
-# --- Diccionarios a utilizar en la función que colorea contenido ---
+# --- Colecciones a utilizar en las funciones ---
 _BACKGROUND_COLOURS = {
     # Reglas de uso de los colores:
     # * El rojo se usa para mensajes de error.
@@ -47,15 +47,19 @@ _FOREGROUND_COLOURS = {
     "cyan": 36,
 }
 
+assert set(_BACKGROUND_COLOURS.keys()) == set(
+    _FOREGROUND_COLOURS.keys()
+), "Los diccionarios de colores no coinciden."
+
 
 # --- Funciones públicas de visualización y formato ---
 def clear_screen() -> None:
     """
     clear_screen() es un wrapper de subprocess.run()
-    utilizado para llamar al comando 'clear' y poder
-    limpiar la pantalla.
+    utilizado para limpiar la pantalla.
     """
-    subprocess.run(["clear"])
+    command = "cls" if os.name == "nt" else "clear"
+    subprocess.run([command])
 
 
 def draw_line(
@@ -140,7 +144,7 @@ def style_text(
     función, se producirá una excepción y se mostrará un
     mensaje de error por pantalla.
     """
-    if colour_type not in ["fg", "bg"]:
+    if colour_type not in ("fg", "bg"):
         raise ValueError(
             "El parámetro 'colour_type' únicamente admite los valores"
             " 'fg' y 'bg'."
@@ -219,7 +223,7 @@ def get_validated_input(
     if not isinstance(msg, str):
         raise TypeError("El parámetro 'msg' debe ser una cadena.")
 
-    if return_type not in ["str", "int"]:
+    if return_type not in ("str", "int"):
         raise TypeError(
             "El parámetro 'return_type' debe ser una cadena o un número"
             " entero."

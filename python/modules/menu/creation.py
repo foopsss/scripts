@@ -187,6 +187,7 @@ from modules.subprocess_utils import (
 )
 
 from modules.menu.validation import (
+    _VALID_COMMAND_TAGS,
     _check_basic_dictionary_structure,
     _check_top_level_option_keys,
     _check_action,
@@ -372,7 +373,9 @@ def _handle_sequential_command_list(menu_option: OptionDictionary) -> None:
             else:
                 command.append(user_input)
 
-        command_without_tags = [i for i in command if "#" not in i]
+        command_without_tags = [
+            i for i in command if i not in _VALID_COMMAND_TAGS
+        ]
 
         # Ejecución del comando.
         if requires_root:
@@ -438,7 +441,9 @@ def _handle_piped_command_list(menu_option: OptionDictionary) -> None:
                     command = command + user_input
                 else:
                     command.append(user_input)
-            piped_commands.append([i for i in command if "#" not in i])
+            piped_commands.append(
+                [i for i in command if i not in _VALID_COMMAND_TAGS]
+            )
 
     # Ejecución de los comandos y resguardo de
     # la salida producida por este.

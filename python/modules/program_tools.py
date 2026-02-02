@@ -64,13 +64,24 @@ def get_privilege_elevation_command() -> str:
     sistema para ejecutar programas con permisos de
     superusuario.
     """
-    PRIVILEGE_ELEVATION_COMMANDS = ["doas", "run0", "sudo"]
+    PRIVILEGE_ELEVATION_COMMANDS = ["doas", "sudo", "run0"]
 
     for cmd in PRIVILEGE_ELEVATION_COMMANDS:
         if shutil.which(cmd):
             return cmd
 
-    # Como salida de emergencia se define "pkexec",
-    # ya que es un programa ampliamente disponible
-    # en Linux debido a que es provisto por polkit.
-    return "pkexec"
+    # Si ninguno de los programas buscados se
+    # encuentra en el sistema, se trata de usar
+    # "pkexec" como salida de emergencia, al
+    # estar ampliamente disponible en Linux por
+    # ser provisto por Polkit.
+    pk_str = "pkexec"
+
+    if shutil.which(pk_str):
+        return pk_str
+    else:
+        raise RuntimeError(
+            "No se ha podido encontrar ningún programa de elevación de"
+            " privilegios en el sistema, por lo que no se puede ejecutar"
+            " comandos como superusuario."
+        )

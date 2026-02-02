@@ -26,6 +26,35 @@ from modules.console_ui import (
 
 from modules.menu.types import EnvVarTuple, MenuDictionary, OptionDictionary
 
+# --- Colecciones a utilizar en las funciones ---
+_VALID_DICTIONARY_KEYS = {
+    "main": frozenset(
+        {
+            "dict_name",
+            "title",
+            "on_start",
+            "on_draw",
+            "on_exit",
+            "options",
+        }
+    ),
+    "option": frozenset(
+        {
+            "name",
+            "action",
+            "aesthetic_action",
+            "prompt",
+            "env_vars",
+        }
+    ),
+}
+
+_VALID_AESTHETIC_ACTION_VALUES = frozenset({"clear_screen", "print_line"})
+
+_VALID_COMMAND_TAGS = frozenset({"#ROOT", "#UINPUT", "#SPLIT-INPUT"})
+
+_VALID_ACTION_TAGS = frozenset({"#PIPE"})
+
 
 # --- Modificación del comportamiento de warnings.warn ---
 def _overwrite_warn_err_msg(message, *args, **kwargs) -> None:
@@ -248,45 +277,23 @@ def _check_dictionary_keys(
             "El parámetro 'dictionary' debe tratarse de un diccionario."
         )
 
-    if dictionary_type not in ["main", "option"]:
-        raise TypeError(
+    if dictionary_type not in {"main", "option"}:
+        raise ValueError(
             "El parámetro 'dictionary_type' únicamente admite los valores"
             " 'main' y 'option'."
         )
 
-    ADMITTED_MAIN_DICTIONARY_KEYS = [
-        "dict_name",
-        "title",
-        "on_start",
-        "on_draw",
-        "on_exit",
-        "options",
-    ]
-
-    ADMITTED_OPTION_DICTIONARY_KEYS = [
-        "name",
-        "action",
-        "aesthetic_action",
-        "prompt",
-        "env_vars",
-    ]
+    ADMITTED_KEYS = _VALID_DICTIONARY_KEYS.get(dictionary_type)
 
     for key in dictionary.keys():
-        if (
-            key not in ADMITTED_MAIN_DICTIONARY_KEYS
-            and key not in ADMITTED_OPTION_DICTIONARY_KEYS
-        ):
-            if dictionary_type == "main":
-                valid_keys = ", ".join(ADMITTED_MAIN_DICTIONARY_KEYS)
-            else:
-                valid_keys = ", ".join(ADMITTED_OPTION_DICTIONARY_KEYS)
-
+        if key not in ADMITTED_KEYS:
+            admitted_key_list = ", ".join(sorted(ADMITTED_KEYS))
             raise ValueError(
                 f"Por favor, revise el diccionario que tiene la llave '{key}'."
                 "\nMotivo, la llave indicada (y posiblemente más) fue definida"
                 " con un tipo de dato incorrecto, o con un nombre incorrecto."
                 "\nLas llaves admitidas son las siguientes cadenas: "
-                f" {valid_keys}."
+                f" {admitted_key_list}."
             )
 
 
@@ -310,9 +317,6 @@ def _check_basic_dictionary_structure(menu_data: MenuDictionary) -> None:
     dict_name = menu_data.get("dict_name", None)
     title = menu_data.get("title", None)
     options = menu_data.get("options", None)
-    on_start = menu_data.get("on_start", None)
-    on_draw = menu_data.get("on_draw", None)
-    on_exit = menu_data.get("on_exit", None)
 
     # Control del parámetro "dict_name".
     _check_parameter(
@@ -333,23 +337,13 @@ def _check_basic_dictionary_structure(menu_data: MenuDictionary) -> None:
         expected_type=list,
     )
 
-    # Control del parámetro "on_start".
-    if on_start is not None:
-        _check_hook_parameter_structure(
-            hook=on_start, hook_name="on_start", dict_name=dict_name
-        )
-
-    # Control del parámetro "on_draw".
-    if on_draw is not None:
-        _check_hook_parameter_structure(
-            hook=on_draw, hook_name="on_draw", dict_name=dict_name
-        )
-
-    # Control del parámetro "on_exit".
-    if on_exit is not None:
-        _check_hook_parameter_structure(
-            hook=on_exit, hook_name="on_exit", dict_name=dict_name
-        )
+    # Control de los parámetros "on_start", "on_draw" y "on_exit".
+    for hook_key in ["on_start", "on_draw", "on_exit"]:
+        hook_val = menu_data.get(hook_key, None)
+        if hook_val is not None:
+            _check_hook_parameter_structure(
+                hook=hook_val, hook_name=hook_key, dict_name=dict_name
+            )
 
 
 def _check_top_level_option_keys(menu_data: MenuDictionary) -> None:
@@ -410,7 +404,7 @@ def _check_top_level_option_keys(menu_data: MenuDictionary) -> None:
                 )
 
             # Si la llave no tiene un valor válido, avisar al usuario.
-            if aesthetic_action not in ["clear_screen", "print_line"]:
+            if aesthetic_action not in _VALID_AESTHETIC_ACTION_VALUES:
                 raise ValueError(
                     "Revise el parámetro 'aesthetic_action' en el elemento N.°"
                     f" {option_counter} del parámetro 'options' del"
@@ -508,24 +502,67 @@ def _check_action_command_list(
     tipo y valores correctos a la hora de llamar a
     esta función.
     """
-    COMMAND_TAGS = ["#ROOT", "#UINPUT", "#SPLIT-INPUT"]
-    ACTION_TAGS = ["#PIPE"]
     action = menu_option["action"]
     action_name = menu_option["name"]
     aesthetic_action = menu_option["aesthetic_action"]
     prompt = menu_option.get("prompt", None)
 
-    # Esta variable se usa para controlar si ningún
-    # comando define la etiqueta "#UINPUT" en su
-    # estructura, aún cuando debería estar presente
-    # en algún comando.
-    uinput_tag_undefined_globally = True
+    # Construcción de un set con todas las etiquetas usadas
+    # en el parámetro "action". Esto no registra duplicados,
+    # solo registra una ocurrencia de cada etiqueta presente.
+    used_tags_in_action_key = {
+        element
+        for item in action
+        if isinstance(item, list)
+        for element in item
+        if isinstance(element, str) and element.startswith("#")
+    }
 
-    # Estas variables se usan para controlar la
-    # presencia de la etiqueta #SPLIT-INPUT, la
-    # cual debería estar presente únicamente si
-    # está presente la etiqueta #UINPUT.
-    split_input_tag_defined_somewhere = False
+    has_uinput_tag = "#UINPUT" in used_tags_in_action_key
+    has_split_input_tag = "#SPLIT-INPUT" in used_tags_in_action_key
+
+    # Si algún comando tiene la etiqueta "#UINPUT" aún cuando
+    # el parámetro "prompt" no está definido, no se le puede
+    # pedir al usuario que provea una entrada.
+    if has_uinput_tag and prompt is None:
+        raise KeyError(
+            "Revise el parámetro 'action' en el elemento con el"
+            f" nombre '{action_name}' del parámetro 'options' del"
+            f" diccionario {dict_name}."
+            " Motivo: uno de los comandos definidos en el"
+            " parámetro 'action' tiene la etiqueta '#UINPUT', pero"
+            " no está definido en el elemento el parámetro"
+            " 'prompt' para pedirle una entrada al usuario."
+        )
+
+    # Si ningún comando incluye la etiqueta "#UINPUT" aún cuando
+    # alguno sí incluye la etiqueta "#SPLIT-INPUT", se le debe
+    # avisar al usuario.
+    if prompt is not None and not has_uinput_tag and has_split_input_tag:
+        raise ValueError(
+            "Revise el parámetro 'action' en el elemento con el nombre"
+            f" '{action_name}' del parámetro 'options' del diccionario"
+            f" {dict_name}."
+            "\nMotivo: ningún comando incluye la etiqueta '#UINPUT' para"
+            " indicar que se le debe anexar la entrada provista por el"
+            " usuario, aunque uno o más de uno de ellos definen la etiqueta"
+            " #SPLIT-INPUT para indicar que la entrada debe ser dividida"
+            " en partes."
+        )
+
+    # Si ningún comando incluye la etiqueta "#UINPUT", aunque
+    # la opción SÍ define el parámetro 'prompt', se le debe
+    # advertir al usuario.
+    if prompt is not None and not has_uinput_tag:
+        raise ValueError(
+            "Revise el parámetro 'action' en el elemento con el nombre"
+            f" '{action_name}' del parámetro 'options' del diccionario"
+            f" {dict_name}."
+            "\nMotivo: ningún comando incluye la etiqueta '#UINPUT' para"
+            " indicar que se le debe anexar la entrada provista por el"
+            " usuario, aunque el parámetro 'prompt' está definido en el"
+            " elemento."
+        )
 
     # Lista que se usa para almacenar los comandos
     # que tienen etiquetas repetidas, así como las
@@ -540,7 +577,7 @@ def _check_action_command_list(
         # Si un elemento por fuera de un comando es una
         # cadena, debe tratarse únicamente de la etiqueta
         # "#PIPE".
-        if isinstance(item, str) and item not in ACTION_TAGS:
+        if isinstance(item, str) and item not in _VALID_ACTION_TAGS:
             raise ValueError(
                 "Revise el parámetro 'action' en el elemento con el nombre"
                 f" '{action_name}' del parámetro 'options' del diccionario"
@@ -558,33 +595,6 @@ def _check_action_command_list(
             # si algún comando incluye etiquetas repetidas.
             tag_counts = collections.Counter()
 
-            # Revisión de los comandos para verificar
-            # si alguno tiene la etiqueta "#UINPUT"
-            # aún cuando el parámetro "prompt" no está
-            # definido, por lo que no se le puede pedir
-            # al usuario que provea una entrada.
-            if "#UINPUT" in item:
-                uinput_tag_undefined_globally = False
-                if prompt is None:
-                    raise KeyError(
-                        "Revise el parámetro 'action' en el elemento con el"
-                        f" nombre '{action_name}' del parámetro 'options' del"
-                        f" diccionario {dict_name}."
-                        " Motivo: uno de los comandos definidos en el"
-                        " parámetro 'action' tiene la etiqueta '#UINPUT', pero"
-                        " no está definido en el elemento el parámetro"
-                        " 'prompt' para pedirle una entrada al usuario."
-                    )
-
-            # Revisión de los comandos para verificar
-            # si alguno tiene la etiqueta "#SPLIT-INPUT".
-            # Esto será importante luego para saber si
-            # algún comando tiene dicha etiqueta, pero
-            # no tiene definida también la etiqueta
-            # "#UINPUT."
-            if "#SPLIT-INPUT" in item:
-                split_input_tag_defined_somewhere = True
-
             for string in item:
                 # Revisión de los elementos para verificar que
                 # todos sus componentes sean cadenas, en caso
@@ -601,18 +611,18 @@ def _check_action_command_list(
                 # Revisión de las etiquetas de los comandos
                 # para verificar que solo se introduzcan
                 # etiquetas válidas.
-                if "#" in string and string not in COMMAND_TAGS:
+                if "#" in string and string not in _VALID_COMMAND_TAGS:
                     raise ValueError(
                         "Revise el parámetro 'action' en el elemento con el"
                         f" nombre '{action_name}' del parámetro 'options' del"
                         f" diccionario {dict_name}."
                         "\nMotivo: las únicas etiquetas que se pueden"
-                        f" definir para un comando son: {COMMAND_TAGS}."
+                        f" definir para un comando son: {_VALID_COMMAND_TAGS}."
                     )
 
                 # Control de la cantidad de usos en un comando
-                # de cada etiqueta definida en COMMAND_TAGS.
-                if string in COMMAND_TAGS:
+                # de cada etiqueta definida en _VALID_COMMAND_TAGS.
+                if string in _VALID_COMMAND_TAGS:
                     tag_counts[string] += 1
 
             # Si el comando tiene etiquetas repetidas, se lo
@@ -620,35 +630,6 @@ def _check_action_command_list(
             # para almacenar aquellos que estén mal definidos.
             if any(count > 1 for count in tag_counts.values()):
                 commands_with_repeated_tags.append(item)
-
-    # Si ningún comando incluye la etiqueta "#UINPUT",
-    # aunque la opción SÍ define el parámetro 'prompt',
-    # se le debe advertir al usuario.
-    if prompt is not None and uinput_tag_undefined_globally:
-        raise ValueError(
-            "Revise el parámetro 'action' en el elemento con el nombre"
-            f" '{action_name}' del parámetro 'options' del diccionario"
-            f" {dict_name}."
-            "\nMotivo: ningún comando incluye la etiqueta '#UINPUT' para"
-            " indicar que se le debe anexar la entrada provista por el"
-            " usuario, aunque el parámetro 'prompt' está definido en el"
-            " elemento."
-        )
-
-    # Si ningún comando incluye la etiqueta "#UINPUT"
-    # aún cuando alguno sí incluye la etiqueta
-    # "#SPLIT-INPUT", se le debe avisar al usuario.
-    if split_input_tag_defined_somewhere and uinput_tag_undefined_globally:
-        raise ValueError(
-            "Revise el parámetro 'action' en el elemento con el nombre"
-            f" '{action_name}' del parámetro 'options' del diccionario"
-            f" {dict_name}."
-            "\nMotivo: ningún comando incluye la etiqueta '#UINPUT' para"
-            " indicar que se le debe anexar la entrada provista por el"
-            " usuario, aunque uno o más de uno de ellos definen la etiqueta"
-            " #SPLIT-INPUT para indicar que la entrada debe ser dividida"
-            " en partes."
-        )
 
     # Si algún comando incluye etiquetas repetidas se
     # le debe advertir al usuario.
@@ -662,8 +643,8 @@ def _check_action_command_list(
                 f" diccionario {dict_name}."
                 "\nMotivo: una o más etiquetas están repetidas en uno o"
                 " varios comandos, a pesar de que solo se las debería"
-                " incluir una vez. Las etiquetas repetidas serán"
-                " ignoradas."
+                " incluir una vez."
+                "\nLas etiquetas repetidas serán ignoradas."
                 "\nA continuación, verá una lista de los comandos que"
                 " tienen etiquetas repetidas:"
                 f"\n{commands_with_repeated_tags}",
