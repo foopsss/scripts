@@ -6,35 +6,92 @@
 import shutil
 import os
 
-BACKUP_LOCATION = os.environ.get("HOME") + "/Documentos/A"
-DATA = ["/etc/hosts", "/etc/eclean"]
+HOME = os.environ.get("HOME")
+PORTAGE_FOLDER = "/etc/portage"
+GENTOO_OVERLAY = "/var/db/repos/foopsss-gentoo-overlay"
+GITHUB_FOLDER = f"{HOME}/Documentos/GitHub"
 
-for item in DATA:
-    if not os.path.exists(item):
-        raise ValueError(f"¡La ruta {item} no existe!")
+DATA_TO_COPY = [
+    {
+        "name": "DOTFILES",
+        "elements": [
+            f"{HOME}/.config/powershell",
+            f"{HOME}/.bashrc",
+            f"{HOME}/.bash_custom",
+            f"{HOME}/.nanorc",
+        ],
+        "backup_location": f"{GITHUB_FOLDER}/configs",
+        "recreate_tree": True,
+    },
+    {
+        "name": "GENTOO_CONFIGS",
+        "elements": [
+            f"{PORTAGE_FOLDER}/binrepos.conf",
+            f"{PORTAGE_FOLDER}/env",
+            f"{PORTAGE_FOLDER}/package.accept_keywords",
+            f"{PORTAGE_FOLDER}/package.mask",
+            f"{PORTAGE_FOLDER}/package.use",
+            f"{PORTAGE_FOLDER}/make.conf",
+            "/var/lib/portage/world",
+        ],
+        "backup_location": f"{GITHUB_FOLDER}/configs",
+        "recreate_tree": True,
+    },
+    {
+        "name": "EBUILD_REPO",
+        "elements": [
+            f"{GENTOO_OVERLAY}/app-misc",
+            f"{GENTOO_OVERLAY}/net-misc",
+            f"{GENTOO_OVERLAY}/metadata",
+            f"{GENTOO_OVERLAY}/profiles",
+        ],
+        "backup_location": f"{GITHUB_FOLDER}/gentoo-overlay",
+        "recreate_tree": False,
+    },
+]
 
-    if os.path.isdir(item):
-        copy_path = BACKUP_LOCATION + item
+for item in DATA_TO_COPY:
+    item_name = item.get("name")
+    element_list = item.get("elements")
+    backup_location = item.get("backup_location")
+    # "recreate_tree" es una llave de los diccionarios
+    # que permite definir si se debe recrear dentro del
+    # directorio objetivo toda la cadena de carpetas que
+    # contienen los archivos/directorios a copiar.
+    recreate_tree = item.get("recreate_tree", True)
 
-        # shutil.copytree se va a quejar si la carpeta
-        # a copiar ya existe, en vez de simplemente
-        # sobreescribirla.
-        if os.path.exists(copy_path):
-            shutil.rmtree(copy_path)
+    for element in element_list:
+        # A veces puede suceder que deje en alguna
+        # lista elementos que ya no existen más en
+        # el sistema en un momento dado pero que
+        # luego puedan llegar a existir de nuevo.
+        if not os.path.exists(element):
+            continue
 
-        shutil.copytree(item, copy_path)
-    elif os.path.isfile(item):
-        item_path = os.path.dirname(item)
-        copy_path = BACKUP_LOCATION + item_path
-
-        # shutil.copy se va a quejar si la carpeta
-        # contenedora no existe en primera instancia,
-        # en vez de crearla.
-        if not os.path.exists(copy_path):
-            os.makedirs(copy_path, exist_ok=True)
-
-        shutil.copy(item, copy_path)
-    else:
-        raise Exception(
-            f"¡La ruta '{item}' no es ni una carpeta ni un archivo!"
-        )
+        if os.path.isdir(element):
+            if recreate_tree:
+                copy_path = os.path.join(
+                    backup_location, element.lstrip("/")
+                )
+            else:
+                copy_path = os.path.join(
+                    backup_location, os.path.basename(element)
+                )
+            shutil.copytree(src=element, dst=copy_path, dirs_exist_ok=True)
+        elif os.path.isfile(element):
+            if recreate_tree:
+                element_path = os.path.dirname(element)
+                copy_path = os.path.join(
+                    backup_location, element_path.lstrip("/")
+                )
+                os.makedirs(copy_path, exist_ok=True)
+            else:
+                copy_path = os.path.join(
+                    backup_location, os.path.basename(element)
+                )
+            shutil.copy(src=element, dst=copy_path)
+        else:
+            raise Exception(
+                f"¡La ruta '{element}' del diccionario {item_name} no es ni"
+                " una carpeta ni un archivo!"
+            )
