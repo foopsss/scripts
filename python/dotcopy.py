@@ -61,37 +61,36 @@ for item in DATA_TO_COPY:
     recreate_tree = item.get("recreate_tree", True)
 
     for element in element_list:
-        # A veces puede suceder que deje en alguna
-        # lista elementos que ya no existen más en
-        # el sistema en un momento dado pero que
-        # luego puedan llegar a existir de nuevo.
-        if not os.path.exists(element):
-            continue
-
-        if os.path.isdir(element):
-            if recreate_tree:
-                copy_path = os.path.join(
-                    backup_location, element.lstrip("/")
-                )
+        try:
+            if os.path.isdir(element):
+                if recreate_tree:
+                    copy_path = os.path.join(
+                        backup_location, element.lstrip("/")
+                    )
+                else:
+                    copy_path = os.path.join(
+                        backup_location, os.path.basename(element)
+                    )
+                shutil.copytree(src=element, dst=copy_path, dirs_exist_ok=True)
+            elif os.path.isfile(element):
+                if recreate_tree:
+                    element_path = os.path.dirname(element)
+                    copy_path = os.path.join(
+                        backup_location, element_path.lstrip("/")
+                    )
+                    os.makedirs(copy_path, exist_ok=True)
+                else:
+                    copy_path = os.path.join(
+                        backup_location, os.path.basename(element)
+                    )
+                shutil.copy2(src=element, dst=copy_path)
             else:
-                copy_path = os.path.join(
-                    backup_location, os.path.basename(element)
+                raise Exception(
+                    f"¡El elemento '{element}' del diccionario {item_name} no"
+                    " es ni una carpeta ni un archivo!"
                 )
-            shutil.copytree(src=element, dst=copy_path, dirs_exist_ok=True)
-        elif os.path.isfile(element):
-            if recreate_tree:
-                element_path = os.path.dirname(element)
-                copy_path = os.path.join(
-                    backup_location, element_path.lstrip("/")
-                )
-                os.makedirs(copy_path, exist_ok=True)
-            else:
-                copy_path = os.path.join(
-                    backup_location, os.path.basename(element)
-                )
-            shutil.copy(src=element, dst=copy_path)
-        else:
-            raise Exception(
-                f"¡La ruta '{element}' del diccionario {item_name} no es ni"
-                " una carpeta ni un archivo!"
-            )
+        except Exception as error:
+            print(f"Diccionario procesado: {item_name}")
+            print(f"\nError producido procesando el elemento: {element}")
+            print(f"\nDescripción del error: {error}")
+            print("")
