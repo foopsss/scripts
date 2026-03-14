@@ -1,6 +1,6 @@
 Import-Module -Name $pwd/modules/CommonResources.psm1
 
-$repos = @("dotfiles", "foopsss", "gentoo-configs", "gentoo-overlay", "scripts", "specfiles", "utn")
+$repos = @("configs", "foopsss", "gentoo-overlay", "scripts", "specfiles", "utn")
 $branches = @()
 
 $url = "www.github.com"
