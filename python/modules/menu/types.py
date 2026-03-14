@@ -22,7 +22,6 @@ from typing import (
     Required,
 )
 
-
 # --- Tipos de dato de las diferentes clases de acciones ejecutables ---
 SequentialCommandList = list[list[str]]
 PipedCommandList = list[str | list[str]]
