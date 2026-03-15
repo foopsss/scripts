@@ -19,6 +19,7 @@ DATA_TO_COPY = [
             f"{HOME}/.bashrc",
             f"{HOME}/.bash_custom",
             f"{HOME}/.nanorc",
+            f"{HOME}/.emacs.d/init.el"
         ],
         "backup_location": f"{GITHUB_FOLDER}/configs",
         "recreate_tree": True,
