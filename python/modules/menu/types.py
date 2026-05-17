@@ -13,6 +13,10 @@ en dichos módulos, así como para representar a los tipos de datos que contiene
 dichos diccionarios.
 """
 
+# TODO: cuando Python 3.14 sea estabilizado en Gentoo,
+#       revisar que atributos se le pueden añadir a los
+#       type hints.
+
 from typing import (
     Any,
     Callable,
