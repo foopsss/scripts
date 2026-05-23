@@ -10,13 +10,13 @@ de los scripts y el control de entradas recibidas por parte del usuario.
 
 import subprocess
 import os
+import sys
 
 if os.name == "nt":
     import msvcrt
 elif os.name == "posix":
     import termios
     import tty
-    import sys
 
 from typing import Literal
 
@@ -205,6 +205,22 @@ def draw_coloured_line(
     """
     line_str = draw_line(length=length, symbol=symbol, print_line=False)
     style_text(colour_type="fg", colour=colour, text=line_str, print_line=True)
+
+
+def toggle_cursor(action: Literal["show", "hide"]) -> None:
+    """
+    toggle_cursor() es una simple función utilizada para
+    manipular el cursor de la consola, permitiendo elegir
+    si mostrarlo o esconderlo.
+    """
+    if action not in ("show", "hide"):
+        raise ValueError(
+            "El parámetro 'action' únicamente admite los valores 'show'"
+            " y 'hide'."
+        )
+
+    sys.stdout.write('\033[?25l' if action == "hide" else '\033[?25h')
+    sys.stdout.flush()
 
 
 # --- Funciones públicas para recibir entradas del usuario ---

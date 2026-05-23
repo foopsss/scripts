@@ -178,6 +178,7 @@ from modules.console_ui import (
     get_char,
     get_choice,
     get_validated_input,
+    toggle_cursor,
 )
 
 from modules.subprocess_utils import (
@@ -572,14 +573,18 @@ def run_menu(menu_data: MenuDictionary) -> None:
                 draw_coloured_line(len(menu_data["title"]))
                 user_choice = None
 
-                print("¿Desea volver a ejecutar la opción?")
-                print("Presione 'S' o 's' para indicar que sí.")
-                print("Presione 'N' o 'n' para indicar que no.")
+                try:
+                    toggle_cursor("hide")
+                    print("¿Desea volver a ejecutar la opción?")
+                    print("Presione 'S' o 's' para indicar que sí.")
+                    print("Presione 'N' o 'n' para indicar que no.")
 
-                # Mientras el usuario no introduzca un carácter
-                # valido, solo se "consume" lo que introduce.
-                while user_choice not in ["S", "s", "N", "n"]:
-                    user_choice = get_char()
+                    # Mientras el usuario no introduzca un carácter
+                    # valido, solo se "consume" lo que introduce.
+                    while user_choice not in ["S", "s", "N", "n"]:
+                        user_choice = get_char()
+                finally:
+                    toggle_cursor("show")
 
                 if user_choice in ["N", "n"]:
                     break
