@@ -54,12 +54,6 @@ métodos subprocess.run() y subprocess.Popen().
   embargo, en el caso de run_command_as_root(), el control de errores
   siempre está habilitado.
 
-### Particularidades de la función run_command_and_get_return_code() ###
-* En esta función también se realiza una validación del comando pasado por
-  parámetro, debiendo tratarse este de una lista de cadenas. Asimismo, también
-  se controlan los mismos errores en tiempo de ejecución que se controlan en
-  las funciones run_command() y run_command_as_root().
-
 ### Particularidades de la función pipe_commands() ###
 * Al igual que con la función, run_command_and_get_return_code(), los
   argumentos "first_command" y "second_command" deben tratarse de listas
@@ -100,11 +94,12 @@ def _check_command_argument_type(
     if len(command) == 0:
         raise ValueError("El parámetro 'command' no debe ser nulo.")
 
-    if use_shell and not isinstance(command, str):
-        raise TypeError(
-            "El parámetro 'command' debe suministrarse como una cadena"
-            " si el parámetro 'use_shell' es verdadero."
-        )
+    if use_shell:
+        if not isinstance(command, str):
+            raise TypeError(
+                "El parámetro 'command' debe suministrarse como una cadena"
+                " si el parámetro 'use_shell' es verdadero."
+            )
     else:
         if not isinstance(command, list):
             raise TypeError(
