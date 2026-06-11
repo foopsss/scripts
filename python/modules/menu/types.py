@@ -13,18 +13,19 @@ en dichos módulos, así como para representar a los tipos de datos que contiene
 dichos diccionarios.
 """
 
-# TODO: cuando Python 3.14 sea estabilizado en Gentoo,
-#       revisar que atributos se le pueden añadir a los
-#       type hints.
+# TODO: cuando Python 3.15 sea estabilizado en Gentoo, remover
+#       la importación de la librería "typing_extensions" y
+#       depender únicamente de "typing" para importar TypedDict.
 
 from typing import (
     Any,
     Callable,
     Union,
-    TypedDict,
     NotRequired,
     Required,
 )
+
+from typing_extensions import TypedDict
 
 # --- Tipos de dato de las diferentes clases de acciones ejecutables ---
 SequentialCommandList = list[list[str]]
@@ -62,7 +63,7 @@ EnvVarTuple = tuple[int, dict[str, str]]
 
 
 # --- Tipos de dato de los diccionarios utilizados en la librería ---
-class OptionDictionary(TypedDict, total=False):
+class OptionDictionary(TypedDict, total=False, closed=True):
     name: Required[str]
     # Marcado como no requerido porque no
     # siempre tiene que estar, pero sí
@@ -84,7 +85,7 @@ class OptionDictionary(TypedDict, total=False):
     env_vars: NotRequired[list[EnvVarTuple]]
 
 
-class MenuDictionary(TypedDict, total=False):
+class MenuDictionary(TypedDict, total=False, closed=True):
     dict_name: Required[str]
     title: Required[str]
     on_start: NotRequired[list[Callable]]
