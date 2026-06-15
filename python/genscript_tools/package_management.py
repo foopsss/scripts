@@ -9,7 +9,6 @@
 # sys-apps/coreutils        - provee "cat".
 # sys-apps/grep             - provee "grep".
 # app-admin/perl-cleaner    - provee "perl-cleaner"
-# app-admin/emacs-updater   - provee "emacs-updater"
 # sys-apps/flatpak          - provee "flatpak".
 
 PACKAGE_MANAGEMENT_MENU_DATA = {
@@ -44,6 +43,12 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {
             "name": "Instalar un paquete temporalmente.",
             "action": [["#ROOT", "#UINPUT", "#SPLIT-INPUT", "emerge", "-1"]],
+            "aesthetic_action": "clear_screen",
+            "prompt": "Nombre del paquete",
+        },
+        {
+            "name": "Pretender que se va a instalar un paquete.",
+            "action": [["#UINPUT", "emerge", "-p"]],
             "aesthetic_action": "clear_screen",
             "prompt": "Nombre del paquete",
         },
@@ -117,11 +122,6 @@ PACKAGE_MANAGEMENT_MENU_DATA = {
         {
             "name": "Reconstruir paquetes de Perl y remover los innecesarios.",
             "action": [["#ROOT", "perl-cleaner", "--all"]],
-            "aesthetic_action": "clear_screen",
-        },
-        {
-            "name": "Reconstruir paquetes de Emacs por actualización.",
-            "action": [["emacs-updater"]],
             "aesthetic_action": "clear_screen",
         },
         {"name": "FLATPAK"},
