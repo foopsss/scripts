@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
 
-# TODO: cuando Python 3.14 sea estabilizado en Gentoo,
-#       reescribir el módulo utilizando pathlib.
-
-import shutil
 import os
+import shutil
+
+from pathlib import Path
 
 HOME = os.environ.get("HOME")
 PORTAGE_FOLDER = "/etc/portage"
 GENTOO_OVERLAY = "/var/db/repos/foopsss-gentoo-overlay"
+CONFIG_FOLDER = f"{HOME}/.config"
 GITHUB_FOLDER = f"{HOME}/Documentos/GitHub"
 
 DATA_TO_COPY = [
     {
         "name": "DOTFILES",
         "elements": [
-            f"{HOME}/.config/powershell",
+            f"{CONFIG_FOLDER}/powershell",
+            f"{CONFIG_FOLDER}/helix",
+            f"{CONFIG_FOLDER}/zellij",
             f"{HOME}/.bashrc",
             f"{HOME}/.bash_custom",
             f"{HOME}/.nanorc",
-            f"{HOME}/.emacs.d/init.el"
+            f"{HOME}/.emacs.d/init.el",
         ],
         "backup_location": f"{GITHUB_FOLDER}/configs",
         "recreate_tree": True,
@@ -54,37 +56,52 @@ DATA_TO_COPY = [
 for item in DATA_TO_COPY:
     item_name = item.get("name")
     element_list = item.get("elements")
-    backup_location = item.get("backup_location")
+    backup_location = Path(item.get("backup_location"))
+
     # "recreate_tree" es una llave de los diccionarios
     # que permite definir si se debe recrear dentro del
     # directorio objetivo toda la cadena de carpetas que
     # contienen los archivos/directorios a copiar.
     recreate_tree = item.get("recreate_tree", True)
 
-    for element in element_list:
+    for element_str in element_list:
+        element = Path(element_str)
+
         try:
-            if os.path.isdir(element):
+            if not element.exists():
+                raise FileNotFoundError(
+                    f"¡El elemento '{element_str}' no existe!"
+                )
+
+            if element.is_dir() or element.is_file():
                 if recreate_tree:
-                    copy_path = os.path.join(
-                        backup_location, element.lstrip("/")
+                    # Explicación de como se construye la ruta luego de
+                    # backup_location:
+                    # 1. "element.parent" obtiene el directorio que contiene a
+                    #    "element".
+                    # 2. "element.anchor" obtiene el directorio raíz de la ruta
+                    #    indicada en "element".
+                    # 3. "relative_to(element.anchor)" obtiene la ruta relativa
+                    #    a la raíz obtenida, para remover la barra lateral de
+                    #    la dirección almacenada en "element", de manera tal
+                    #    que se la pueda concatenar con "backup_base".
+                    dest_dir = backup_location / element.parent.relative_to(
+                        element.anchor
                     )
                 else:
-                    copy_path = os.path.join(
-                        backup_location, os.path.basename(element)
-                    )
-                shutil.copytree(src=element, dst=copy_path, dirs_exist_ok=True)
-            elif os.path.isfile(element):
-                if recreate_tree:
-                    element_path = os.path.dirname(element)
-                    copy_path = os.path.join(
-                        backup_location, element_path.lstrip("/")
-                    )
-                    os.makedirs(copy_path, exist_ok=True)
-                else:
-                    copy_path = os.path.join(
-                        backup_location, os.path.basename(element)
-                    )
-                shutil.copy2(src=element, dst=copy_path)
+                    dest_dir = backup_location
+
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                dest_path = dest_dir / element.name
+
+                if dest_path.exists() and dest_path.is_dir():
+                    # Las carpetas se borran antes de ser creadas nuevamente
+                    # en el directorio de destino porque pathlib no ofrece
+                    # nada a la hora de escribir esto que permita
+                    # sobreescribir carpetas.
+                    shutil.rmtree(dest_path)
+
+                element.copy(dest_path)
             else:
                 raise Exception(
                     f"¡El elemento '{element}' del diccionario {item_name} no"
@@ -92,6 +109,5 @@ for item in DATA_TO_COPY:
                 )
         except Exception as error:
             print(f"Diccionario procesado: {item_name}")
-            print(f"\nError producido procesando el elemento: {element}")
-            print(f"\nDescripción del error: {error}")
-            print("")
+            print(f"Error producido procesando el elemento: {element}")
+            print(f"Descripción del error: {error}\n")
