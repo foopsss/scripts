@@ -219,7 +219,7 @@ def toggle_cursor(action: Literal["show", "hide"]) -> None:
             " y 'hide'."
         )
 
-    sys.stdout.write('\033[?25l' if action == "hide" else '\033[?25h')
+    sys.stdout.write("\033[?25l" if action == "hide" else "\033[?25h")
     sys.stdout.flush()
 
 
