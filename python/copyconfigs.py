@@ -2,14 +2,19 @@
 
 import os
 import shutil
+import subprocess
 
 from pathlib import Path
 
 HOME = os.environ.get("HOME")
+DOCUMENTS_FOLDER = subprocess.run(
+    ["xdg-user-dir", "DOCUMENTS"], capture_output=True, text=True
+).stdout.strip()
+
 PORTAGE_FOLDER = "/etc/portage"
 GENTOO_OVERLAY = "/var/db/repos/foopsss-gentoo-overlay"
 CONFIG_FOLDER = f"{HOME}/.config"
-GITHUB_FOLDER = f"{HOME}/Documentos/GitHub"
+GITHUB_FOLDER = f"{DOCUMENTS_FOLDER}/GitHub"
 
 DATA_TO_COPY = [
     {
