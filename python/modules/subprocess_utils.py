@@ -49,17 +49,22 @@ métodos subprocess.run() y subprocess.Popen().
      error imprevisto). En caso de ocurrir un error de ejecución se le
      informará al usuario y se mostrará un código y/o mensaje de error.
 
+* Asimismo, run_command() y run_command_as_root() comparten la peculiaridad
+  de que capturar la salida del comando ejecutado con "capture_output=True"
+  también implica que subprocess.run() se ejecuta con el parámetro "text=True"
+  para que la salida se almacene con el formato correcto, tratándose entonces
+  de una cadena de Python y no de un conjunto de bytes en crudo.
+
 * Siempre que no se intente ejecutar comandos a través del intérprete de
   consola, run_command() permite deshabilitar el control de errores. Sin
   embargo, en el caso de run_command_as_root(), el control de errores
   siempre está habilitado.
 
 ### Particularidades de la función pipe_commands() ###
-* Al igual que con la función, run_command_and_get_return_code(), los
-  argumentos "first_command" y "second_command" deben tratarse de listas
-  de cadenas. En caso de que no tengan el formato correcto, sucederá lo
-  mismo que sucede con las validaciones en run_command() y
-  run_command_as_root(), a través de la función _check_command_argument_type().
+* Los argumentos "first_command" y "second_command" deben tratarse de listas
+  de cadenas. En caso de que no tengan el formato correcto, sucederá lo mismo
+  que sucede con las validaciones en run_command() y run_command_as_root(), a
+  través de la función _check_command_argument_type().
 """
 
 import functools
