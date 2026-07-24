@@ -34,7 +34,6 @@ DATA_TO_COPY = [
     {
         "name": "GENTOO_CONFIGS",
         "elements": [
-            f"{PORTAGE_FOLDER}/binrepos.conf",
             f"{PORTAGE_FOLDER}/env",
             f"{PORTAGE_FOLDER}/package.accept_keywords",
             f"{PORTAGE_FOLDER}/package.mask",
