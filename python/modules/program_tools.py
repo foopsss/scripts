@@ -10,12 +10,13 @@ scripts y programas.
 
 import functools
 import shutil
+import subprocess
 import sys
 
+from pathlib import Path
 from typing import Callable, NoReturn
 
 from modules.console_ui import style_text
-from modules.subprocess_utils import run_command
 
 
 def execute_with_interrupt_handler(
@@ -108,9 +109,14 @@ def get_repo_root() -> Path:
     get_repo_root()  es una función utilizada para
     devolver la raíz de un repositorio de git.
     """
-    root_str = run_command(
-        command = ["git", "rev-parse", "--show-toplevel"],
-        check_return=True,
-        capture_output=True,
-    )
-    return Path(root_str.stdout.strip())
+    try:
+        root_str = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return Path(root_str.stdout.strip())
+    except subprocess.CalledProcessError:
+        print("¡No se pudo obtener la raíz del repositorio!")
+        sys.exit(1)
