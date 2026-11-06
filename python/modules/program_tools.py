@@ -15,6 +15,7 @@ import sys
 from typing import Callable, NoReturn
 
 from modules.console_ui import style_text
+from modules.subprocess_utils import run_command
 
 
 def execute_with_interrupt_handler(
@@ -85,3 +86,31 @@ def get_privilege_elevation_command() -> str:
             " privilegios en el sistema, por lo que no se puede ejecutar"
             " comandos como superusuario."
         )
+
+
+def check_if_tools_installed(tools: list[str]) -> None:
+    """
+    check_if_tools_installed() es una función que
+    sirve para revisar si los programas indicados
+    en una lista de entrada se encuentran instalados
+    en el sistema.
+    """
+    for tool in tools:
+        if not shutil.which(tool):
+            raise RuntimeError(
+                f"{tool} no está instalado en el sistema, o no se encuentra"
+                " añadido a la variable de entorno PATH."
+            )
+
+
+def get_repo_root() -> Path:
+    """
+    get_repo_root()  es una función utilizada para
+    devolver la raíz de un repositorio de git.
+    """
+    root_str = run_command(
+        command = ["git", "rev-parse", "--show-toplevel"],
+        check_return=True,
+        capture_output=True,
+    )
+    return Path(root_str.stdout.strip())
