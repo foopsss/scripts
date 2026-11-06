@@ -124,11 +124,11 @@ def _check_command_argument_type(
 # docstring, porque seguramente considera que está tratando dos funciones
 # separadas, aunque realmente no es así. Por lo tanto, se lo debe apagar
 # para este tramo.
-def _run_commands_exception_handler(
+def _subprocess_run_exception_handler(
     func: Callable[..., Any],
 ) -> Callable[..., Any]:
     """
-    _run_commands_exception_handler() es un decorador
+    _subprocess_run_exception_handler() es un decorador
     encargado de generalizar el control de excepciones
     en el módulo, permitiendo definir múltiples wrappers
     de subprocess.run() sin tener que repetir la lógica
@@ -200,7 +200,7 @@ def _run_commands_exception_handler(
 
 
 # --- Funciones públicas ---
-@_run_commands_exception_handler
+@_subprocess_run_exception_handler
 def run_command(
     command: list[str] | str,
     check_return: bool = True,
@@ -250,7 +250,7 @@ def run_command(
         return result
 
 
-@_run_commands_exception_handler
+@_subprocess_run_exception_handler
 def run_command_as_root(
     command: list[str] | str,
     use_shell: bool = False,
@@ -292,7 +292,7 @@ def run_command_as_root(
         return result
 
 
-@_run_commands_exception_handler
+@_subprocess_run_exception_handler
 def pipe_commands(
     first_command: list[str], second_command: list[str]
 ) -> str | None:
@@ -337,7 +337,7 @@ def pipe_commands(
     # Si alguno de los comandos ejecutados falla, causar
     # una excepción. Esta excepción luego será atrapada
     # como una excepción genérica en el decorador
-    # "_run_commands_exception_handler".
+    # "_subprocess_run_exception_handler".
     if first_process.returncode != 0:
         raise RuntimeError(
             f"El primer comando, '{' '.join(first_command)}', falló con"
