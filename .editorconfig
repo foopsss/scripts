@@ -1,0 +1,12 @@
+# Define this as the root-level file.
+root = true
+
+# Four space indentation.
+[*]
+indent_style = space
+indent_size = 4
+
+# Preferred end-of-line character and newline insertion preferences.
+[*]
+end_of_line = lf
+insert_final_newline = true
